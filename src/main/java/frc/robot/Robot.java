@@ -34,13 +34,12 @@ public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
 
   public Robot() {
-    // Record metadata, removed until Tyler says yes or no
     Logger.recordMetadata("2025-game", "2025-game");
 
     // Set up data receivers & replay source
     switch (Constants.currentMode) {
       case REAL:
-        // Running on a real robot, log to a USB stick ("/U/logs")
+        // Running on a real robot, log to a USB stick ("/U/logs") TODO: Specify USB and dir
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
         break;
