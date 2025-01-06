@@ -28,4 +28,8 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
-}
+
+  public static final class Swerve{
+    public static final int 
+  }
+  }
