@@ -8,7 +8,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
 import java.io.File;
@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
 
-  private final Swerve drivebase = new Swerve(new File(Filesystem.getDeployDirectory(), "swerve/neo"));
+  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/neo"));
 
   AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(
     drivebase,
