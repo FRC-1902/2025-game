@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.Constants.Controllers;
+import frc.robot.Constants.Controller;
 
 public class ControllerSubsystem extends SubsystemBase {
   private CommandXboxController commandDriveController;
@@ -60,8 +60,8 @@ public class ControllerSubsystem extends SubsystemBase {
 
   /** Creates a new Controllers. */
   public ControllerSubsystem() {
-    commandDriveController = new CommandXboxController(Constants.Controllers.DRIVE_CONTROLLER_PORT);
-    commandManipController = new CommandXboxController(Constants.Controllers.MANIP_CONTROLLER_PORT);
+    commandDriveController = new CommandXboxController(Constants.Controller.DRIVE_CONTROLLER_PORT);
+    commandManipController = new CommandXboxController(Constants.Controller.MANIP_CONTROLLER_PORT);
     driveController = commandDriveController.getHID();
     manipController = commandManipController.getHID();
   }

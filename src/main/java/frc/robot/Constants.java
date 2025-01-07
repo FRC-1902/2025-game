@@ -29,7 +29,7 @@ public final class Constants {
     REPLAY
   }
 
-  public static final class Controllers{
+  public static final class Controller{
     // Controller Ports
     public static final int DRIVE_CONTROLLER_PORT = 0; // TODO: Set port
     public static final int MANIP_CONTROLLER_PORT = 1; // TODO: Set port
