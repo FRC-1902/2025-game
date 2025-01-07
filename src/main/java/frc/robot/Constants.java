@@ -28,4 +28,11 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static final class LED{
+    private LED() {}; 
+    //todo: set ports and length
+    public static final int LED_PORT = 0;
+    public static final int LED_LENGTH = 0; 
+  }
 }
