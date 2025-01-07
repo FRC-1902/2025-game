@@ -58,7 +58,7 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-public class Swerve extends SubsystemBase {
+public class SwerveSubsystem extends SubsystemBase {
 
   /**
    * Swerve drive object.
@@ -82,7 +82,7 @@ public class Swerve extends SubsystemBase {
    *
    * @param directory Directory of swerve drive config files.
    */
-  public Swerve(File directory) {
+  public SwerveSubsystem(File directory) {
     // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
     //  In this case the gear ratio is 12.8 motor revolutions per wheel rotation.
     //  The encoder resolution per motor revolution is 1 per motor revolution.
@@ -138,7 +138,7 @@ public class Swerve extends SubsystemBase {
    * @param driveCfg      SwerveDriveConfiguration for the swerve.
    * @param controllerCfg Swerve Controller.
    */
-  public Swerve(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg) {
+  public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg) {
     swerveDrive = new SwerveDrive(driveCfg,
       controllerCfg,
       Constants.Swerve.MAX_SPEED,
