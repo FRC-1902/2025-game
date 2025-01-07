@@ -6,22 +6,16 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import java.util.TimerTask;
-
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.Constants.Controller;
 
 public class ControllerSubsystem extends SubsystemBase {
   private CommandXboxController commandDriveController;
   private CommandXboxController commandManipController;
   private XboxController driveController;
   private XboxController manipController;
-
-  private static ControllerSubsystem instance;
 
   /**
    * Enumeration of buttons on the Xbox controller.
@@ -44,14 +38,6 @@ public class ControllerSubsystem extends SubsystemBase {
     Axis(int id) {
       this.id = id;
     }
-  }
-
-  /**
-   * Enumeration of button actions (pressed or released).
-   */
-  public enum Action{
-    PRESSED,
-    RELEASED
   }
 
   public enum ControllerName{
@@ -135,16 +121,5 @@ public class ControllerSubsystem extends SubsystemBase {
       default:
         return 0;
     }
-  }
-
-  /**
-   * Returns the instance of the Controllers class.
-   * @return the instance of the Controllers class.
-   */
-  public static ControllerSubsystem getInstance(){
-    if(instance==null){
-      instance = new ControllerSubsystem();
-    }
-    return instance;
   }
 }
