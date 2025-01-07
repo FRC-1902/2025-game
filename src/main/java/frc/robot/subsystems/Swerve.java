@@ -2,6 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+// TODO: UPDATE TO 2025 CODE
 
 package frc.robot.subsystems;
 
@@ -110,8 +111,7 @@ public class Swerve extends SubsystemBase {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via
-                                             // angle.
+    swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
     swerveDrive.setCosineCompensator(false);// !SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for
                                             // simulations since it causes discrepancies not seen in real life.
     swerveDrive.setAngularVelocityCompensation(true,
@@ -183,58 +183,49 @@ public class Swerve extends SubsystemBase {
       final boolean enableFeedforward = true;
       // Configure AutoBuilder last
       AutoBuilder.configure(
-          this::getPose,
-          // Robot pose supplier
-          this::resetOdometry,
-          // Method to reset odometry (will be called if your auto has a starting pose)
-          this::getRobotVelocity,
-          // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-          (speedsRobotRelative, moduleFeedForwards) -> {
-            if (enableFeedforward) {
-              swerveDrive.drive(
-                  speedsRobotRelative,
-                  swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
-                  moduleFeedForwards.linearForces());
-            } else {
-              swerveDrive.setChassisSpeeds(speedsRobotRelative);
-            }
-          },
-          // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also
-          // optionally outputs individual module feedforwards
-          new PPHolonomicDriveController(
-              // PPHolonomicController is the built in path following controller for holonomic
-              // drive trains
-              new PIDConstants(5.0, 0.0, 0.0),
-              // Translation PID constants
-              new PIDConstants(5.0, 0.0, 0.0)
-          // Rotation PID constants
-          ),
-          config,
-          // The robot configuration
-          () -> {
-            // Boolean supplier that controls when the path will be mirrored for the red
-            // alliance
-            // This will flip the path being followed to the red side of the field.
-            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-            var alliance = DriverStation.getAlliance();
-            if (alliance.isPresent()) {
-              return alliance.get() == DriverStation.Alliance.Red;
-            }
-            return false;
-          },
-          this
-      // Reference to this subsystem to set requirements
+        this::getPose, // Robot pose supplier
+        this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+        this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        (speedsRobotRelative, moduleFeedForwards) -> {
+          if (enableFeedforward) {
+            swerveDrive.drive(
+              speedsRobotRelative,
+              swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
+              moduleFeedForwards.linearForces());
+          } else {
+            swerveDrive.setChassisSpeeds(speedsRobotRelative);
+          }
+        },
+        // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+        new PPHolonomicDriveController(
+          // PPHolonomicController is the built in path following controller for holonomic drive trains
+          new PIDConstants(5.0, 0.0, 0.0),
+          // Translation PID constants
+          new PIDConstants(5.0, 0.0, 0.0)
+        // Rotation PID constants
+        ),
+        config,
+        // The robot configuration
+        () -> {
+          /* Boolean supplier that controls when the path will be mirrored for the red alliance. 
+            This will flip the path being followed to the red side of the field. 
+            THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+          */
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this // Reference to this subsystem to set requirements
       );
-
-    } catch (Exception e)
-    {
+    } 
+    catch (Exception e) {
       // Handle exception as needed
       e.printStackTrace();
     }
 
-    //Preload PathPlanner Path finding
-    // IF USING CUSTOM PATHFINDER ADD BEFORE THIS LINE
+    //Preload PathPlanner Path finding. IF USING CUSTOM PATHFINDER ADD BEFORE THIS LINE
     PathfindingCommand.warmupCommand().schedule();
   }
 
@@ -275,18 +266,18 @@ public class Swerve extends SubsystemBase {
   {
     SwerveController controller = swerveDrive.getSwerveController();
     return run(
-        () -> {
-          ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            0, 
-            0,
-            controller.headingCalculate(
-              getHeading().getRadians(),
-              getSpeakerYaw().getRadians()
-            ),
-            getHeading());
-          drive(speeds);
-        }
-      ).until(() -> Math.abs(getSpeakerYaw().minus(getHeading()).getDegrees()) < tolerance);
+      () -> {
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+          0, 
+          0,
+          controller.headingCalculate(
+            getHeading().getRadians(),
+            getSpeakerYaw().getRadians()
+          ),
+          getHeading());
+        drive(speeds);
+      }
+    ).until(() -> Math.abs(getSpeakerYaw().minus(getHeading()).getDegrees()) < tolerance);
   }
 
   /**

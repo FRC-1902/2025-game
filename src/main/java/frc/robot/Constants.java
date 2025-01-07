@@ -42,4 +42,12 @@ public final class Constants {
 
     public static final double WHEEL_LOCK_TIME = 10; // seconds
   }
+
+  public static final class Controllers{
+    // Joystick Deadband
+    public static final double DEADBAND        = 0.1;
+    public static final double LEFT_Y_DEADBAND = 0.1;
+    public static final double RIGHT_X_DEADBAND = 0.1;
+    public static final double TURN_CONSTANT    = 6;
   }
+}
