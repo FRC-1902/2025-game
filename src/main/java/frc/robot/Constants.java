@@ -29,6 +29,18 @@ public final class Constants {
     REPLAY
   }
 
+  public static final class Controllers{
+    // Controller Ports
+    public static final int DRIVE_CONTROLLER_PORT = 0; // TODO: Set port
+    public static final int MANIP_CONTROLLER_PORT = 1; // TODO: Set port
+
+    // Joystick Deadband
+    public static final double DEADBAND        = 0.1;
+    public static final double LEFT_Y_DEADBAND = 0.1;
+    public static final double RIGHT_X_DEADBAND = 0.1;
+    public static final double TURN_CONSTANT    = 6;
+  }
+
   public static final class LED{
     private LED() {}; 
     //todo: set ports and length
