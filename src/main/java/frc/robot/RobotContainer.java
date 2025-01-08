@@ -5,9 +5,9 @@
 package frc.robot;
 
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivebase.AbsoluteDriveAdv;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.ControllerSubsystem;
+import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
@@ -16,8 +16,6 @@ import java.io.File;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -30,17 +28,19 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
 
+  ControllerSubsystem controllerSubsystem = new ControllerSubsystem();
+
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/neo"));
 
   AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(
     drivebase,
-    () -> -MathUtil.applyDeadband(driverController.getLeftY(), Constants.Controllers.LEFT_Y_DEADBAND),
-    () -> -MathUtil.applyDeadband(driverController.getLeftX(), Constants.Controllers.DEADBAND),
-    () -> -MathUtil.applyDeadband(driverController.getRightX(), Constants.Controllers.RIGHT_X_DEADBAND),
-    driverController.getHID()::getYButtonPressed,
-    driverController.getHID()::getAButtonPressed,
-    driverController.getHID()::getXButtonPressed,
-    driverController.getHID()::getBButtonPressed
+    () -> -MathUtil.applyDeadband(controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controllers.LEFT_Y_DEADBAND),
+    () -> -MathUtil.applyDeadband(controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controllers.DEADBAND),
+    () -> -MathUtil.applyDeadband(controllerSubsystem.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controllers.RIGHT_X_DEADBAND),
+    controllerSubsystem.getCommandController(ControllerName.DRIVE).getHID()::getYButtonPressed,
+    controllerSubsystem.getCommandController(ControllerName.DRIVE).getHID()::getAButtonPressed,
+    controllerSubsystem.getCommandController(ControllerName.DRIVE).getHID()::getXButtonPressed,
+    controllerSubsystem.getCommandController(ControllerName.DRIVE).getHID()::getBButtonPressed
   );
 
   /**
@@ -49,9 +49,9 @@ public class RobotContainer {
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
     drivebase.getSwerveDrive(),
-    () -> driverController.getLeftY() * -1,
-    () -> driverController.getLeftX() * -1 )
-    .withControllerRotationAxis(driverController::getRightX)
+    () -> controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftY() * -1,
+    () -> controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftX() * -1 )
+    .withControllerRotationAxis(controllerSubsystem.getCommandController(ControllerName.DRIVE)::getRightX)
     .deadband(Constants.Controllers.DEADBAND)
     .scaleTranslation(0.8)
     .allianceRelativeControl(true);
@@ -61,8 +61,8 @@ public class RobotContainer {
    * input stream.
    */
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(
-    driverController::getRightX,
-    driverController::getRightY)
+    controllerSubsystem.getCommandController(ControllerName.DRIVE)::getRightX,
+    controllerSubsystem.getCommandController(ControllerName.DRIVE)::getRightY)
     .headingWhile(true);
 
   // Applies deadbands and inverts controls because joysticks
@@ -83,18 +83,18 @@ public class RobotContainer {
 
   SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(
     drivebase.getSwerveDrive(),
-    () -> -driverController.getLeftY(),
-    () -> -driverController.getLeftX()
+    () -> -controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftY(),
+    () -> -controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftX()
     )
-      .withControllerRotationAxis(() -> driverController.getRawAxis(2))
-      .deadband(OperatorConstants.DEADBAND)
+      .withControllerRotationAxis(() -> controllerSubsystem.getCommandController(ControllerName.DRIVE).getRawAxis(2))
+      .deadband(Constants.Controller.DEADBAND)
       .scaleTranslation(0.8)
       .allianceRelativeControl(true);
   // Derive the heading axis with math!
   SwerveInputStream driveDirectAngleSim = driveAngularVelocitySim.copy()
     .withControllerHeadingAxis(
-      () -> Math.sin( driverController.getRawAxis(2) * Math.PI) * (Math.PI * 2),
-      () -> Math.cos( driverController.getRawAxis(2) * Math.PI) * (Math.PI * 2))
+      () -> Math.sin( controllerSubsystem.getCommandController(ControllerName.DRIVE).getRawAxis(2) * Math.PI) * (Math.PI * 2),
+      () -> Math.cos( controllerSubsystem.getCommandController(ControllerName.DRIVE).getRawAxis(2) * Math.PI) * (Math.PI * 2))
     .headingWhile(true);
 
   Command driveFieldOrientedDirectAngleSim = drivebase.driveFieldOriented(driveDirectAngleSim);
