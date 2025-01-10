@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-// TODO: Play with this later and see whats actaully useful
+// TODO: Play with this later and see whats actaully useful/ wanted
 public class AlertManager {
 
 	public enum Alerts {

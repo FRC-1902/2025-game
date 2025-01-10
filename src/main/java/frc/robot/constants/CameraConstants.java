@@ -10,8 +10,10 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 public class CameraConstants {
+	// Maximum allowed ambiguity for the cameras
     public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
 
+	// Camera Configs
     // TODO: Set real values
 	public enum Camera {
 		ArducamOne(
