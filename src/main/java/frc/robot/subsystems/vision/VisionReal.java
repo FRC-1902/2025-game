@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import frc.robot.constants.CameraConstants;
+import frc.robot.Constants;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,27 +28,25 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 // Creates real vision system from vision base
 public class VisionReal implements VisionBase {
     private final AprilTagFieldLayout fieldLayout;
-	private final Map<CameraConstants.Camera, PhotonCamera> cameras = new HashMap<>();
-	private final Map<CameraConstants.Camera, PhotonPoseEstimator> poseEstimators = new HashMap<>();
+	private final Map<Constants.Vision.Camera, PhotonCamera> cameras = new HashMap<>();
+	private final Map<Constants.Vision.Camera, PhotonPoseEstimator> poseEstimators = new HashMap<>();
 	private Optional<EstimatedRobotPose> lastEstimatedPose = Optional.empty();
 
 	// Current results for each camera, updated in updateInputs
-	private final Map<CameraConstants.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
-	private final Map<CameraConstants.Camera, Matrix<N3, N1>> currentStdDevs = new HashMap<>();
+	private final Map<Constants.Vision.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
+	private final Map<Constants.Vision.Camera, Matrix<N3, N1>> currentStdDevs = new HashMap<>();
 
 	/** Constructor initializes all cameras and their pose estimators */
 	public VisionReal() {
 		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); // TODO: change to 2025 field when updated
 
-		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
+		for (Constants.Vision.Camera cam : Constants.Vision.Camera.values()) {
 			cameras.put(cam, new PhotonCamera(cam.name));
 			currentResults.put(cam, new PhotonPipelineResult()); // Empty initial result
 			currentStdDevs.put(cam, cam.singleTagStdDevs);
 
 			Transform3d robotToCam = new Transform3d(cam.translation, cam.rotation);
-			PhotonPoseEstimator estimator =
-					new PhotonPoseEstimator(
-							fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
+			PhotonPoseEstimator estimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
 
 			estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 			poseEstimators.put(cam, estimator);
@@ -61,8 +59,8 @@ public class VisionReal implements VisionBase {
 		List<Pose3d> visibleTagPoses = new ArrayList<>();
 
 		// Update all camera results first
-		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
+		for (Map.Entry<Constants.Vision.Camera, PhotonCamera> entry : cameras.entrySet()) {
+			Constants.Vision.Camera cam = entry.getKey();
 			PhotonCamera camera = entry.getValue();
 
 			List<PhotonPipelineResult> results = camera.getAllUnreadResults();
@@ -74,8 +72,8 @@ public class VisionReal implements VisionBase {
 		}
 
 		// Process the results for each camera
-		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
+		for (Map.Entry<Constants.Vision.Camera, PhotonCamera> entry : cameras.entrySet()) {
+			Constants.Vision.Camera cam = entry.getKey();
 			PhotonPipelineResult result = currentResults.get(cam);
 
 			if (result.hasTargets()) {
@@ -84,12 +82,13 @@ public class VisionReal implements VisionBase {
 				// Collect poses of all visible tags
 				for (PhotonTrackedTarget target : result.getTargets()) {
 					Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-					tagPose.ifPresent(
-							pose -> {
-								if (!visibleTagPoses.contains(pose)) {
-									visibleTagPoses.add(pose);
-								}
-							});
+					tagPose.ifPresent( 
+						pose -> {
+							if (!visibleTagPoses.contains(pose)) {
+								visibleTagPoses.add(pose);
+							}
+						}
+					);
 				}
 
                 // TODO: Add/Change Cameras
@@ -120,10 +119,10 @@ public class VisionReal implements VisionBase {
 
 	/** Updates robot pose estimation using data from all cameras */
 	public void updatePoseEstimation(Pose2d currentPose) {
-		Map<CameraConstants.Camera, EstimatedRobotPose> cameraEstimates = new HashMap<>();
+		Map<Constants.Vision.Camera, EstimatedRobotPose> cameraEstimates = new HashMap<>();
 
-		for (Map.Entry<CameraConstants.Camera, PhotonPoseEstimator> entry : poseEstimators.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
+		for (Map.Entry<Constants.Vision.Camera, PhotonPoseEstimator> entry : poseEstimators.entrySet()) {
+			Constants.Vision.Camera cam = entry.getKey();
 			PhotonPoseEstimator estimator = entry.getValue();
 			PhotonPipelineResult result = currentResults.get(cam);
 
@@ -134,9 +133,9 @@ public class VisionReal implements VisionBase {
 			// Filter out unreliable single-tag measurements
 			if (result.getTargets().size() == 1) {
 				PhotonTrackedTarget target = result.getBestTarget();
-				if (target.getPoseAmbiguity() > CameraConstants.MAXIMUM_AMBIGUITY) {
+				if (target.getPoseAmbiguity() > Constants.Vision.MAXIMUM_AMBIGUITY) {
 					Logger.recordOutput(
-							"Vision/" + cam.name + "/RejectedAmbiguity", target.getPoseAmbiguity());
+						"Vision/" + cam.name + "/RejectedAmbiguity", target.getPoseAmbiguity());
 					continue;
 				}
 			}
@@ -167,7 +166,7 @@ public class VisionReal implements VisionBase {
 	}
 
 	private EstimatedRobotPose combineEstimates(
-			Map<CameraConstants.Camera, EstimatedRobotPose> estimates) {
+		Map<Constants.Vision.Camera, EstimatedRobotPose> estimates) {
 		double weightedX = 0;
 		double weightedY = 0;
 		double weightedRot = 0;
@@ -177,8 +176,8 @@ public class VisionReal implements VisionBase {
 
 		EstimatedRobotPose firstEstimate = estimates.values().iterator().next();
 
-		for (Map.Entry<CameraConstants.Camera, EstimatedRobotPose> entry : estimates.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
+		for (Map.Entry<Constants.Vision.Camera, EstimatedRobotPose> entry : estimates.entrySet()) {
+			Constants.Vision.Camera cam = entry.getKey();
 			EstimatedRobotPose estimate = entry.getValue();
 			Matrix<N3, N1> stdDevs = currentStdDevs.get(cam);
 
@@ -201,13 +200,13 @@ public class VisionReal implements VisionBase {
 		double finalRot = weightedRot / totalWeightRot;
 
 		Pose3d combinedPose =
-				new Pose3d(new Translation3d(finalX, finalY, 0), new Rotation3d(0, 0, finalRot));
+			new Pose3d(new Translation3d(finalX, finalY, 0), new Rotation3d(0, 0, finalRot));
 
 		return new EstimatedRobotPose(
-				combinedPose,
-				firstEstimate.timestampSeconds,
-				firstEstimate.targetsUsed,
-				firstEstimate.strategy);
+			combinedPose,
+			firstEstimate.timestampSeconds,
+			firstEstimate.targetsUsed,
+			firstEstimate.strategy);
 	}
 
 	@Override
@@ -216,9 +215,9 @@ public class VisionReal implements VisionBase {
 	}
 
 	private void updateEstimationStdDevs(
-			CameraConstants.Camera camera,
-			Optional<EstimatedRobotPose> estimatedPose,
-			List<PhotonTrackedTarget> targets) {
+		Constants.Vision.Camera camera,
+		Optional<EstimatedRobotPose> estimatedPose,
+		List<PhotonTrackedTarget> targets) {
 
 		if (estimatedPose.isEmpty()) {
 			currentStdDevs.put(camera, camera.singleTagStdDevs);

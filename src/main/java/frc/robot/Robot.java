@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.constants.RobotConstants;
+import frc.robot.Constants;
 import frc.robot.util.AlertManager;
 
 public class Robot extends LoggedRobot {
@@ -35,14 +35,14 @@ public class Robot extends LoggedRobot {
 
     // IDK what this is for or if we need it or what to do with it.
 		// Force the Redux server to start on port 7244 on the RoboRIO To use download Redux Alchemist navigate to settings then enter RoboRIO IP: roboRIO-2106-FRC.local
-		if (RobotConstants.FORCE_REDUX_SERVER_ON) {
+		if (Constants.FORCE_REDUX_SERVER_ON) {
 			CanandEventLoop.getInstance();
 		}
 
 		// Log build metadata
 		Logger.recordMetadata("ProjectName", "2025-game");
 
-    switch (RobotConstants.currentMode) {
+    switch (Constants.currentMode) {
 			case REAL:
 				Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
 				Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
@@ -81,7 +81,7 @@ public class Robot extends LoggedRobot {
 	public void disabledInit() {
 		// Check battery voltage when disabled
 		double voltage = RobotController.getBatteryVoltage();
-		if (voltage <= RobotConstants.BATTERY_VOLTAGE_CRITICAL) {
+		if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
 			AlertManager.setAlert(AlertManager.Alerts.CRITICAL_BATTERY_ON_END, true);
 		}
 	}
@@ -115,7 +115,7 @@ public class Robot extends LoggedRobot {
 
 		// Check battery voltage at teleop start
 		double voltage = RobotController.getBatteryVoltage();
-		if (voltage <= RobotConstants.BATTERY_VOLTAGE_CRITICAL) {
+		if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
 			AlertManager.setAlert(AlertManager.Alerts.CRITICAL_BATTERY_ON_START, true);
 		}
 	}

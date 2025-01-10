@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.constants.CameraConstants;
+import frc.robot.Constants;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +22,13 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+/**
+ * Creates a simulated vision system from the vision base
+ */
 public class VisionSim implements VisionBase {
 	private final VisionSystemSim visionSim;
-	private final Map<CameraConstants.Camera, PhotonCameraSim> cameraSims = new HashMap<>();
-	private final Map<CameraConstants.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
+	private final Map<Constants.Vision.Camera, PhotonCameraSim> cameraSims = new HashMap<>();
+	private final Map<Constants.Vision.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
 	private Optional<EstimatedRobotPose> lastEstimatedPose = Optional.empty();
 	private final AprilTagFieldLayout fieldLayout;
 
@@ -43,7 +46,7 @@ public class VisionSim implements VisionBase {
 		properties.setLatencyStdDevMs(5);
 
 		// Add cameras
-		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
+		for (Constants.Vision.Camera cam : Constants.Vision.Camera.values()) {
 			PhotonCamera camera = new PhotonCamera(cam.name);
 			PhotonCameraSim cameraSim = new PhotonCameraSim(camera, properties);
 			cameraSim.enableDrawWireframe(true);
@@ -55,13 +58,16 @@ public class VisionSim implements VisionBase {
 		}
 	}
 
+	/**
+	 * Updates vision inputs with the latest target info from each camera
+	 */
 	@Override
 	public void updateInputs(VisionInputs inputs) {
 		List<Pose3d> visibleTagPoses = new ArrayList<>();
 
 		// Update all camera results first
-		for (Map.Entry<CameraConstants.Camera, PhotonCameraSim> entry : cameraSims.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
+		for (Map.Entry<Constants.Vision.Camera, PhotonCameraSim> entry : cameraSims.entrySet()) {
+			Constants.Vision.Camera cam = entry.getKey();
 			PhotonCamera camera = entry.getValue().getCamera();
 
 			List<PhotonPipelineResult> results = camera.getAllUnreadResults();
@@ -73,8 +79,8 @@ public class VisionSim implements VisionBase {
 		}
 
 		// Process the results for each camera
-		for (Map.Entry<CameraConstants.Camera, PhotonCameraSim> entry : cameraSims.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
+		for (Map.Entry<Constants.Vision.Camera, PhotonCameraSim> entry : cameraSims.entrySet()) {
+			Constants.Vision.Camera cam = entry.getKey();
 			PhotonPipelineResult result = currentResults.get(cam);
 
 			// Collect visible tag poses
@@ -119,11 +125,17 @@ public class VisionSim implements VisionBase {
 		SmartDashboard.putData("Vision/CurrentEstimatedPose", visionSim.getDebugField());
 	}
 
+	/**
+	 * Updates the vision with the current robot pose
+	 */
 	@Override
 	public void updatePoseEstimation(Pose2d currentPose) {
 		visionSim.update(currentPose);
 	}
 
+	/**
+	 * Gets the estimated global robot pose from the vision 
+	 */
 	@Override
 	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
 		return lastEstimatedPose;

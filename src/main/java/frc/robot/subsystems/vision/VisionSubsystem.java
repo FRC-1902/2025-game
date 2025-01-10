@@ -7,18 +7,18 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
 public class VisionSubsystem extends SubsystemBase {
-	private final VisionBase io;
+	private final VisionBase vision;
 	private final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
 
-	public VisionSubsystem(VisionBase io) {
-		this.io = io;
+	public VisionSubsystem(VisionBase vision) {
+		this.vision = vision;
 	}
 
 	@Override
 	public void periodic() {
 
 		// Update inputs
-		io.updateInputs(inputs);
+		vision.updateInputs(inputs);
 
 		// Process inputs
 		Logger.processInputs("Vision", inputs);
@@ -26,11 +26,11 @@ public class VisionSubsystem extends SubsystemBase {
 
 	// This will be called by the Swerve Drive subsystem to update the estimated pose.
 	public void updatePoseEstimation(Pose2d currentPose) {
-		io.updatePoseEstimation(currentPose);
+		vision.updatePoseEstimation(currentPose);
 	}
 
 	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-		return io.getEstimatedGlobalPose();
+		return vision.getEstimatedGlobalPose();
 	}
 
     // TODO: Change to actual cameras
