@@ -13,7 +13,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,13 +28,13 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 // Creates real vision system from vision base
 public class VisionReal implements VisionBase {
     private final AprilTagFieldLayout fieldLayout;
-	private final Map<Constants.Vision.Camera, PhotonCamera> cameras = new HashMap<>();
-	private final Map<Constants.Vision.Camera, PhotonPoseEstimator> poseEstimators = new HashMap<>();
+	private final Map<Constants.Vision.Camera, PhotonCamera> cameras = new EnumMap<>(Constants.Vision.Camera.class);
+	private final Map<Constants.Vision.Camera, PhotonPoseEstimator> poseEstimators = new EnumMap<>(Constants.Vision.Camera.class);
 	private Optional<EstimatedRobotPose> lastEstimatedPose = Optional.empty();
 
 	// Current results for each camera, updated in updateInputs
-	private final Map<Constants.Vision.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
-	private final Map<Constants.Vision.Camera, Matrix<N3, N1>> currentStdDevs = new HashMap<>();
+	private final Map<Constants.Vision.Camera, PhotonPipelineResult> currentResults = new EnumMap<>(Constants.Vision.Camera.class);
+	private final Map<Constants.Vision.Camera, Matrix<N3, N1>> currentStdDevs = new EnumMap<>(Constants.Vision.Camera.class);
 
 	/** Constructor initializes all cameras and their pose estimators */
 	public VisionReal() {
@@ -119,7 +119,7 @@ public class VisionReal implements VisionBase {
 
 	/** Updates robot pose estimation using data from all cameras */
 	public void updatePoseEstimation(Pose2d currentPose) {
-		Map<Constants.Vision.Camera, EstimatedRobotPose> cameraEstimates = new HashMap<>();
+		Map<Constants.Vision.Camera, EstimatedRobotPose> cameraEstimates = new EnumMap<>(Constants.Vision.Camera.class);;
 
 		for (Map.Entry<Constants.Vision.Camera, PhotonPoseEstimator> entry : poseEstimators.entrySet()) {
 			Constants.Vision.Camera cam = entry.getKey();
@@ -234,12 +234,11 @@ public class VisionReal implements VisionBase {
 				continue;
 			}
 			numTags++;
-			avgDist +=
-					tagPose
-							.get()
-							.toPose2d()
-							.getTranslation()
-							.getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
+			avgDist += tagPose
+				.get()
+				.toPose2d()
+				.getTranslation()
+				.getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
 		}
 
 		if (numTags == 0) {

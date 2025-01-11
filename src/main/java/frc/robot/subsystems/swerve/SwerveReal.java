@@ -15,6 +15,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
+import frc.robot.util.AlertManager;
+
 import java.io.File;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -30,12 +32,15 @@ public class SwerveReal implements SwerveBase {
 		// Configure the Telemetry before creating the SwerveDrive
 		SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
 		try {
-			swerveDrive =
-					new SwerveParser(directory)
-							.createSwerveDrive(
-									Constants.Swerve.MAX_SPEED,
-									new Pose2d(
-											new Translation2d(Meter.of(1), Meter.of(4)), Rotation2d.fromDegrees(0)));
+			swerveDrive = new SwerveParser(directory).createSwerveDrive(
+				Constants.Swerve.MAX_SPEED,
+				new Pose2d(
+				new Translation2d(
+					Meter.of(1), 
+					Meter.of(4)), 
+					Rotation2d.fromDegrees(0)
+				)
+			);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -151,37 +156,38 @@ public class SwerveReal implements SwerveBase {
 
 			// Configure AutoBuilder
 			AutoBuilder.configure(
-					this::getPose, // Robot pose supplier
-					this::resetOdometry, // Method to reset odometry
-					this::getRobotVelocity, // ChassisSpeeds supplier (MUST BE ROBOT RELATIVE)
-					(speedsRobotRelative, moduleFeedForwards) -> {
-						if (enableFeedforward) {
-							swerveDrive.drive(
-									speedsRobotRelative,
-									swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
-									moduleFeedForwards.linearForces());
-						} else {
-							swerveDrive.setChassisSpeeds(speedsRobotRelative);
-						}
-					},
-					new PPHolonomicDriveController(
-							new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-							new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-							),
-					config,
-					() -> {
-						// Boolean supplier that controls when the path will be mirrored for the red alliance
-						var alliance = DriverStation.getAlliance();
-						if (alliance.isPresent()) {
-							return alliance.get() == DriverStation.Alliance.Red;
-						}
-						return false;
-					},
-					swerveSubsystem // Reference to this subsystem to set requirements
-					);
+				this::getPose, // Robot pose supplier
+				this::resetOdometry, // Method to reset odometry
+				this::getRobotVelocity, // ChassisSpeeds supplier (MUST BE ROBOT RELATIVE)
+				(speedsRobotRelative, moduleFeedForwards) -> {
+					if (enableFeedforward) {
+						swerveDrive.drive(
+							speedsRobotRelative,
+							swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
+							moduleFeedForwards.linearForces());
+					} else {
+						swerveDrive.setChassisSpeeds(speedsRobotRelative);
+					}
+				},
+				new PPHolonomicDriveController(
+					new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+					new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+				),
+				config,
+				() -> {
+					// Boolean supplier that controls when the path will be mirrored for the red alliance
+					var alliance = DriverStation.getAlliance();
+					if (alliance.isPresent()) {
+						return alliance.get() == DriverStation.Alliance.Red;
+					}
+					return false;
+				},
+				swerveSubsystem // Reference to this subsystem to set requirements
+			);
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			AlertManager.setAlert(AlertManager.Alerts.PATH_PLANNER, true);
 		}
 
 		// Preload PathPlanner Path finding

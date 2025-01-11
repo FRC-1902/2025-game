@@ -9,7 +9,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,13 +27,13 @@ import org.photonvision.targeting.PhotonTrackedTarget;
  */
 public class VisionSim implements VisionBase {
 	private final VisionSystemSim visionSim;
-	private final Map<Constants.Vision.Camera, PhotonCameraSim> cameraSims = new HashMap<>();
-	private final Map<Constants.Vision.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
+	private final Map<Constants.Vision.Camera, PhotonCameraSim> cameraSims = new EnumMap<>(Constants.Vision.Camera.class);
+	private final Map<Constants.Vision.Camera, PhotonPipelineResult> currentResults = new EnumMap<>(Constants.Vision.Camera.class);
 	private Optional<EstimatedRobotPose> lastEstimatedPose = Optional.empty();
 	private final AprilTagFieldLayout fieldLayout;
 
 	public VisionSim() {
-		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); // Updated to 2025 field
+		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); // TODO: Update to 2025 field
 		visionSim = new VisionSystemSim("Vision");
 		visionSim.addAprilTags(fieldLayout);
 
@@ -88,11 +88,12 @@ public class VisionSim implements VisionBase {
 				for (PhotonTrackedTarget target : result.getTargets()) {
 					Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
 					tagPose.ifPresent(
-							pose -> {
-								if (!visibleTagPoses.contains(pose)) {
-									visibleTagPoses.add(pose);
-								}
-							});
+						pose -> {
+							if (!visibleTagPoses.contains(pose)) {
+								visibleTagPoses.add(pose);
+							}
+						}
+					);
 				}
 
 				// TODO: Change/Switch to actual cameras

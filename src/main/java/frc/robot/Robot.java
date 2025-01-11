@@ -32,39 +32,34 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
   public Robot() {
+	// Log build metadata
+	Logger.recordMetadata("ProjectName", "2025-game");
 
-    // IDK what this is for or if we need it or what to do with it.
-		// Force the Redux server to start on port 7244 on the RoboRIO To use download Redux Alchemist navigate to settings then enter RoboRIO IP: roboRIO-2106-FRC.local
-		if (Constants.FORCE_REDUX_SERVER_ON) {
-			CanandEventLoop.getInstance();
-		}
+	switch (Constants.currentMode) {
+		case REAL:
+			Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs") TODO: Set USB Path
+			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+			new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+			break;
 
-		// Log build metadata
-		Logger.recordMetadata("ProjectName", "2025-game");
+		case SIM:
+			// setUseTiming(false); // Run as fast as possible
+			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+			break;
 
-    switch (Constants.currentMode) {
-			case REAL:
-				Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-				Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-				new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-				break;
+		case REPLAY:
+			// Replaying a log, set up replay source
+			setUseTiming(false); // Run as fast as possible
+			String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the
+															// user)
+			Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+			Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a
+																									// new log
+			break;
+	}
 
-			case SIM:
-				// setUseTiming(false); // Run as fast as possible
-				Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-				break;
-
-			case REPLAY:
-        // Replaying a log, set up replay source			
-        setUseTiming(false); // Run as fast as possible	
-        String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-				Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-				Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-				break;
-		}
-
-    // Initialize URCL
-    Logger.registerURCL(URCL.startExternal());
+    // Initialize URCL 
+    Logger.registerURCL(URCL.startExternal()); // TODO: Remove if issues with over logging occurs
     
     // Start AdvantageKit logger
 		Logger.start();
@@ -80,10 +75,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void disabledInit() {
 		// Check battery voltage when disabled
-		double voltage = RobotController.getBatteryVoltage();
-		if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
-			AlertManager.setAlert(AlertManager.Alerts.CRITICAL_BATTERY_ON_END, true);
-		}
+		checkBatteryVoltage();
 	}
 
 	@Override
@@ -99,6 +91,9 @@ public class Robot extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.schedule();
 		}
+
+		// Check battery voltage at autonomous start
+		checkBatteryVoltage();
 	}
 
 	@Override
@@ -114,10 +109,7 @@ public class Robot extends LoggedRobot {
 		}
 
 		// Check battery voltage at teleop start
-		double voltage = RobotController.getBatteryVoltage();
-		if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
-			AlertManager.setAlert(AlertManager.Alerts.CRITICAL_BATTERY_ON_START, true);
-		}
+		checkBatteryVoltage();
 	}
 
 	@Override
@@ -128,7 +120,6 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testInit() {
-
 		CommandScheduler.getInstance().cancelAll();
 	}
 
@@ -137,4 +128,16 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testExit() {}
+
+	/**
+	 * Check the battery voltage and set alerts if it is low or critical.
+	 */
+	private void checkBatteryVoltage() {
+		double voltage = RobotController.getBatteryVoltage();
+		if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
+			AlertManager.setAlert(AlertManager.Alerts.CRITICAL_BATTERY, true);
+		} else if (voltage <= Constants.BATTERY_VOLTAGE_WARNING) {
+			AlertManager.setAlert(AlertManager.Alerts.LOW_BATTERY, true);
+		}
+	}
 }

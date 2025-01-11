@@ -42,7 +42,7 @@ public final class Constants {
 	public static final boolean FORCE_REDUX_SERVER_ON = false;
 
   public static final class Swerve {
-    public static final double ROBOT_MASS = 65.000; // kg TODO: Adjust later
+    public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
     public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
     public static final double MAX_SPEED = 5.450; // m/s TODO: Adjust later
@@ -59,40 +59,49 @@ public final class Constants {
         "ArducamOne",
         new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(30)),
         new Translation3d(
-          Units.inchesToMeters(12.056), Units.inchesToMeters(10.981), Units.inchesToMeters(8.44)),
-          VecBuilder.fill(4, 4, 8),
-          VecBuilder.fill(0.5, 0.5, 1)
+          Units.inchesToMeters(12.056), 
+          Units.inchesToMeters(10.981), 
+          Units.inchesToMeters(8.44)
         ),
-        ArducamTwo(
+        VecBuilder.fill(4, 4, 8),
+        VecBuilder.fill(0.5, 0.5, 1)
+      ),
+
+      ArducamTwo(
         "ArducamTwo",
         new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)),
         new Translation3d(
           Units.inchesToMeters(12.056),
           Units.inchesToMeters(-10.981),
-          Units.inchesToMeters(8.44)),
-          VecBuilder.fill(4, 4, 8),
-          VecBuilder.fill(0.5, 0.5, 1)
+          Units.inchesToMeters(8.44)
         ),
-        ArducamThree(
+        VecBuilder.fill(4, 4, 8),
+        VecBuilder.fill(0.5, 0.5, 1)
+      ),
+
+      ArducamThree(
         "ArducamThree",
         new Rotation3d(0, Units.degreesToRadians(-145), 0),
         new Translation3d(
           Units.inchesToMeters(-4.628),
           Units.inchesToMeters(-10.687),
-          Units.inchesToMeters(16.129)),
-          VecBuilder.fill(4, 4, 8),
-          VecBuilder.fill(0.5, 0.5, 1)
+          Units.inchesToMeters(16.129)
         ),
-        ArducamFour(
+        VecBuilder.fill(4, 4, 8),
+        VecBuilder.fill(0.5, 0.5, 1)
+      ),
+
+      ArducamFour(
         "ArducamFour",
         new Rotation3d(0, Units.degreesToRadians(-145), 0),
         new Translation3d(
           Units.inchesToMeters(-4.628),
           Units.inchesToMeters(-10.687),
-          Units.inchesToMeters(16.129)),
-          VecBuilder.fill(4, 4, 8),
-          VecBuilder.fill(0.5, 0.5, 1)
-        );
+          Units.inchesToMeters(16.129)
+        ),
+        VecBuilder.fill(4, 4, 8),
+        VecBuilder.fill(0.5, 0.5, 1)
+      );
 
       public final String name;
       public final Rotation3d rotation;

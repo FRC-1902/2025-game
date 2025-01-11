@@ -42,7 +42,7 @@ public class SwerveSubsystem extends SubsystemBase {
 		this.vision = vision;
 
 		try {
-			this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+			this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); // TODO: Update to new field layout
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to load AprilTag field layout", e);
 		}
@@ -96,52 +96,52 @@ public class SwerveSubsystem extends SubsystemBase {
 		Logger.processInputs("Swerve", inputs);
 	}
 
-	/**
-	 * Get the distance to the speaker.
-	 *
-	 * @return Distance to speaker in meters.
-	 */
-	public double getDistanceToSpeaker() {
-		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-		Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
-	}
+	// /**
+	//  * Get the distance to the speaker.
+	//  *
+	//  * @return Distance to speaker in meters.
+	//  */
+	// public double getDistanceToSpeaker() {
+	// 	int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
+	// 	Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+	// 	return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
+	// }
 
-	/**
-	 * Get the yaw to aim at the speaker.
-	 *
-	 * @return {@link Rotation2d} of which you need to achieve.
-	 */
-	public Rotation2d getSpeakerYaw() {
-		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-		Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		Translation2d relativeTrl =
-				speakerAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
-		return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(getHeading());
-	}
+	// /**
+	//  * Get the yaw to aim at the speaker.
+	//  *
+	//  * @return {@link Rotation2d} of which you need to achieve.
+	//  */
+	// public Rotation2d getSpeakerYaw() {
+	// 	int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
+	// 	Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+	// 	Translation2d relativeTrl =
+	// 			speakerAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
+	// 	return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(getHeading());
+	// }
 
-	/**
-	 * Get the distance to the AMP.
-	 *
-	 * @return Distance to AMP in meters.
-	 */
-	public double getDistanceToAmp() {
-		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
-		Pose3d ampAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		return getPose().getTranslation().getDistance(ampAprilTagPose.toPose2d().getTranslation());
-	}
+	// /**
+	//  * Get the distance to the AMP.
+	//  *
+	//  * @return Distance to AMP in meters.
+	//  */
+	// public double getDistanceToAmp() {
+	// 	int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
+	// 	Pose3d ampAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+	// 	return getPose().getTranslation().getDistance(ampAprilTagPose.toPose2d().getTranslation());
+	// }
 
-	/**
-	 * Get the yaw to aim at the AMP.
-	 *
-	 * @return {@link Rotation2d} of which you need to achieve.
-	 */
-	public Rotation2d getAmpYaw() {
-		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
-		Pose3d ampAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		Translation2d relativeTrl = ampAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
-		return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(getHeading());
-	}
+	// /**
+	//  * Get the yaw to aim at the AMP.
+	//  *
+	//  * @return {@link Rotation2d} of which you need to achieve.
+	//  */
+	// public Rotation2d getAmpYaw() {
+	// 	int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
+	// 	Pose3d ampAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+	// 	Translation2d relativeTrl = ampAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
+	// 	return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(getHeading());
+	// }
 
 	/**
 	 * Get the yaw to aim at a specific AprilTag ID.
@@ -192,8 +192,12 @@ public class SwerveSubsystem extends SubsystemBase {
 	 */
 	public Command driveToPose(Pose2d pose) {
 		PathConstraints constraints =
-				new PathConstraints(
-						getMaximumVelocity(), 4.0, getMaximumAngularVelocity(), Units.degreesToRadians(720));
+			new PathConstraints(
+				getMaximumVelocity(), 
+				4.0, 
+				getMaximumAngularVelocity(), 
+				Units.degreesToRadians(720)
+			);
 
 		return AutoBuilder.pathfindToPose(
 				pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
@@ -231,6 +235,9 @@ public class SwerveSubsystem extends SubsystemBase {
 		swerve.zeroGyro();
 	}
 
+	/**
+	 * Zero the gyro and set the robot's pose based on the alliance color.
+	 */
 	public void zeroGyroWithAlliance() {
 		if (isRedAlliance()) {
 			zeroGyro();
@@ -240,15 +247,27 @@ public class SwerveSubsystem extends SubsystemBase {
 		}
 	}
 
+	/**
+	 * Defaults to Blue Alliance
+	 * @return True if the robot is on the red alliance
+	 */
 	private boolean isRedAlliance() {
 		var alliance = DriverStation.getAlliance();
 		return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
 	}
 
+	/**
+	 * Set the motor brake mode.
+	 * @param brake
+	 */
 	public void setMotorBrake(boolean brake) {
 		swerve.setMotorBrake(brake);
 	}
 
+	/**
+	 * Get the robot's heading.
+	 * @return {@link Rotation2d} of the robot's heading.
+	 */
 	public Rotation2d getHeading() {
 		return getPose().getRotation();
 	}

@@ -12,9 +12,10 @@ public class AlertManager {
 
 	public enum Alerts {
 		SWERVE_CONFIG("Swerve Configuration Not Found!", AlertType.kError),
-		CRITICAL_BATTERY_ON_START("Critical Battery on Start of Match", AlertType.kError),
-		CRITICAL_BATTERY_ON_END("Critical Battery on End of Match", AlertType.kError),
-		AUTOBUILDER("PathPlanner AutoBuilder Error", AlertType.kError);
+		LOW_BATTERY("Low Battery", AlertType.kWarning),
+		CRITICAL_BATTERY("Critical Battery", AlertType.kError),
+		AUTOBUILDER("PathPlanner AutoBuilder Error", AlertType.kError),
+		PATH_PLANNER("PathPlanner Setup Failed", AlertType.kError);
 
 		private final String message;
 		private final AlertType type;
