@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -47,4 +48,26 @@ public final class Constants {
     public static final int LED_PORT = 0;
     public static final int LED_LENGTH = 0; 
   }
+
+  public static final class FloorIntake{
+    private FloorIntake() {}; 
+    //todo: set ports
+    public static final int ROLLERMOTOR1_PORT = 0; 
+    public static final int ROLLERMOTOR2_PORT = 0; 
+
+    public static final int PIVOTMOTOR1_PORT = 0; 
+    public static final int PIVOTMOTOR2_PORT = 0; 
+
+    //todo: find p, i, d, g
+    public static final double PIVOT_P = 0; 
+    public static final double PIVOT_I = 0; 
+    public static final double PIVOT_D = 0;
+    public static final double PIVOT_G = 0; 
+
+    //todo: set tolerance
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(69); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(420); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(420); 
+  }
 }
+
