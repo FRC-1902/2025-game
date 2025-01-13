@@ -33,7 +33,7 @@ public class VisionSim implements VisionBase {
     private final AprilTagFieldLayout fieldLayout;
 
     public VisionSim() {
-        fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); // TODO: Update to 2025 field
+        fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
         visionSim = new VisionSystemSim("Vision");
         visionSim.addAprilTags(fieldLayout);
 

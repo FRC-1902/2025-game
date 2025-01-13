@@ -45,12 +45,12 @@ public class DriveCommand extends Command {
      * @param heading DoubleSupplier that supplies the robot's heading angle.
      */
     public DriveCommand(SwerveSubsystem swerve, DoubleSupplier vX, DoubleSupplier vY, DoubleSupplier heading) {
-      this.swerve = swerve;
-      this.vX = vX;
-      this.vY = vY;
-      this.heading = heading;
-  
-      addRequirements(swerve);
+        this.swerve = swerve;
+        this.vX = vX;
+        this.vY = vY;
+        this.heading = heading;
+    
+        addRequirements(swerve);
     }
   
     @Override
@@ -61,21 +61,25 @@ public class DriveCommand extends Command {
     @Override
     public void execute() {
   
-      // Get the desired chassis speeds based on a 2 joystick module.
-      ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(vX.getAsDouble(), vY.getAsDouble(),
-          new Rotation2d(heading.getAsDouble() * Math.PI));
+    // Get the desired chassis speeds based on a 2 joystick module.
+    ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(
+        vX.getAsDouble(), 
+        vY.getAsDouble(),
+        heading.getAsDouble() * Math.PI, 
+        heading.getAsDouble() * Math.PI
+    );
   
-      // Limit velocity to prevent tippy
-      Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
-      translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
-          Constants.Swerve.LOOP_TIME, Constants.Swerve.ROBOT_MASS, List.of(Constants.Swerve.CHASSIS),
-          swerve.getSwerveDriveConfiguration());
+        // Limit velocity to prevent tippy
+        Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
+        translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
+Constants.Swerve.LOOP_TIME, Constants.Swerve.ROBOT_MASS, List.of(Constants.Swerve.CHASSIS),
+        swerve.getSwerveDriveConfiguration());
           
-      SmartDashboard.putNumber("LimitedTranslation", translation.getX());
-      SmartDashboard.putString("Translation", translation.toString());
+        SmartDashboard.putNumber("LimitedTranslation", translation.getX());
+        SmartDashboard.putString("Translation", translation.toString());
   
-      // Make the robot move
-      swerve.drive(translation, desiredSpeeds.omegaRadiansPerSecond, true);
+        // Make the robot move
+         swerve.drive(translation, desiredSpeeds.omegaRadiansPerSecond, true);
     }
   
     // Called once the command ends or is interrupted.
@@ -86,7 +90,6 @@ public class DriveCommand extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-      return false;
+        return false;
     }
-  
   }

@@ -1,9 +1,12 @@
 package frc.robot.subsystems.swerve;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,13 +19,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
+import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -42,7 +44,7 @@ public class SwerveSubsystem extends SubsystemBase {
         this.vision = vision;
 
         try {
-            this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); // TODO: Update to new field layout
+            this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
         } catch (Exception e) {
             throw new RuntimeException("Failed to load AprilTag field layout", e);
         }
@@ -190,6 +192,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command
      */
+    // TODO: Tune max speeds if needed
     public Command driveToPose(Pose2d pose) {
         PathConstraints constraints =
             new PathConstraints(
@@ -226,6 +229,17 @@ public class SwerveSubsystem extends SubsystemBase {
     public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {
         swerve.setChassisSpeeds(chassisSpeeds);
     }
+
+    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, double headingX, double headingY) {
+        Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
+        return swerve.getSwerveController().getTargetSpeeds( 
+            scaledInputs.getX(),
+            scaledInputs.getY(),
+            headingX,
+            headingY,
+            getHeading().getRadians(),
+            Constants.Swerve.MAX_SPEED);
+  }
 
     public void postTrajectory(Trajectory trajectory) {
         swerve.postTrajectory(trajectory);
