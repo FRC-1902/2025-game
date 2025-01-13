@@ -33,7 +33,7 @@ public class VisionSubsystem extends SubsystemBase {
 		return vision.getEstimatedGlobalPose();
 	}
 
-    // TODO: Change to actual cameras
+	// TODO: Change to actual cameras
 	public boolean hasTargets() {
 		return inputs.arducamOne || inputs.arducamTwo || inputs.arducamThree || inputs.arducamFour;
 	}

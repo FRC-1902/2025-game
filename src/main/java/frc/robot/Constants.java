@@ -25,109 +25,105 @@ import swervelib.math.Matter;
  */
 public final class Constants {
 
-  // Robot Mode
-	public enum RobotMode {
-		REAL, // Physical robot hardware
-		SIM, // Simulation mode
-		REPLAY // Replay mode for log analysis
-	}
-  public static final RobotMode simMode = RobotMode.SIM;
-  public static final RobotMode currentMode = RobotBase.isReal() ? RobotMode.REAL : simMode;
-  
-  // Battery Voltage Warnings
-	public static final double BATTERY_VOLTAGE_CRITICAL = 11.5; // Volts TODO: Adjust later
-	public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts TODO: Adjust later
+    // Robot Mode
+    public enum RobotMode {
+        REAL, // Physical robot hardware
+        SIM, // Simulation mode
+        REPLAY // Replay mode for log analysis
+    }
+    public static final RobotMode simMode = RobotMode.SIM;
+    public static final RobotMode currentMode = RobotBase.isReal() ? RobotMode.REAL : simMode;
+    
+    // Battery Voltage Warnings
+    public static final double BATTERY_VOLTAGE_CRITICAL = 11.5; // Volts TODO: Adjust later
+    public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts TODO: Adjust later
 
-  // IDK same thing as before
-	public static final boolean FORCE_REDUX_SERVER_ON = false;
-
-  public static final class Swerve {
-    public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value
-    public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
-    public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
-    public static final double MAX_SPEED = 5.450; // m/s TODO: Adjust later
-  }
-
-  public static final class Vision {
-    // Maximum allowed ambiguity for the cameras
-    public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
-
-    // Camera Configs
-    // TODO: Set real values
-    public enum Camera {
-      ArducamOne(
-        "ArducamOne",
-        new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(30)),
-        new Translation3d(
-          Units.inchesToMeters(12.056), 
-          Units.inchesToMeters(10.981), 
-          Units.inchesToMeters(8.44)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
-      ),
-
-      ArducamTwo(
-        "ArducamTwo",
-        new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)),
-        new Translation3d(
-          Units.inchesToMeters(12.056),
-          Units.inchesToMeters(-10.981),
-          Units.inchesToMeters(8.44)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
-      ),
-
-      ArducamThree(
-        "ArducamThree",
-        new Rotation3d(0, Units.degreesToRadians(-145), 0),
-        new Translation3d(
-          Units.inchesToMeters(-4.628),
-          Units.inchesToMeters(-10.687),
-          Units.inchesToMeters(16.129)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
-      ),
-
-      ArducamFour(
-        "ArducamFour",
-        new Rotation3d(0, Units.degreesToRadians(-145), 0),
-        new Translation3d(
-          Units.inchesToMeters(-4.628),
-          Units.inchesToMeters(-10.687),
-          Units.inchesToMeters(16.129)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
-      );
-
-      public final String name;
-      public final Rotation3d rotation;
-      public final Translation3d translation;
-      public final Matrix<N3, N1> singleTagStdDevs;
-      public final Matrix<N3, N1> multiTagStdDevs;
-
-      Camera(
-        String name,
-        Rotation3d rotation,
-        Translation3d translation,
-        Matrix<N3, N1> singleTagStdDevs,
-        Matrix<N3, N1> multiTagStdDevs) {
-          this.name = name;
-          this.rotation = rotation;
-          this.translation = translation;
-          this.singleTagStdDevs = singleTagStdDevs;
-          this.multiTagStdDevs = multiTagStdDevs;
-        }
+    public static final class Swerve {
+        public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value
+        public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
+        public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
+        public static final double MAX_SPEED = 5.450; // m/s TODO: Adjust later
     }
 
-    public static final Pose3d[] CAMERA_POSITIONS = {
-      new Pose3d(Camera.ArducamOne.translation, Camera.ArducamOne.rotation),
-      new Pose3d(Camera.ArducamTwo.translation, Camera.ArducamTwo.rotation),
-      new Pose3d(Camera.ArducamThree.translation, Camera.ArducamThree.rotation),
-      new Pose3d(Camera.ArducamFour.translation, Camera.ArducamFour.rotation)
-    };
-  }
+    public static final class Vision {
+        // Maximum allowed ambiguity for the cameras
+        public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
+
+        // Camera Configs
+        // TODO: Set real values
+        public enum Camera {
+            ArducamOne(
+                "ArducamOne",
+                new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(30)),
+                new Translation3d(
+                    Units.inchesToMeters(12.056), 
+                    Units.inchesToMeters(10.981), 
+                    Units.inchesToMeters(8.44)
+                ),
+                VecBuilder.fill(4, 4, 8),
+                VecBuilder.fill(0.5, 0.5, 1)
+            ),
+
+            ArducamTwo(
+                "ArducamTwo",
+                new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)),
+                new Translation3d(
+                    Units.inchesToMeters(12.056),
+                    Units.inchesToMeters(-10.981),
+                    Units.inchesToMeters(8.44)
+                ),
+                VecBuilder.fill(4, 4, 8),
+                VecBuilder.fill(0.5, 0.5, 1)
+            ),
+
+            ArducamThree(
+                "ArducamThree",
+                new Rotation3d(0, Units.degreesToRadians(-145), 0),
+                new Translation3d(
+                    Units.inchesToMeters(-4.628),
+                    Units.inchesToMeters(-10.687),
+                    Units.inchesToMeters(16.129)
+                ),
+                VecBuilder.fill(4, 4, 8),
+                VecBuilder.fill(0.5, 0.5, 1)
+            ),
+
+            ArducamFour(
+                "ArducamFour",
+                new Rotation3d(0, Units.degreesToRadians(-145), 0),
+                new Translation3d(
+                    Units.inchesToMeters(-4.628),
+                    Units.inchesToMeters(-10.687),
+                    Units.inchesToMeters(16.129)
+                ),
+                VecBuilder.fill(4, 4, 8),
+                VecBuilder.fill(0.5, 0.5, 1)
+            );
+
+            public final String name;
+            public final Rotation3d rotation;
+            public final Translation3d translation;
+            public final Matrix<N3, N1> singleTagStdDevs;
+            public final Matrix<N3, N1> multiTagStdDevs;
+
+            Camera(
+            String name,
+            Rotation3d rotation,
+            Translation3d translation,
+            Matrix<N3, N1> singleTagStdDevs,
+            Matrix<N3, N1> multiTagStdDevs) {
+                this.name = name;
+                this.rotation = rotation;
+                this.translation = translation;
+                this.singleTagStdDevs = singleTagStdDevs;
+                this.multiTagStdDevs = multiTagStdDevs;
+            }
+        }
+        public static final Pose3d[] CAMERA_POSITIONS = {
+            new Pose3d(Camera.ArducamOne.translation, Camera.ArducamOne.rotation),
+            new Pose3d(Camera.ArducamTwo.translation, Camera.ArducamTwo.rotation),
+            new Pose3d(Camera.ArducamThree.translation, Camera.ArducamThree.rotation),
+            new Pose3d(Camera.ArducamFour.translation, Camera.ArducamFour.rotation)
+        };
+    }
 }
