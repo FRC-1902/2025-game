@@ -122,4 +122,15 @@ public class ControllerSubsystem extends SubsystemBase {
         return 0;
     }
   }
+
+    public CommandXboxController getCommandController(ControllerName name) {
+        switch(name){
+            case DRIVE:
+                return commandDriveController;
+            case MANIP:
+                return commandManipController;
+            default:
+                return null;
+        }
+    }
 }

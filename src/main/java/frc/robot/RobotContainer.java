@@ -27,26 +27,21 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer {
 
-    private final SwerveSubsystem swerve;
-	private final VisionSubsystem vision;
+    private SwerveSubsystem swerve;
+	private VisionSubsystem vision;
     ControllerSubsystem controllers;
 
     public RobotContainer() {
         controllers = new ControllerSubsystem();
-
-        swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
+        swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
     }
 
     DriveCommand closedDrive = new DriveCommand(
         swerve,
-        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controllers.LEFT_Y_DEADBAND),
-        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controllers.DEADBAND),
-        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controllers.RIGHT_X_DEADBAND),
-        controllers.getCommandController(ControllerName.DRIVE).getHID()::getYButtonPressed,
-        controllers.getCommandController(ControllerName.DRIVE).getHID()::getAButtonPressed,
-        controllers.getCommandController(ControllerName.DRIVE).getHID()::getXButtonPressed,
-        controllers.getCommandController(ControllerName.DRIVE).getHID()::getBButtonPressed
+        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
+        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.DEADBAND),
+        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
     );
 
 
