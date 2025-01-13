@@ -8,7 +8,6 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionReal;
 import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import swervelib.SwerveInputStream;
 
 import java.io.File;
 
@@ -28,22 +27,24 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RobotContainer {
 
     private SwerveSubsystem swerve;
-	private VisionSubsystem vision;
+    private VisionSubsystem vision;
     ControllerSubsystem controllers;
 
     public RobotContainer() {
         controllers = new ControllerSubsystem();
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+
+        swerve.setDefaultCommand(closedDrive);
     }
+
 
     DriveCommand closedDrive = new DriveCommand(
         swerve,
         () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
-        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.DEADBAND),
+        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.RIGHT_Y_DEADBAND),
         () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
     );
-
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -54,10 +55,5 @@ public class RobotContainer {
     {
         // An example command will be run in autonomous
         return swerve.getAutonomousCommand("New Auto");
-    }
-
-    public void setMotorBrake(boolean brake)
-    {
-        swerve.setMotorBrake(brake);
     }
 }

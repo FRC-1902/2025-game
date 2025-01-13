@@ -61,18 +61,18 @@ public class DriveCommand extends Command {
     @Override
     public void execute() {
   
-    // Get the desired chassis speeds based on a 2 joystick module.
-    ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(
-        vX.getAsDouble(), 
-        vY.getAsDouble(),
-        heading.getAsDouble() * Math.PI, 
-        heading.getAsDouble() * Math.PI
-    );
+        // Get the desired chassis speeds based on a 2 joystick module.
+        ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(
+            vX.getAsDouble(), 
+            vY.getAsDouble(),
+            heading.getAsDouble() * Math.PI, 
+            heading.getAsDouble() * Math.PI
+        );
   
         // Limit velocity to prevent tippy
         Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
         translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
-Constants.Swerve.LOOP_TIME, Constants.Swerve.ROBOT_MASS, List.of(Constants.Swerve.CHASSIS),
+        Constants.Swerve.LOOP_TIME, Constants.Swerve.ROBOT_MASS, List.of(Constants.Swerve.CHASSIS),
         swerve.getSwerveDriveConfiguration());
           
         SmartDashboard.putNumber("LimitedTranslation", translation.getX());
