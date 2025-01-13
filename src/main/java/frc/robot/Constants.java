@@ -47,4 +47,21 @@ public final class Constants {
     public static final int LED_PORT = 0;
     public static final int LED_LENGTH = 0; 
   }
+
+  public static final class Elevator{
+    private Elevator() {}; 
+
+    public static final int LEFT_MOTOR_ID = 0; 
+    public static final int RIGHT_MOTOR_ID = 0; 
+
+    public static final double ELEVATOR_P = 0; 
+    public static final double ELEVATOR_I = 0; 
+    public static final double ELEVATOR_D = 0; 
+    public static final double ELEVATOR_G = 0; 
+
+    public static final int LB_SWITCH_PORT = 0; 
+    public static final int RB_SWITCH_PORT = 0; 
+    public static final int LT_SWITCH_PORT = 0; 
+    public static final int RT_SWITCH_PORT = 0; 
+  }
 }
