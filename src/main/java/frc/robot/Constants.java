@@ -15,6 +15,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import swervelib.math.Matter;
 
+import edu.wpi.first.wpilibj.RobotBase;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -37,6 +39,18 @@ public final class Constants {
     // Battery Voltage Warnings
     public static final double BATTERY_VOLTAGE_CRITICAL = 11.5; // Volts TODO: Adjust later
     public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts TODO: Adjust later
+
+    public static final class Controller{
+        // Controller Ports
+        public static final int DRIVE_CONTROLLER_PORT = 0; // TODO: Set port
+        public static final int MANIP_CONTROLLER_PORT = 1; // TODO: Set port
+
+        // Joystick Deadband
+        public static final double DEADBAND        = 0.1;
+        public static final double LEFT_Y_DEADBAND = 0.1;
+        public static final double RIGHT_X_DEADBAND = 0.1;
+        public static final double TURN_CONSTANT    = 6;
+    }
 
     public static final class Swerve {
         public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value

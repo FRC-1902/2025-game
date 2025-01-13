@@ -1,7 +1,12 @@
 package frc.robot;
 
 import frc.robot.commands.drive.DriveCommand;
+import frc.robot.subsystems.ControllerSubsystem;
+import frc.robot.subsystems.ControllerSubsystem.ControllerName;
+import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.VisionReal;
+import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import swervelib.SwerveInputStream;
 
@@ -24,83 +29,26 @@ public class RobotContainer {
 
     private final SwerveSubsystem swerve;
 	private final VisionSubsystem vision;
-
-    ControllerSubsystem controllerSubsystem = new ControllerSubsystem();
- 
-    private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "neo"));
-
-    DriveCommand closedDrive = new DriveCommand(
-        drivebase,
-        () -> -MathUtil.applyDeadband(controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controllers.LEFT_Y_DEADBAND),
-        () -> -MathUtil.applyDeadband(controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controllers.DEADBAND),
-        () -> -MathUtil.applyDeadband(controllerSubsystem.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controllers.RIGHT_X_DEADBAND),
-        controllerSubsystem.getCommandController(ControllerName.DRIVE).getHID()::getYButtonPressed,
-        controllerSubsystem.getCommandController(ControllerName.DRIVE).getHID()::getAButtonPressed,
-        controllerSubsystem.getCommandController(ControllerName.DRIVE).getHID()::getXButtonPressed,
-        controllerSubsystem.getCommandController(ControllerName.DRIVE).getHID()::getBButtonPressed
-    );
-
-    /**
-     * Converts driver input into a field-relative ChassisSpeeds that is controlled
-     * by angular velocity.
-     */
-    SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
-        drivebase.getSwerveDrive(),
-        () -> controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftY() * -1,
-        () -> controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftX() * -1 )
-        .withControllerRotationAxis(controllerSubsystem.getCommandController(ControllerName.DRIVE)::getRightX)
-        .deadband(Constants.Controllers.DEADBAND)
-        .scaleTranslation(0.8)
-        .allianceRelativeControl(true);
-
-    /**
-     * Clone's the angular velocity input stream and converts it to a fieldRelative
-     * input stream.
-     */
-    SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(
-        controllerSubsystem.getCommandController(ControllerName.DRIVE)::getRightX,
-        controllerSubsystem.getCommandController(ControllerName.DRIVE)::getRightY)
-        .headingWhile(true);
-
-    // Applies deadbands and inverts controls because joysticks
-    // are back-right positive while robot
-    // controls are front-left positive
-    // left stick controls translation
-    // right stick controls the desired angle NOT angular rotation
-    Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
-
-    // Applies deadbands and inverts controls because joysticks
-    // are back-right positive while robot
-    // controls are front-left positive
-    // left stick controls translation
-    // right stick controls the angular velocity of the robot
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-
-    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
-
-    SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(
-        drivebase.getSwerveDrive(),
-        () -> -controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftY(),
-        () -> -controllerSubsystem.getCommandController(ControllerName.DRIVE).getLeftX()
-        )
-            .withControllerRotationAxis(() -> controllerSubsystem.getCommandController(ControllerName.DRIVE).getRawAxis(2))
-            .deadband(Constants.Controller.DEADBAND)
-            .scaleTranslation(0.8)
-            .allianceRelativeControl(true);
-    // Derive the heading axis with math!
-    SwerveInputStream driveDirectAngleSim = driveAngularVelocitySim.copy()
-        .withControllerHeadingAxis(
-            () -> Math.sin( controllerSubsystem.getCommandController(ControllerName.DRIVE).getRawAxis(2) * Math.PI) * (Math.PI * 2),
-            () -> Math.cos( controllerSubsystem.getCommandController(ControllerName.DRIVE).getRawAxis(2) * Math.PI) * (Math.PI * 2))
-        .headingWhile(true);
-
-    Command driveFieldOrientedDirectAngleSim = drivebase.driveFieldOriented(driveDirectAngleSim);
-
-    Command driveSetpointGenSim = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleSim);
+    ControllerSubsystem controllers;
 
     public RobotContainer() {
+        controllers = new ControllerSubsystem();
+
+        swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
     }
+
+    DriveCommand closedDrive = new DriveCommand(
+        swerve,
+        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controllers.LEFT_Y_DEADBAND),
+        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controllers.DEADBAND),
+        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controllers.RIGHT_X_DEADBAND),
+        controllers.getCommandController(ControllerName.DRIVE).getHID()::getYButtonPressed,
+        controllers.getCommandController(ControllerName.DRIVE).getHID()::getAButtonPressed,
+        controllers.getCommandController(ControllerName.DRIVE).getHID()::getXButtonPressed,
+        controllers.getCommandController(ControllerName.DRIVE).getHID()::getBButtonPressed
+    );
+
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -110,11 +58,11 @@ public class RobotContainer {
     public Command getAutonomousCommand()
     {
         // An example command will be run in autonomous
-        return drivebase.getAutonomousCommand("New Auto");
+        return swerve.getAutonomousCommand("New Auto");
     }
 
     public void setMotorBrake(boolean brake)
     {
-        drivebase.setMotorBrake(brake);
+        swerve.setMotorBrake(brake);
     }
 }
