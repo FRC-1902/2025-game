@@ -107,7 +107,7 @@ public class FloorIntake extends SubsystemBase {
 
   /**
    * 
-   * @param targetSpeed sets the speed of the roller motors
+   * @param targetSpeed sets the speed of the roller motors between 1 and -1
    */
   public void setSpeed(double targetSpeed) {
     rollerMotor1.set(targetSpeed);
