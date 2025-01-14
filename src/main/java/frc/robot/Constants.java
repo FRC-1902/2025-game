@@ -50,17 +50,11 @@ public final class Constants {
 
   public static final class Elevator{
     private Elevator() {}; 
-
+    
     public static final int LEFT_MOTOR_ID = 0; 
-    public static final int RIGHT_MOTOR_ID = 0; 
+    public static final int RIGHT_MOTOR_ID = 0;  
 
-    public static final double ELEVATOR_P = 0; 
-    public static final double ELEVATOR_I = 0; 
-    public static final double ELEVATOR_D = 0; 
-    public static final double ELEVATOR_G = 0; 
-
-    public static final int LB_SWITCH_PORT = 0; 
-    public static final int RB_SWITCH_PORT = 0; 
+    public static final int LIMIT_SWITCH_PORT = 0; 
     
     public static final double kP = 0; 
     public static final double kI = 0;
@@ -69,8 +63,5 @@ public final class Constants {
 
     public static final double TOLERANCE = 0; 
 
-    public static final double kS = 0; 
-    public static final double kV = 0;
-    public static final double kG = 0;
   }
 }

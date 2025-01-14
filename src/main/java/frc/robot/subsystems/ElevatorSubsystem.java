@@ -14,17 +14,14 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private SparkMax leftMotor, rightMotor;
   private SparkBaseConfig configOne, configTwo;
-  private DigitalInput leftLimitSwitch, rightLimitSwitch;
+  private DigitalInput limitSwitch;
   private PIDController pid;
-  private ElevatorFeedforward elevatorFeedforward; // subject for removal
-  private Rotation2d targetAngle;
+  private double targetPosition;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -36,44 +33,39 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     configureMotors();
 
-    leftLimitSwitch = new DigitalInput(Constants.Elevator.LB_SWITCH_PORT);
-    rightLimitSwitch = new DigitalInput(Constants.Elevator.RB_SWITCH_PORT);
+    limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_PORT);
 
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
     pid.setTolerance(Constants.Elevator.TOLERANCE);
-    pid.enableContinuousInput(0, 360);
-
-    elevatorFeedforward = new ElevatorFeedforward(Constants.Elevator.kS, Constants.Elevator.kG, Constants.Elevator.kV);
   }
 
   private void configureMotors() {
     configOne.idleMode(IdleMode.kBrake);
-    configOne.smartCurrentLimit(30);
+    configOne.smartCurrentLimit(50);
     configOne.inverted(true); // todo: switch inverted
     configOne.voltageCompensation(12);
 
     configTwo.idleMode(IdleMode.kBrake);
-    configTwo.smartCurrentLimit(30);
+    configTwo.smartCurrentLimit(50);
     configTwo.inverted(false); // todo: switch inverted
     configTwo.voltageCompensation(12);
     configTwo.follow(Constants.Elevator.LEFT_MOTOR_ID);
-
   }
 
   /**
    * 
-   * @returns the current angle in Rotation2d's
+   * @returns the current position of elevator
    */
-  public Rotation2d getAngle() {
-    return Rotation2d.fromDegrees((leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition()) * 0.5);
+  public double getPosition() {
+    return (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition()) * 0.5;
   }
-
+  
   /**
    * 
-   * @param targetAngle
+   * @param targetPosition
    */
-  public void setAngle(Rotation2d targetAngle) {
-    this.targetAngle = targetAngle;
+  public void setPosition(double targetPosition) {
+    this.targetPosition = targetPosition;
   }
 
   /**
@@ -81,23 +73,19 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns whether the limit switch was triggered
    */
   public boolean limitSwitchTriggered() {
-    if (leftLimitSwitch.get() || rightLimitSwitch.get()) {
-      return true;
-    }
-    return false;
+    return limitSwitch.get();
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees()) + Constants.Elevator.kF;
+    double power = pid.calculate(getPosition(), targetPosition) + Constants.Elevator.kF;
 
     if (limitSwitchTriggered()) {
       leftMotor.set(0);
     } else {
       leftMotor.set(power);
     }
-    SmartDashboard.putBoolean("Limit Switch Triggered", limitSwitchTriggered());
-    SmartDashboard.putNumber("Current Angle", getAngle().getDegrees());
+    SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
   }
 }
