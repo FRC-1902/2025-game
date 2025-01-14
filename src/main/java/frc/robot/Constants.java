@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -46,5 +47,22 @@ public final class Constants {
     //todo: set ports and length
     public static final int LED_PORT = 0;
     public static final int LED_LENGTH = 0; 
+  }
+
+  public static final class EndAffector{
+    private EndAffector() {}; 
+
+    public static final int ROLLER_ID = 0; 
+    public static final int PIVOT_ID = 0; 
+
+    public static final double kP = 0; 
+    public static final double kI = 0; 
+    public static final double kD = 0; 
+    public static final double kG = 0;
+
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(0); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0); 
+    
   }
 }
