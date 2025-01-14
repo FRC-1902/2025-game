@@ -55,8 +55,7 @@ public final class Constants {
     public static final int ROLLERMOTOR1_PORT = 0; 
     public static final int ROLLERMOTOR2_PORT = 0; 
 
-    public static final int PIVOTMOTOR1_PORT = 0; 
-    public static final int PIVOTMOTOR2_PORT = 0; 
+    public static final int PIVOTMOTOR_PORT = 0;
 
     public static final int IR_SENSOR_PORT = 0; 
 

@@ -34,11 +34,7 @@ public class FloorIntake extends SubsystemBase {
     rollerMotor1 = new SparkMax(Constants.FloorIntake.ROLLERMOTOR1_PORT, MotorType.kBrushless);
     rollerMotor2 = new SparkMax(Constants.FloorIntake.ROLLERMOTOR2_PORT, MotorType.kBrushless);
 
-    pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR1_PORT, MotorType.kBrushless);
-
-    pivotConfig = new SparkMaxConfig();
-    rollerConfig1 = new SparkMaxConfig();
-    rollerConfig2 = new SparkMaxConfig();
+    pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR_PORT, MotorType.kBrushless);
 
     pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I,
         Constants.FloorIntake.PIVOT_D);
@@ -53,6 +49,11 @@ public class FloorIntake extends SubsystemBase {
   }
 
   private void configureMotors() {
+
+    pivotConfig = new SparkMaxConfig();
+    rollerConfig1 = new SparkMaxConfig();
+    rollerConfig2 = new SparkMaxConfig();
+
     // Pivot configs
     pivotConfig.idleMode(IdleMode.kBrake);
     pivotConfig.inverted(false);
@@ -70,7 +71,7 @@ public class FloorIntake extends SubsystemBase {
 
     rollerConfig2.idleMode(IdleMode.kCoast);
     rollerConfig2.inverted(true); // check inversion
-    rollerConfig2.follow(Constants.FloorIntake.PIVOTMOTOR1_PORT); // check follower mode
+    rollerConfig2.follow(Constants.FloorIntake.ROLLERMOTOR1_PORT); // check follower mode
     rollerConfig2.secondaryCurrentLimit(30);
     rollerConfig2.smartCurrentLimit(30);
     rollerConfig2.voltageCompensation(12.00);
@@ -153,7 +154,7 @@ public class FloorIntake extends SubsystemBase {
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians());
 
-    SmartDashboard.putNumber("Floor-Intake Current Angle ", getAngle().getDegrees());
+    SmartDashboard.putNumber("Floor-Intake/Current Angle", getAngle().getDegrees());
 
     if (pivotWatchdog()) {
       pivotMotor.set(0);
