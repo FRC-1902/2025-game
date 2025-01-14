@@ -58,6 +58,8 @@ public final class Constants {
     public static final int PIVOTMOTOR1_PORT = 0; 
     public static final int PIVOTMOTOR2_PORT = 0; 
 
+    public static final int IR_SENSOR_PORT = 0; 
+
     //todo: find p, i, d, g
     public static final double PIVOT_P = 0; 
     public static final double PIVOT_I = 0; 

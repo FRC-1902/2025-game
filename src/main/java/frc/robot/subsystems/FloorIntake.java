@@ -19,11 +19,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class FloorIntake extends SubsystemBase {
   private SparkMax rollerMotor1, rollerMotor2;
   private SparkMax pivotMotor;
   private SparkBaseConfig pivotConfig, rollerConfig1, rollerConfig2;
+  private DigitalInput irSensor;
   private PIDController pid;
   private Alert pivotAlert;
 
@@ -42,6 +44,8 @@ public class FloorIntake extends SubsystemBase {
         Constants.FloorIntake.PIVOT_D);
     pid.enableContinuousInput(0, 360);
     pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
+
+    irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_PORT);
 
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
     // Check that motors aren't supposed to be inverted
@@ -82,7 +86,7 @@ public class FloorIntake extends SubsystemBase {
    * @returns current angle in Rotation2d
    */
   public Rotation2d getAngle() {
-    return Rotation2d.fromDegrees(pivotMotor.getEncoder().getPosition());
+    return Rotation2d.fromDegrees(pivotMotor.getAbsoluteEncoder().getPosition());
   }
 
   /**
@@ -98,7 +102,7 @@ public class FloorIntake extends SubsystemBase {
    * @returns the average current speed of the roller motors
    */
   public double getSpeed() {
-    return (rollerMotor1.getEncoder().getVelocity() + rollerMotor2.getEncoder().getVelocity()) * 0.5;
+    return (rollerMotor1.getAbsoluteEncoder().getVelocity() + rollerMotor2.getAbsoluteEncoder().getVelocity()) * 0.5;
   }
 
   /**
@@ -120,6 +124,14 @@ public class FloorIntake extends SubsystemBase {
   // resets the pid
   public void resetPID() {
     pid.reset();
+  }
+
+  /**
+   * 
+   * @returns whether or not a piece is detected
+   */
+  public boolean pieceSensorActive() {
+    return irSensor.get();
   }
 
   // checks that the pivot isn't going out of tolerance, will send an alert if it
