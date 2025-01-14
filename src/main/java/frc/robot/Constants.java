@@ -61,7 +61,16 @@ public final class Constants {
 
     public static final int LB_SWITCH_PORT = 0; 
     public static final int RB_SWITCH_PORT = 0; 
-    public static final int LT_SWITCH_PORT = 0; 
-    public static final int RT_SWITCH_PORT = 0; 
+    
+    public static final double kP = 0; 
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kF = 0.0; 
+
+    public static final double TOLERANCE = 0; 
+
+    public static final double kS = 0; 
+    public static final double kV = 0;
+    public static final double kG = 0;
   }
 }
