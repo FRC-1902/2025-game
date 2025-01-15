@@ -34,8 +34,6 @@ public class RobotContainer {
         controllers = new ControllerSubsystem();
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
-        System.out.println("Before DriveCommand");
-
 
         DriveCommand closedDrive = new DriveCommand(
             swerve,
@@ -43,8 +41,6 @@ public class RobotContainer {
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.RIGHT_Y_DEADBAND),
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
         );
-
-        System.out.println("Set Default DriveCommand");
 
         swerve.setDefaultCommand(closedDrive);
     }
