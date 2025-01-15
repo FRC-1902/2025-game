@@ -22,17 +22,15 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class FloorIntake extends SubsystemBase {
-  private SparkMax rollerMotor1, rollerMotor2;
+  private SparkMax rollerMotor;
   private SparkMax pivotMotor;
-  private SparkBaseConfig pivotConfig, rollerConfig1, rollerConfig2;
   private DigitalInput irSensor;
   private PIDController pid;
   private Alert pivotAlert;
 
   /** Creates a new FloorIntake. */
   public FloorIntake() {
-    rollerMotor1 = new SparkMax(Constants.FloorIntake.ROLLERMOTOR1_PORT, MotorType.kBrushless);
-    rollerMotor2 = new SparkMax(Constants.FloorIntake.ROLLERMOTOR2_PORT, MotorType.kBrushless);
+    rollerMotor = new SparkMax(Constants.FloorIntake.ROLLERMOTOR_PORT, MotorType.kBrushless);
 
     pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR_PORT, MotorType.kBrushless);
 
@@ -50,9 +48,8 @@ public class FloorIntake extends SubsystemBase {
 
   private void configureMotors() {
 
-    pivotConfig = new SparkMaxConfig();
-    rollerConfig1 = new SparkMaxConfig();
-    rollerConfig2 = new SparkMaxConfig();
+    SparkBaseConfig pivotConfig = new SparkMaxConfig();
+    SparkBaseConfig rollerConfig = new SparkMaxConfig();
 
     // Pivot configs
     pivotConfig.idleMode(IdleMode.kBrake);
@@ -63,23 +60,17 @@ public class FloorIntake extends SubsystemBase {
     pivotConfig.voltageCompensation(12.00);
 
     // Roller configs
-    rollerConfig1.idleMode(IdleMode.kCoast);
-    rollerConfig1.inverted(false);
-    rollerConfig1.secondaryCurrentLimit(30);
-    rollerConfig1.smartCurrentLimit(30);
-    rollerConfig1.voltageCompensation(12.00);
+    rollerConfig.idleMode(IdleMode.kCoast);
+    rollerConfig.inverted(false);
+    rollerConfig.disableFollowerMode(); 
+    rollerConfig.secondaryCurrentLimit(30);
+    rollerConfig.smartCurrentLimit(30);
+    rollerConfig.voltageCompensation(12.00);
 
-    rollerConfig2.idleMode(IdleMode.kCoast);
-    rollerConfig2.inverted(true); // check inversion
-    rollerConfig2.follow(Constants.FloorIntake.ROLLERMOTOR1_PORT); // check follower mode
-    rollerConfig2.secondaryCurrentLimit(30);
-    rollerConfig2.smartCurrentLimit(30);
-    rollerConfig2.voltageCompensation(12.00);
     // resetSafeParameters might be an issue
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    rollerMotor1.configure(rollerConfig1, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    rollerMotor2.configure(rollerConfig2, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    rollerMotor.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   /**
@@ -103,7 +94,7 @@ public class FloorIntake extends SubsystemBase {
    * @returns the average current speed of the roller motors
    */
   public double getSpeed() {
-    return (rollerMotor1.getAbsoluteEncoder().getVelocity() + rollerMotor2.getAbsoluteEncoder().getVelocity()) * 0.5;
+    return (rollerMotor.getAbsoluteEncoder().getVelocity());
   }
 
   /**
@@ -111,7 +102,7 @@ public class FloorIntake extends SubsystemBase {
    * @param targetSpeed sets the speed of the roller motors between 1 and -1
    */
   public void setSpeed(double targetSpeed) {
-    rollerMotor1.set(targetSpeed);
+    rollerMotor.set(targetSpeed);
   }
 
   /**

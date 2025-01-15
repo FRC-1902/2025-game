@@ -52,8 +52,7 @@ public final class Constants {
   public static final class FloorIntake{
     private FloorIntake() {}; 
     //todo: set ports
-    public static final int ROLLERMOTOR1_PORT = 0; 
-    public static final int ROLLERMOTOR2_PORT = 0; 
+    public static final int ROLLERMOTOR_PORT = 0; 
 
     public static final int PIVOTMOTOR_PORT = 0;
 
