@@ -49,11 +49,14 @@ public class DriveCommand extends Command {
   
     @Override
     public void initialize() {
+        System.out.println("DriveCommand Innitialized");
     }
   
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+
+        System.out.println("vX: " + vX.getAsDouble() + ", vY: " + vY.getAsDouble() + ", heading: " + heading.getAsDouble());
   
         // Make the robot move
         swerve.drive(
