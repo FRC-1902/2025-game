@@ -35,16 +35,15 @@ public class RobotContainer {
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
+        DriveCommand closedDrive = new DriveCommand(
+            swerve,
+            () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
+            () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.RIGHT_Y_DEADBAND),
+            () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
+        );
+
         swerve.setDefaultCommand(closedDrive);
     }
-
-
-    DriveCommand closedDrive = new DriveCommand(
-        swerve,
-        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
-        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.RIGHT_Y_DEADBAND),
-        () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
-    );
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

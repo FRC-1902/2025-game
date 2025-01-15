@@ -4,18 +4,12 @@
 
 package frc.robot.commands.drive;
 
-import java.util.List;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import swervelib.SwerveController;
-import swervelib.math.SwerveMath;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveCommand extends Command {
@@ -61,25 +55,12 @@ public class DriveCommand extends Command {
     @Override
     public void execute() {
   
-        // Get the desired chassis speeds based on a 2 joystick module.
-        ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(
-            vX.getAsDouble(), 
-            vY.getAsDouble(),
-            heading.getAsDouble() * Math.PI, 
-            heading.getAsDouble() * Math.PI
-        );
-  
-        // Limit velocity to prevent tippy
-        Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
-        translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
-        Constants.Swerve.LOOP_TIME, Constants.Swerve.ROBOT_MASS, List.of(Constants.Swerve.CHASSIS),
-        swerve.getSwerveDriveConfiguration());
-          
-        SmartDashboard.putNumber("LimitedTranslation", translation.getX());
-        SmartDashboard.putString("Translation", translation.toString());
-  
         // Make the robot move
-         swerve.drive(translation, desiredSpeeds.omegaRadiansPerSecond, true);
+        swerve.drive(
+            new Translation2d(vX.getAsDouble(), vY.getAsDouble()).times(Constants.Swerve.MAX_SPEED), 
+            heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians(), 
+            true
+        );
     }
   
     // Called once the command ends or is interrupted.

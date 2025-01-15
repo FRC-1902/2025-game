@@ -235,11 +235,11 @@ public class SwerveSubsystem extends SubsystemBase {
         return swerve.getSwerveController().getTargetSpeeds( 
             scaledInputs.getX(),
             scaledInputs.getY(),
-            headingX,
+            headingX, // TODO: look at me more
             headingY,
             getHeading().getRadians(),
             Constants.Swerve.MAX_SPEED);
-  }
+    }
 
     public void postTrajectory(Trajectory trajectory) {
         swerve.postTrajectory(trajectory);

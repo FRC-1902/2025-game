@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
@@ -46,10 +47,10 @@ public final class Constants {
         public static final int MANIP_CONTROLLER_PORT = 1; // TODO: Set port
 
         // Joystick Deadband
-        public static final double RIGHT_Y_DEADBAND        = 0.1;
+        public static final double RIGHT_Y_DEADBAND = 0.1;
         public static final double LEFT_Y_DEADBAND = 0.1;
         public static final double RIGHT_X_DEADBAND = 0.1;
-        public static final double TURN_CONSTANT    = 6;
+        public static final double TURN_CONSTANT = 6;
     }
 
     public static final class Swerve {
@@ -57,6 +58,7 @@ public final class Constants {
         public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
         public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
         public static final double MAX_SPEED = 5.450; // m/s TODO: Adjust later
+        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(1); // m/s TODO: Adjust later
     }
 
     public static final class Vision {
