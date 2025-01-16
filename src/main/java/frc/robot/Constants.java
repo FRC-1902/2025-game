@@ -55,18 +55,18 @@ public final class Constants {
     public static final int RIGHT_MOTOR_ID = 0;  
 
     public static final int LIMIT_SWITCH_PORT = 0; 
+    public static final int SERVO_PORT = 0;
     
     public static final double kP = 0; 
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kF = 0.0; 
-    public static final double kCLimb = 0;
 
     public static final double TOLERANCE = 0; 
 
     public enum Position{ 
       //todo: set height setpoints in meters
-      L1(0, "L1"), L2(0, "L2"), L3(0, "L3"), STOP(0, "L3"), CLIMB(0, "CLIMB"); 
+      L1(0, "L1"), L2(0, "L2"), L3(0, "L3"), CLIMB(0, "CLIMB"), MIN(0, "MIN Height"), MAX(0,"MAX Height"); 
       private final double height;
       private final String name; 
 

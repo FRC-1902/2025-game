@@ -18,15 +18,16 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Servo;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private SparkMax leftMotor, rightMotor;
   private SparkBaseConfig configOne, configTwo;
+  private Servo servo;
   private DigitalInput limitSwitch;
   private PIDController pid;
   private Position targetPosition;
-  private double targetHeight;
-  private Alert alert;
+  private Alert badStart, boundsAlert;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -43,14 +44,18 @@ public class ElevatorSubsystem extends SubsystemBase {
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
     pid.setTolerance(Constants.Elevator.TOLERANCE);
 
-    alert = new Alert(
+    badStart = new Alert(
         "Elevator/Bad Starting Pos, Robot Knows not where you are, and why you've done this.",
         AlertType.kError);
 
     if (!limitSwitchTriggered()) {
-      alert.set(true);
-      targetPosition = Position.STOP;
+      badStart.set(true);
     }
+
+    boundsAlert = new Alert("Elevator/Elevator out of bounds", AlertType.kError);
+
+    servo = new Servo(Constants.Elevator.SERVO_PORT); 
+      
   }
 
   private void configureMotors() {
@@ -68,26 +73,18 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   /**
    * 
-   * @returns the current position of elevator
+   * @returns the current position of elevator 
    */
   public double getPosition() {
     return (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition()) * 0.5;
   }
-
+ 
   /**
    * 
    * @param targetPosition
    */
   public void setPosition(Position targetPosition) {
-    this.targetPosition = targetPosition;
-  }
-
-  /**
-   * 
-   * @param targetHeight
-   */
-  public void setPosition(double targetHeight) {
-    this.targetHeight = targetPosition.getHeight();
+    this.targetPosition = targetPosition; 
   }
 
   /**
@@ -113,36 +110,54 @@ public class ElevatorSubsystem extends SubsystemBase {
     return pid.atSetpoint();
   }
 
+  /**
+   * locks the servo from moving 
+   */
+  private void lockServo(){
+    servo.set(0);
+  }
+
+  /**
+   * Alerts if elevator is out of bounds
+   */
+  private void watchingDog(){
+    if(getPosition() > Constants.Elevator.Position.MAX.getHeight() || getPosition() < Constants.Elevator.Position.MIN.getHeight()){
+      boundsAlert.set(true);
+    }
+    else{
+      boundsAlert.set(false);
+    }
+  }
+
+  /**
+   * full throttle downward for climb until limit switch is hit
+   */
+  private void climb(){
+    if(!limitSwitchTriggered() && !pidAtSetpoint()){
+      leftMotor.set(-1);
+    }
+    else{
+      leftMotor.set(0);
+      lockServo(); 
+    } 
+  }
+
   @Override
   public void periodic() {
 
     double power;
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
-    SmartDashboard.putString("Elevator/Current Target Height", targetPosition.getName());
     SmartDashboard.putNumber("ELevator/Current Position", getPosition());
 
-    switch (targetPosition) {
-      case L1:
-        power = pid.calculate(getPosition(), targetHeight) + Constants.Elevator.kF;
-        leftMotor.set(power);
-        return;
-      case L2:
-        power = pid.calculate(getPosition(), targetHeight) + Constants.Elevator.kF;
-        leftMotor.set(power);
-        return;
-      case L3:
-        power = pid.calculate(getPosition(), targetHeight) + Constants.Elevator.kF;
-        leftMotor.set(power);
-        return;
-      case STOP:
-        leftMotor.set(0);
-        return;
-      case CLIMB:
-        power = pid.calculate(getPosition(), targetHeight) + Constants.Elevator.kCLimb;
-        while (!limitSwitchTriggered()) {
+      switch (targetPosition) {
+        default:
+          power = pid.calculate(getPosition(), targetPosition.getHeight()) + Constants.Elevator.kF;
           leftMotor.set(power);
-        }
-    }
+          return;
+        case CLIMB:
+          climb(); 
+      }
+      watchingDog();
   }
 }
