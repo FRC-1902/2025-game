@@ -6,17 +6,24 @@ package frc.robot.commands.drive;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveCommand extends Command {
 
     private final SwerveSubsystem swerve;
     private final DoubleSupplier vX, vY, heading;
-  
+
+    // Values > 1 increase sensitivity
+    // Values closer to 1 maintain original sensitivity
+    // Values < 1 decrease sensitivity
+    private final double ROTATION_SENSITIVITY = 0.5;
+
     /**
      * Used to drive a swerve robot in full field-centric mode. vX and vY supply
      * translation inputs, where x is
@@ -43,33 +50,54 @@ public class DriveCommand extends Command {
         this.vX = vX;
         this.vY = vY;
         this.heading = heading;
-    
+
         addRequirements(swerve);
     }
-  
+
     @Override
     public void initialize() {}
-  
-    // Called every time the scheduler runs while the command is scheduled.
+
     @Override
     public void execute() {
-  
-        // Make the robot move
-        swerve.drive(
-            new Translation2d(vX.getAsDouble(), vY.getAsDouble()).times(Constants.Swerve.MAX_SPEED), 
-            heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians(), 
-            true
+        // Apply alliance-based inversions
+        var alliance = DriverStation.getAlliance();
+
+        double allianceMultiplier = -1;
+
+		// Additional alliance-based inversions
+		if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue) {
+			// Invert x and y velocities for blue alliance
+            allianceMultiplier = -1;
+		}
+
+        double xVelocity = vX.getAsDouble() * allianceMultiplier;
+        double yVelocity = vY.getAsDouble() * allianceMultiplier;
+
+        // Manual rotation control with sensitivity
+        double rotationVelocity = heading.getAsDouble();
+        rotationVelocity = -MathUtil.applyDeadband(
+            rotationVelocity * swerve.getMaximumAngularVelocity(),
+            Constants.Controller.RIGHT_X_DEADBAND
         );
+        rotationVelocity *= ROTATION_SENSITIVITY;
+
+        // Create field-relative ChassisSpeeds
+        ChassisSpeeds fieldRelativeSpeeds =
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                xVelocity, yVelocity, rotationVelocity, swerve.getHeading()
+            );
+
+        // Drive using field-relative speeds
+        swerve.drive(fieldRelativeSpeeds);
+
     }
-  
-    // Called once the command ends or is interrupted.
+
     @Override
     public void end(boolean interrupted) {
     }
-  
-    // Returns true when the command should end.
+
     @Override
     public boolean isFinished() {
         return false;
     }
-  }
+}

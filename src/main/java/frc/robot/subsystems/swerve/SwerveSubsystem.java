@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import swervelib.SwerveController;
+import swervelib.SwerveDrive;
 import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
 
@@ -239,6 +240,11 @@ public class SwerveSubsystem extends SubsystemBase {
             headingY,
             getHeading().getRadians(),
             Constants.Swerve.MAX_SPEED);
+    }
+
+    public SwerveDrive getSwerveDrive()
+    {
+        return (SwerveDrive) swerve;
     }
 
     public void postTrajectory(Trajectory trajectory) {
