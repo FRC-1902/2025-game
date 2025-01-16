@@ -57,8 +57,8 @@ public final class Constants {
         public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value
         public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
         public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
-        public static final double MAX_SPEED = 5.450; // m/s TODO: Adjust later
-        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(1); // m/s TODO: Adjust later
+        public static final double MAX_SPEED = 10; // m/s TODO: Adjust later
+        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(5); // m/s TODO: Adjust later
     }
 
     public static final class Vision {
@@ -70,11 +70,11 @@ public final class Constants {
         public enum Camera {
             ArducamOne(
                 "ArducamOne",
-                new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(30)),
+                new Rotation3d(0, Math.toRadians(0), Math.toRadians(-15)),
                 new Translation3d(
-                    Units.inchesToMeters(12.056), 
-                    Units.inchesToMeters(10.981), 
-                    Units.inchesToMeters(8.44)
+                    Units.inchesToMeters(-4.628), 
+                    Units.inchesToMeters(-10.687), 
+                    Units.inchesToMeters(6)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
