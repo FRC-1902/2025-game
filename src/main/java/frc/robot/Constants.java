@@ -60,8 +60,29 @@ public final class Constants {
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kF = 0.0; 
+    public static final double kCLimb = 0;
 
     public static final double TOLERANCE = 0; 
+
+    public enum Position{ 
+      //todo: set height setpoints in meters
+      L1(0, "L1"), L2(0, "L2"), L3(0, "L3"), STOP(0, "L3"), CLIMB(0, "CLIMB"); 
+      private final double height;
+      private final String name; 
+
+      Position(double height, String name){
+        this.height = height;
+        this.name = name;  
+      }
+
+      public double getHeight(){
+        return height;
+      }
+
+      public String getName(){
+        return name; 
+      }
+    }
 
   }
 }

@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Elevator.Position;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -13,15 +14,19 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Alert;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private SparkMax leftMotor, rightMotor;
   private SparkBaseConfig configOne, configTwo;
   private DigitalInput limitSwitch;
   private PIDController pid;
-  private double targetPosition;
+  private Position targetPosition;
+  private double targetHeight;
+  private Alert alert;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -37,6 +42,15 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
     pid.setTolerance(Constants.Elevator.TOLERANCE);
+
+    alert = new Alert(
+        "Elevator/Bad Starting Pos, Robot Knows not where you are, and why you've done this.",
+        AlertType.kError);
+
+    if (!limitSwitchTriggered()) {
+      alert.set(true);
+      targetPosition = Position.STOP;
+    }
   }
 
   private void configureMotors() {
@@ -59,13 +73,21 @@ public class ElevatorSubsystem extends SubsystemBase {
   public double getPosition() {
     return (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition()) * 0.5;
   }
-  
+
   /**
    * 
    * @param targetPosition
    */
-  public void setPosition(double targetPosition) {
+  public void setPosition(Position targetPosition) {
     this.targetPosition = targetPosition;
+  }
+
+  /**
+   * 
+   * @param targetHeight
+   */
+  public void setPosition(double targetHeight) {
+    this.targetHeight = targetPosition.getHeight();
   }
 
   /**
@@ -76,16 +98,51 @@ public class ElevatorSubsystem extends SubsystemBase {
     return limitSwitch.get();
   }
 
+  /**
+   * resets the pid
+   */
+  public void resetPID() {
+    pid.reset();
+  }
+
+  /**
+   * 
+   * @returns whether or not the pid is at setpoint
+   */
+  public boolean pidAtSetpoint() {
+    return pid.atSetpoint();
+  }
+
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    double power = pid.calculate(getPosition(), targetPosition) + Constants.Elevator.kF;
 
-    if (limitSwitchTriggered()) {
-      leftMotor.set(0);
-    } else {
-      leftMotor.set(power);
-    }
+    double power;
+    // This method will be called once per scheduler run
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
+    SmartDashboard.putString("Elevator/Current Target Height", targetPosition.getName());
+    SmartDashboard.putNumber("ELevator/Current Position", getPosition());
+
+    switch (targetPosition) {
+      case L1:
+        power = pid.calculate(getPosition(), targetHeight) + Constants.Elevator.kF;
+        leftMotor.set(power);
+        return;
+      case L2:
+        power = pid.calculate(getPosition(), targetHeight) + Constants.Elevator.kF;
+        leftMotor.set(power);
+        return;
+      case L3:
+        power = pid.calculate(getPosition(), targetHeight) + Constants.Elevator.kF;
+        leftMotor.set(power);
+        return;
+      case STOP:
+        leftMotor.set(0);
+        return;
+      case CLIMB:
+        power = pid.calculate(getPosition(), targetHeight) + Constants.Elevator.kCLimb;
+        while (!limitSwitchTriggered()) {
+          leftMotor.set(power);
+        }
+    }
   }
 }
