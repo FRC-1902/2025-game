@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -63,6 +64,8 @@ public final class Constants {
     public static final double kF = 0.0; 
 
     public static final double TOLERANCE = 0; 
+
+    public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(69);
 
     public enum Position{ 
       //todo: set height setpoints in meters
