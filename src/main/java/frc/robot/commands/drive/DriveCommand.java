@@ -6,8 +6,6 @@ package frc.robot.commands.drive;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,7 +20,6 @@ public class DriveCommand extends Command {
     // Values > 1 increase sensitivity
     // Values closer to 1 maintain original sensitivity
     // Values < 1 decrease sensitivity
-    private final double ROTATION_SENSITIVITY = 0.5;
 
     /**
      * Used to drive a swerve robot in full field-centric mode. vX and vY supply
@@ -61,30 +58,26 @@ public class DriveCommand extends Command {
     public void execute() {
         // Apply alliance-based inversions
         var alliance = DriverStation.getAlliance();
-
-        double allianceMultiplier = -1;
+        double xVelocity = vX.getAsDouble();
+        double yVelocity = vY.getAsDouble();
 
 		// Additional alliance-based inversions
-		if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue) {
+		if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
 			// Invert x and y velocities for blue alliance
-            allianceMultiplier = -1;
+            xVelocity *= -1;
+            yVelocity *= -1;
 		}
 
-        double xVelocity = vX.getAsDouble() * allianceMultiplier;
-        double yVelocity = vY.getAsDouble() * allianceMultiplier;
 
-        // Manual rotation control with sensitivity
         double rotationVelocity = heading.getAsDouble();
-        rotationVelocity = -MathUtil.applyDeadband(
-            rotationVelocity * swerve.getMaximumAngularVelocity(),
-            Constants.Controller.RIGHT_X_DEADBAND
-        );
-        rotationVelocity *= ROTATION_SENSITIVITY;
 
         // Create field-relative ChassisSpeeds
         ChassisSpeeds fieldRelativeSpeeds =
             ChassisSpeeds.fromFieldRelativeSpeeds(
-                xVelocity, yVelocity, rotationVelocity, swerve.getHeading()
+                xVelocity, 
+                yVelocity, 
+                rotationVelocity, 
+                swerve.getHeading()
             );
 
         // Drive using field-relative speeds
@@ -94,7 +87,7 @@ public class DriveCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-    }
+    } 
 
     @Override
     public boolean isFinished() {

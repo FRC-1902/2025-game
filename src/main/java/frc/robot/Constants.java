@@ -58,7 +58,7 @@ public final class Constants {
         public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
         public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
         public static final double MAX_SPEED = 10; // m/s TODO: Adjust later
-        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(5); // m/s TODO: Adjust later
+        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10); // m/s TODO: Adjust later
     }
 
     public static final class Vision {
