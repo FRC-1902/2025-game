@@ -10,6 +10,7 @@ import frc.robot.Constants.Elevator.Position;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -22,7 +23,6 @@ import edu.wpi.first.wpilibj.Servo;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private SparkMax leftMotor, rightMotor;
-  private SparkBaseConfig configOne, configTwo;
   private Servo servo;
   private DigitalInput limitSwitch;
   private PIDController pid;
@@ -33,9 +33,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem() {
     leftMotor = new SparkMax(Constants.Elevator.LEFT_MOTOR_ID, MotorType.kBrushless);
     rightMotor = new SparkMax(Constants.Elevator.RIGHT_MOTOR_ID, MotorType.kBrushless);
-
-    configOne = new SparkMaxConfig();
-    configTwo = new SparkMaxConfig();
 
     configureMotors();
 
@@ -59,6 +56,10 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   private void configureMotors() {
+    SparkBaseConfig configOne = new SparkMaxConfig();
+    SparkBaseConfig configTwo = new SparkMaxConfig();
+    AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
+
     configOne.idleMode(IdleMode.kBrake);
     configOne.smartCurrentLimit(50);
     configOne.inverted(true); // todo: switch inverted
@@ -69,6 +70,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     configTwo.inverted(false); // todo: switch inverted
     configTwo.voltageCompensation(12);
     configTwo.follow(Constants.Elevator.LEFT_MOTOR_ID);
+
+    encoderConfig.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
+
   }
 
   /**
@@ -113,21 +117,25 @@ public class ElevatorSubsystem extends SubsystemBase {
   /**
    * locks the servo from moving
    */
-  private void lockServo(boolean lock) {
+  public void isLocked(boolean lock) {
     if (lock) {
       servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
+    } else {
+      servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
     }
   }
 
   /**
    * Alerts if elevator is out of bounds
    */
-  private void watchingDog() {
+  private boolean watchingDog() {
     if (getPosition() > Constants.Elevator.Position.MAX.getHeight()
         || getPosition() < Constants.Elevator.Position.MIN.getHeight()) {
       boundsAlert.set(true);
+      return true;
     } else {
       boundsAlert.set(false);
+      return false;
     }
   }
 
@@ -135,11 +143,10 @@ public class ElevatorSubsystem extends SubsystemBase {
    * full throttle downward for climb until limit switch is hit
    */
   private void climb() {
-    if (!limitSwitchTriggered() && !pidAtSetpoint()) {
+    if (!limitSwitchTriggered()) {
       leftMotor.set(-1);
     } else {
       leftMotor.set(0);
-      lockServo(true);
     }
   }
 
@@ -150,15 +157,20 @@ public class ElevatorSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
     SmartDashboard.putNumber("ELevator/Current Position", getPosition());
+    SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
+
+    if (watchingDog()) {
+      leftMotor.set(0);
+    }
 
     switch (targetPosition) {
+      case CLIMB:
+        climb();
+        return;
       default:
         power = pid.calculate(getPosition(), targetPosition.getHeight()) + Constants.Elevator.kF;
         leftMotor.set(power);
         return;
-      case CLIMB:
-        climb();
     }
-    watchingDog();
   }
 }
