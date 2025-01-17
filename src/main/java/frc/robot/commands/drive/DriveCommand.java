@@ -5,7 +5,6 @@
 package frc.robot.commands.drive;
 
 import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,7 +16,7 @@ public class DriveCommand extends Command {
     private final DoubleSupplier vX, vY, heading;
 
     /**
-     * Creates a DriveCommand.
+     * Creates a DriveCommand
      * @param swerve
      * @param vX
      * @param vY
@@ -42,12 +41,12 @@ public class DriveCommand extends Command {
         double xVelocity = vX.getAsDouble();
         double yVelocity = vY.getAsDouble();
 
-		// Additional alliance-based inversions
-		if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-			// Invert x and y velocities for blue alliance
+        // Additional alliance-based inversions
+        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+            // Invert x and y velocities for blue alliance
             xVelocity *= -1;
             yVelocity *= -1;
-		}
+        }
 
         double rotationVelocity = heading.getAsDouble();
 
