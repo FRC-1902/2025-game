@@ -58,6 +58,8 @@ public final class Constants {
 
     public static final int IR_SENSOR_PORT = 0; 
 
+    public static final int ENCODER_PORT = 0; 
+
     //todo: find p, i, d, g
     public static final double PIVOT_P = 0; 
     public static final double PIVOT_I = 0; 
@@ -68,6 +70,9 @@ public final class Constants {
     public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(69); 
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(420); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(420); 
+    
+    //todo: set offset
+    public static final double ENCODER_OFFSET = 0;
   }
 }
 

@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
-
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 public class FloorIntake extends SubsystemBase {
   private SparkMax rollerMotor;
   private SparkMax pivotMotor;
@@ -47,7 +47,7 @@ public class FloorIntake extends SubsystemBase {
   }
 
   private void configureMotors() {
-
+    AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
     SparkBaseConfig pivotConfig = new SparkMaxConfig();
     SparkBaseConfig rollerConfig = new SparkMaxConfig();
 
@@ -58,6 +58,7 @@ public class FloorIntake extends SubsystemBase {
     pivotConfig.secondaryCurrentLimit(30);
     pivotConfig.smartCurrentLimit(30);
     pivotConfig.voltageCompensation(12.00);
+    pivotConfig.apply(encoderConfig);
 
     // Roller configs
     rollerConfig.idleMode(IdleMode.kCoast);
@@ -66,6 +67,9 @@ public class FloorIntake extends SubsystemBase {
     rollerConfig.secondaryCurrentLimit(30);
     rollerConfig.smartCurrentLimit(30);
     rollerConfig.voltageCompensation(12.00);
+
+    // Encoder Configs 
+    encoderConfig.zeroOffset(Constants.FloorIntake.ENCODER_OFFSET);
 
     // resetSafeParameters might be an issue
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
