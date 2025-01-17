@@ -60,6 +60,13 @@ public final class Constants {
         public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10); // m/s TODO: Adjust later
     }
 
+    public static final class LED{
+        private LED() {}; 
+        //todo: set ports and length
+        public static final int LED_PORT = 0;
+        public static final int LED_LENGTH = 0; 
+    }
+
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
         public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
