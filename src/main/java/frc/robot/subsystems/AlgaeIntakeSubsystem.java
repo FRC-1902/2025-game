@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class EndAffectorSubsystem extends SubsystemBase {
+public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor, pivotMotor;
   private SparkBaseConfig rollerConfig, pivotConfig;
   private PIDController pid;
@@ -28,17 +28,17 @@ public class EndAffectorSubsystem extends SubsystemBase {
   private double targetSpeed;
   private Alert alert;
 
-  /** Creates a new EndAffectorSubsystem. */
-  public EndAffectorSubsystem() {
-    rollerMotor = new SparkMax(Constants.EndAffector.ROLLER_ID, MotorType.kBrushless);
-    pivotMotor = new SparkMax(Constants.EndAffector.PIVOT_ID, MotorType.kBrushless);
+  /** Creates a new AlgaeIntakeSubsystem. */
+  public AlgaeIntakeSubsystem() {
+    rollerMotor = new SparkMax(Constants.AlgaeIntake.ROLLER_ID, MotorType.kBrushless);
+    pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_ID, MotorType.kBrushless);
 
     rollerConfig = new SparkMaxConfig();
     pivotConfig = new SparkMaxConfig();
 
-    pid = new PIDController(Constants.EndAffector.kP, Constants.EndAffector.kI, Constants.EndAffector.kD);
+    pid = new PIDController(Constants.AlgaeIntake.kP, Constants.AlgaeIntake.kI, Constants.AlgaeIntake.kD);
     pid.enableContinuousInput(0, 360);
-    pid.setTolerance(Constants.EndAffector.TOLERANCE.getDegrees());
+    pid.setTolerance(Constants.AlgaeIntake.TOLERANCE.getDegrees());
     configureMotors();
 
     alert = new Alert("Algae Pivot Out Of Bounds", AlertType.kWarning);
@@ -109,8 +109,8 @@ public class EndAffectorSubsystem extends SubsystemBase {
    * @returns whether or not pivot is out of bounds or not
    */
   private boolean pivotWatchdog() {
-    if (getAngle().getDegrees() >= Constants.EndAffector.MAX_PIVOT.getDegrees()
-        || getAngle().getDegrees() <= Constants.EndAffector.MIN_PIVOT.getDegrees()) {
+    if (getAngle().getDegrees() >= Constants.AlgaeIntake.MAX_PIVOT.getDegrees()
+        || getAngle().getDegrees() <= Constants.AlgaeIntake.MIN_PIVOT.getDegrees()) {
       alert.set(true);
       return true;
     } else {
@@ -123,9 +123,9 @@ public class EndAffectorSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
-        + Constants.EndAffector.kG * Math.cos(getAngle().getRadians());
+        + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
 
-    SmartDashboard.putNumber("Algae Intake Current Angle ", getAngle().getDegrees());
+    SmartDashboard.putNumber("AlgaeIntake/Current Angle ", getAngle().getDegrees());
 
     if (pivotWatchdog()) {
       pivotMotor.set(0);

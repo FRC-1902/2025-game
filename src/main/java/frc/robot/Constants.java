@@ -49,8 +49,8 @@ public final class Constants {
     public static final int LED_LENGTH = 0; 
   }
 
-  public static final class EndAffector{
-    private EndAffector() {}; 
+  public static final class AlgaeIntake{
+    private AlgaeIntake() {}; 
 
     public static final int ROLLER_ID = 0; 
     public static final int PIVOT_ID = 0; 
