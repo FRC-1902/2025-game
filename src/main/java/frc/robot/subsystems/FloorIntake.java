@@ -58,7 +58,6 @@ public class FloorIntake extends SubsystemBase {
     pivotConfig.secondaryCurrentLimit(30);
     pivotConfig.smartCurrentLimit(30);
     pivotConfig.voltageCompensation(12.00);
-    pivotConfig.apply(encoderConfig);
 
     // Roller configs
     rollerConfig.idleMode(IdleMode.kCoast);
@@ -69,7 +68,8 @@ public class FloorIntake extends SubsystemBase {
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Configs 
-    encoderConfig.zeroOffset(Constants.FloorIntake.ENCODER_OFFSET);
+    encoderConfig.zeroOffset(Constants.FloorIntake.ENCODER_OFFSET.getDegrees());
+    pivotConfig.apply(encoderConfig);
 
     // resetSafeParameters might be an issue
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -82,7 +82,7 @@ public class FloorIntake extends SubsystemBase {
    * @returns current angle in Rotation2d
    */
   public Rotation2d getAngle() {
-    return Rotation2d.fromDegrees(pivotMotor.getAbsoluteEncoder().getPosition());
+    return Rotation2d.fromRotations(pivotMotor.getAbsoluteEncoder().getPosition());
   }
 
   /**
@@ -91,14 +91,6 @@ public class FloorIntake extends SubsystemBase {
    */
   public void setAngle(Rotation2d targetAngle) {
     pid.setSetpoint(targetAngle.getDegrees());
-  }
-
-  /**
-   * 
-   * @returns the average current speed of the roller motors
-   */
-  public double getSpeed() {
-    return (rollerMotor.getAbsoluteEncoder().getVelocity());
   }
 
   /**

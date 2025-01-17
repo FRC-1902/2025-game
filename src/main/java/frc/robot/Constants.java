@@ -72,7 +72,7 @@ public final class Constants {
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(420); 
     
     //todo: set offset
-    public static final double ENCODER_OFFSET = 0;
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
   }
 }
 
