@@ -34,7 +34,9 @@ public class FloorIntake extends SubsystemBase {
 
     pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR_PORT, MotorType.kBrushless);
 
-    pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I,
+    pid = new PIDController(
+        Constants.FloorIntake.PIVOT_P,
+        Constants.FloorIntake.PIVOT_I,
         Constants.FloorIntake.PIVOT_D);
     pid.enableContinuousInput(0, 360);
     pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
