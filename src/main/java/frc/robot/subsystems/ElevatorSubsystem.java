@@ -161,6 +161,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     if (watchingDog()) {
       leftMotor.set(0);
+      return; 
     }
 
     switch (targetPosition) {
