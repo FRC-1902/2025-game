@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import swervelib.math.Matter;
 
 
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -26,6 +27,59 @@ import swervelib.math.Matter;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static final Mode simMode = Mode.SIM;
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+  public static enum Mode {
+    /** Running on a real robot. */
+    REAL,
+
+    /** Running a physics simulator. */
+    SIM,
+
+    /** Replaying from a log file. */
+    REPLAY
+  }
+
+  public static final class Controller{
+    // Controller Ports
+    public static final int DRIVE_CONTROLLER_PORT = 0; // TODO: Set port
+    public static final int MANIP_CONTROLLER_PORT = 1; // TODO: Set port
+
+    // Joystick Deadband
+    public static final double DEADBAND        = 0.1;
+    public static final double LEFT_Y_DEADBAND = 0.1;
+    public static final double RIGHT_X_DEADBAND = 0.1;
+    public static final double TURN_CONSTANT    = 6;
+  }
+
+  public static final class LED{
+    private LED() {}; 
+    //todo: set ports and length
+    public static final int LED_PORT = 0;
+    public static final int LED_LENGTH = 0; 
+  }
+
+  public static final class AlgaeIntake{
+    private AlgaeIntake() {}; 
+    // todo: find id's
+    public static final int ROLLER_ID = 0; 
+    public static final int PIVOT_ID = 0; 
+    // todo: find p, i, d, g
+    public static final double kP = 0; 
+    public static final double kI = 0; 
+    public static final double kD = 0; 
+    public static final double kG = 0;
+    // todo: find tolerances
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(0); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0); 
+    // todo: find rotations
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromRotations(0);
+  }
+}
+
 
     // Robot Mode
     public enum RobotMode {
@@ -149,3 +203,4 @@ public final class Constants {
         };
     }
 }
+
