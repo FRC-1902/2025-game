@@ -67,6 +67,40 @@ public final class Constants {
         public static final int LED_LENGTH = 0; 
     }
 
+  public static final class Elevator{
+    private Elevator() {}; 
+    // todo: find id's
+    public static final int LEFT_MOTOR_ID = 0; 
+    public static final int RIGHT_MOTOR_ID = 0;  
+    // todo: find limit switch/servo ports 
+    public static final int LIMIT_SWITCH_PORT = 0; 
+    public static final int SERVO_PORT = 0;
+    // todo: find p, i, d, f values 
+    public static final double kP = 0; 
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kF = 0.0; 
+
+    public static final double TOLERANCE = 0; // todo: find tolerance
+    public static final double CONVERSION_FACTOR = 0; // todo: find conversion factor for encoder 
+    public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(69); // todo: find optimal lock angle
+    public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(420); // todo: find optimal unlocked angle
+
+    public enum Position{ 
+      //todo: set height setpoints in meters
+      L1(0), L2(0), L3(0), CLIMB(0), MIN(0), MAX(0); 
+      private final double height;
+
+      Position(double height){
+        this.height = height;
+      }
+
+      public double getHeight(){
+        return height;
+      }
+    }
+  }
+
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
         public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
