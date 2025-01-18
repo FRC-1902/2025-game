@@ -20,6 +20,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   private SparkMax rollerMotor; 
   private DigitalInput frontSensor, backSensor;
+  private double targetSpeed; 
+
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem() {
     rollerMotor = new SparkMax(Constants.EndEffector.ROLLER_MOTOR_ID, MotorType.kBrushless);
@@ -51,15 +53,15 @@ public class EndEffectorSubsystem extends SubsystemBase {
     return backSensor.get(); 
   }
 
-  public void setSpeed(double speed){
-    rollerMotor.set(speed); 
+  public void setSpeed(double targetSpeed){
+    this.targetSpeed = targetSpeed;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     if(!isFrontPieceSensorActive() && isBackPieceSensorActive()){
-      setSpeed(1);
+      setSpeed(targetSpeed);
     }
     else{
       setSpeed(0); 
