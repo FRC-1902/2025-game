@@ -109,6 +109,15 @@ public final class Constants {
     public static final int LED_LENGTH = 0; 
   }
 
+    public static final class EndEffector{
+      private EndEffector() {}; 
+      // todo: set ports 
+      public static final int ROLLER_MOTOR_ID = 0; 
+      // todo: set channels
+      public static final int FRONT_SENSOR_CHANNEL = 0; 
+      public static final int BACK_SENSOR_CHANNEL = 0; 
+    }
+
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
         public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
