@@ -71,7 +71,7 @@ public final class Constants {
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(420); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(420); 
     
-    //todo: set offset
+    //todo: set offset in range from 0 to 1
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
   }
 }
