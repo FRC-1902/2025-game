@@ -68,7 +68,7 @@ public class FloorIntake extends SubsystemBase {
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Configs 
-    encoderConfig.zeroOffset(Constants.FloorIntake.ENCODER_OFFSET.getDegrees());
+    encoderConfig.zeroOffset(Constants.FloorIntake.ENCODER_OFFSET.getRotations());
     pivotConfig.apply(encoderConfig);
 
     // resetSafeParameters might be an issue
