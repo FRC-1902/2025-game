@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -22,19 +23,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor, pivotMotor;
-  private SparkBaseConfig rollerConfig, pivotConfig;
   private PIDController pid;
   private Rotation2d targetAngle;
-  private double targetSpeed;
   private Alert alert;
 
   /** Creates a new AlgaeIntakeSubsystem. */
   public AlgaeIntakeSubsystem() {
     rollerMotor = new SparkMax(Constants.AlgaeIntake.ROLLER_ID, MotorType.kBrushless);
     pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_ID, MotorType.kBrushless);
-
-    rollerConfig = new SparkMaxConfig();
-    pivotConfig = new SparkMaxConfig();
 
     pid = new PIDController(Constants.AlgaeIntake.kP, Constants.AlgaeIntake.kI, Constants.AlgaeIntake.kD);
     pid.enableContinuousInput(0, 360);
@@ -45,6 +41,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   }
 
   private void configureMotors() {
+    SparkBaseConfig pivotConfig = new SparkMaxConfig();
+    SparkBaseConfig rollerConfig = new SparkMaxConfig();
+    AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
+
     // Pivot Configs
     pivotConfig.idleMode(IdleMode.kBrake);
     pivotConfig.inverted(false); // todo: finish inverted
@@ -61,16 +61,20 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     rollerConfig.smartCurrentLimit(30);
     rollerConfig.voltageCompensation(12.00);
 
+    // Encoder Config 
+    encoderConfig.zeroOffset(Constants.AlgaeIntake.ENCODER_OFFSET.getRotations());
+    pivotConfig.apply(encoderConfig);
+
     rollerMotor.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   /**
    * 
-   * @returns current angle in Rotation2d's
+   * @returns current angle in Rotation2d's. Impacts pivot. 
    */
   public Rotation2d getAngle() {
-    return Rotation2d.fromDegrees(pivotMotor.getAbsoluteEncoder().getPosition());
+    return Rotation2d.fromRotations(pivotMotor.getAbsoluteEncoder().getPosition());
   }
 
   /**
@@ -83,18 +87,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
   /**
    * 
-   * @returns current speed of rollers
-   */
-  public double getSpeed() {
-    return rollerMotor.getEncoder().getVelocity();
-  }
-
-  /**
-   * 
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed) {
-    this.targetSpeed = targetSpeed;
+    rollerMotor.set(targetSpeed);
   }
 
   /**

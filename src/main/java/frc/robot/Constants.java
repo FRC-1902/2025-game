@@ -51,18 +51,19 @@ public final class Constants {
 
   public static final class AlgaeIntake{
     private AlgaeIntake() {}; 
-
+    // todo: find id's
     public static final int ROLLER_ID = 0; 
     public static final int PIVOT_ID = 0; 
-
+    // todo: find p, i, d, g
     public static final double kP = 0; 
     public static final double kI = 0; 
     public static final double kD = 0; 
     public static final double kG = 0;
-
+    // todo: find tolerances
     public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0); 
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(0); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0); 
-    
+    // todo: find rotations
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromRotations(0);
   }
 }
