@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import swervelib.math.Matter;
 
@@ -78,12 +79,35 @@ public final class Constants {
       public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromRotations(0);
     }
 
-    public static final class LED{
-        private LED() {}; 
-        //todo: set ports and length
-        public static final int LED_PORT = 0;
-        public static final int LED_LENGTH = 0; 
-    }
+  public static final class FloorIntake{
+    private FloorIntake() {}; 
+    //todo: set ports
+    public static final int ROLLERMOTOR_PORT = 0; 
+    public static final int PIVOTMOTOR_PORT = 0;
+    public static final int IR_SENSOR_PORT = 0; 
+    public static final int ENCODER_PORT = 0; 
+
+    //todo: find p, i, d, g
+    public static final double PIVOT_P = 0; 
+    public static final double PIVOT_I = 0; 
+    public static final double PIVOT_D = 0;
+    public static final double PIVOT_G = 0; 
+
+    //todo: set tolerance
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(69); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(420); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(420); 
+    
+    //todo: set offset in range from 0 to 1
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
+  } 
+
+  public static final class LED{
+    private LED() {}; 
+    //todo: set ports and length
+    public static final int LED_PORT = 0;
+    public static final int LED_LENGTH = 0; 
+  }
 
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
