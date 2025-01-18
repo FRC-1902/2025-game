@@ -45,14 +45,26 @@ public class EndEffectorSubsystem extends SubsystemBase {
     rollerMotor.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
   
+  /**
+   * 
+   * @returns if front IRsensor is activated 
+   */
   public boolean isFrontPieceSensorActive(){
     return frontSensor.get(); 
   }
 
+  /**
+   * 
+   * @returns if back IRsensor is activated 
+   */
   public boolean isBackPieceSensorActive(){
     return backSensor.get(); 
   }
 
+  /**
+   * 
+   * @param targetSpeed
+   */
   public void setSpeed(double targetSpeed){
     this.targetSpeed = targetSpeed;
   }
