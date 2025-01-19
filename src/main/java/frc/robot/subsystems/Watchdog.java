@@ -4,35 +4,32 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import java.util.function.DoubleSupplier;
 
-public class Watchdog extends SubsystemBase {
-  private double start, end;
-  private DoubleSupplier current;
+/** Add your docs here. */
+public class Watchdog {
 
-  /** Creates a new Watchdog. */
-  public Watchdog(double start, double end, DoubleSupplier current) {
-    this.start = start;
-    this.end = end;
-    this.current = current;
-  }
+    private double start, end;
+    private DoubleSupplier current;
 
-  /**
-   * 
-   * @returns whether bounds specified were violated or not
-   */
-  public boolean checkWatchDog() {
-    if (end > start) {
-      return current.getAsDouble() < end && current.getAsDouble() > start;
-    } else {
-      return current.getAsDouble() > end || current.getAsDouble() < start;
+    public Watchdog(double start, double end, DoubleSupplier current) {
+        this.start = start;
+        this.end = end;
+        this.current = current;
     }
-  }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+    /**
+     * 
+     * @returns whether or not bounds were crossed (ex. if Pivot is out of set min
+     *          or max)
+     *          fixes wrapping issue with many pivoting systems (ex. if Pivot
+     *          wrapped around from 360 -> 0, basic watchdog code would break)
+     */
+    public boolean checkWatchingdog() {
+        if (end > start) {
+            return current.getAsDouble() < end && current.getAsDouble() > start;
+        } else {
+            return current.getAsDouble() > end || current.getAsDouble() < start;
+        }
+    }
 }
