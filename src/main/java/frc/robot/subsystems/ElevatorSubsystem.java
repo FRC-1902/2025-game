@@ -27,7 +27,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private DigitalInput limitSwitch;
   private PIDController pid;
   private Position targetPosition;
-  private Alert badStart, boundsAlert;
+  private Alert badStart, boundsAlert, servoAlert;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -53,6 +53,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     servo = new Servo(Constants.Elevator.SERVO_PORT);
 
+    servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
   }
 
   private void configureMotors() {
@@ -88,7 +89,13 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param targetPosition
    */
   public void setPosition(Position targetPosition) {
-    this.targetPosition = targetPosition;
+    if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB){
+      servoAlert.set(true);
+      targetPosition = null;
+    }
+    else{
+      this.targetPosition = targetPosition;
+    }
   }
 
   /**
@@ -117,12 +124,20 @@ public class ElevatorSubsystem extends SubsystemBase {
   /**
    * locks the servo from moving
    */
-  public void isLocked(boolean lock) {
+  public void setLocked(boolean lock) {
     if (lock) {
       servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
     } else {
       servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
     }
+  }
+
+  /**
+   * 
+   * @returns if the servo is at the locked angle or not
+   */
+  public boolean isLocked(){
+    return servo.getAngle() == Constants.Elevator.LOCK_ANGLE.getDegrees();
   }
 
   /**
@@ -143,7 +158,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * full throttle downward for climb until limit switch is hit
    */
   private void climb() {
-    if (!limitSwitchTriggered()) {
+    if (!limitSwitchTriggered() && !isLocked()) {
       leftMotor.set(-1);
     } else {
       leftMotor.set(0);
