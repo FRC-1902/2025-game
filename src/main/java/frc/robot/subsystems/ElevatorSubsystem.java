@@ -91,7 +91,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setPosition(Position targetPosition) {
     if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB){
       servoAlert.set(true);
-      targetPosition = null;
     }
     else{
       this.targetPosition = targetPosition;
@@ -137,7 +136,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns if the servo is at the locked angle or not
    */
   public boolean isLocked(){
-    return servo.getAngle() == Constants.Elevator.LOCK_ANGLE.getDegrees();
+    return Constants.Elevator.SERVO_TOLERANCE.getDegrees() < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
   }
 
   /**
