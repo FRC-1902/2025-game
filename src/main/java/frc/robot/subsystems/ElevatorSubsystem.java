@@ -136,7 +136,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns if the servo is at the locked angle or not
    */
   public boolean isLocked(){
-    return Constants.Elevator.SERVO_TOLERANCE.getDegrees() < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
+    return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
   }
 
   /**
