@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.commands.drive.AutoAlignCommand;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
@@ -11,9 +12,16 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.io.File;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -43,7 +51,11 @@ public class RobotContainer {
         );
 
         swerve.setDefaultCommand(closedDrive);
+        new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kA.value)
+            .onTrue(new AutoAlignCommand(swerve, new Pose2d(5.1, 5.1, Rotation2d.fromDegrees(175))));
     }
+
+ 
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -53,6 +65,6 @@ public class RobotContainer {
     public Command getAutonomousCommand()
     {
         // An example command will be run in autonomous
-        return swerve.getAutonomousCommand("New Auto");
+        return swerve.getAutonomousCommand("Test");
     }
 }
