@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -58,7 +59,7 @@ public final class Constants {
         public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
         public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
         public static final double MAX_SPEED = 10; // m/s TODO: Adjust later
-        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10); // m/s TODO: Adjust later
+        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(50); // m/s TODO: Adjust later
     }
 
     public static final class AlgaeIntake{
@@ -197,6 +198,19 @@ public final class Constants {
             new Pose3d(Camera.ArducamTwo.translation, Camera.ArducamTwo.rotation),
             new Pose3d(Camera.ArducamThree.translation, Camera.ArducamThree.rotation),
             new Pose3d(Camera.ArducamFour.translation, Camera.ArducamFour.rotation)
+        };
+
+        // Waypoints
+        public static final Pose2d[] WAYPOINTS = {
+            new Pose2d(2.5, 3.830, new Rotation2d(-45)), // Blue A
+            new Pose2d(2.5, 4.18, new Rotation2d(-90)), // Blue B
+            new Pose2d(0, 0, new Rotation2d(0)),
+            new Pose2d(0, 0, new Rotation2d(0)),
+            new Pose2d(0, 0, new Rotation2d(0)),
+            new Pose2d(0, 0, new Rotation2d(0)),
+            new Pose2d(0, 0, new Rotation2d(0)),
+            new Pose2d(0, 0, new Rotation2d(0)),
+            new Pose2d(0, 0, new Rotation2d(0))
         };
     }
 }

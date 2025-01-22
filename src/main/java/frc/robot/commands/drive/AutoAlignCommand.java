@@ -8,11 +8,11 @@ import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 public class AutoAlignCommand extends Command {
     private final Command pathfindingCommand;
 
-    Pose2d targetPose = new Pose2d(30.1, 10.1, Rotation2d.fromDegrees(175));
 
     /**
      * Creates an AutoAlignCommand to align the robot to a target pose.
@@ -21,17 +21,19 @@ public class AutoAlignCommand extends Command {
      * @param targetPose The target pose to align to
      */
     public AutoAlignCommand(SwerveSubsystem swerve, Pose2d targetPose) {
+
+        PathPlannerPath path = PathPlannerPath.fromPathFile("BA");
+      
         PathConstraints constraints = new PathConstraints(
             Constants.Swerve.MAX_SPEED, // Max velocity (m/s)
-            Constants.Swerve.MAX_SPEED, // Max acceleration (m/s^2)
-            Constants.Swerve.MAX_ROTATION_SPEED.getRadians(), // Max angular velocity (rad/s)
-            Constants.Swerve.MAX_ROTATION_SPEED.getRadians()  // Max angular acceleration (rad/s^2)
+            Constants.Swerve.MAX_SPEED, // TODO: Max acceleration (m/s^2)
+            Constants.Swerve.MAX_ROTATION_SPEED.getRadians(), // TODO: Max angular velocity (rad/s)
+            Constants.Swerve.MAX_ROTATION_SPEED.getRadians()  // TODO: Max angular acceleration (rad/s^2)
         );
 
-        pathfindingCommand = AutoBuilder.pathfindToPose(
-            targetPose,
-            constraints,
-            0.0 // Goal end velocity (m/s)
+        pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+            path,
+            constraints
         );
         addRequirements(swerve);
     }

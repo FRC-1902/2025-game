@@ -21,6 +21,10 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
@@ -68,6 +72,9 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
         Logger.start();
 
+    PathfindingCommand.warmupCommand().schedule();
+    Pathfinding.setPathfinder(new LocalADStar());
+    
     robotContainer = new RobotContainer();
   }
 
@@ -108,6 +115,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
+
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
