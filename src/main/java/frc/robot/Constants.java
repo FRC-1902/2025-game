@@ -64,8 +64,8 @@ public final class Constants {
     public static final class AlgaeIntake{
       private AlgaeIntake() {}; 
       // todo: find id's
-      public static final int ROLLER_ID = 0; 
-      public static final int PIVOT_ID = 0; 
+      public static final int ROLLER_ID = 11; 
+      public static final int PIVOT_ID = 12; 
       // todo: find p, i, d, g
       public static final double kP = 0; 
       public static final double kI = 0; 
@@ -82,10 +82,10 @@ public final class Constants {
   public static final class FloorIntake{
     private FloorIntake() {}; 
     //todo: set ports
-    public static final int ROLLERMOTOR_PORT = 0; 
-    public static final int PIVOTMOTOR_PORT = 0;
-    public static final int IR_SENSOR_PORT = 0; 
-    public static final int ENCODER_PORT = 0; 
+    public static final int ROLLERMOTOR_PORT = 13; 
+    public static final int PIVOTMOTOR_PORT = 14;
+    public static final int IR_SENSOR_PORT = 15; 
+    public static final int ENCODER_PORT = 16; 
 
     //todo: find p, i, d, g
     public static final double PIVOT_P = 0; 
@@ -105,17 +105,17 @@ public final class Constants {
   public static final class LED{
     private LED() {}; 
     //todo: set ports and length
-    public static final int LED_PORT = 0;
-    public static final int LED_LENGTH = 0; 
+    public static final int LED_PORT = 17;
+    public static final int LED_LENGTH = 10; 
   }
 
     public static final class EndEffector{
       private EndEffector() {}; 
       // todo: set ports 
-      public static final int ROLLER_MOTOR_ID = 0; 
+      public static final int ROLLER_MOTOR_ID = 18; 
       // todo: set channels
-      public static final int FRONT_SENSOR_CHANNEL = 0; 
-      public static final int BACK_SENSOR_CHANNEL = 0; 
+      public static final int FRONT_SENSOR_CHANNEL = 19; 
+      public static final int BACK_SENSOR_CHANNEL = 20; 
     }
 
     public static final class Vision {
