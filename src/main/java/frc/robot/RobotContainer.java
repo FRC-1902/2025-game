@@ -52,7 +52,7 @@ public class RobotContainer {
 
         swerve.setDefaultCommand(closedDrive);
         new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kA.value)
-            .onTrue(new AutoAlignCommand(swerve, Constants.Vision.WAYPOINTS[0], "BA"));
+            .onTrue(new AutoAlignCommand(swerve));
     }
 
  
