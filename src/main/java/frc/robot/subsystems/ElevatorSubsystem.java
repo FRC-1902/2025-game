@@ -173,7 +173,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("ELevator/Current Position", getPosition());
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
 
-    if (watchingDog()) {
+    if (watchingDog() || isLocked()) {
       leftMotor.set(0);
       return; 
     }

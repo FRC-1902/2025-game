@@ -64,7 +64,7 @@ public final class Constants {
     public static final double kF = 0.0; 
 
     public static final double TOLERANCE = 0; // todo: find tolerance
-    public static final double CONVERSION_FACTOR = 0; // todo: find conversion factor for encoder 
+    public static final double CONVERSION_FACTOR = 0.0095758; // todo; check number
     public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(69); // todo: find optimal lock angle
     public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(420); // todo: find optimal unlocked angle
 
