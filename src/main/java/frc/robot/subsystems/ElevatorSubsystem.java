@@ -9,6 +9,8 @@ import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -74,11 +76,15 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     encoderConfig.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
 
+    configOne.apply(encoderConfig); 
+    // ResetSafeParameters not well documented 
+    leftMotor.configure(configOne, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
+    rightMotor.configure(configTwo, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
   }
 
   /**
    * 
-   * @returns the current position of elevator
+   * @returns the current position of elevator in meters
    */
   public double getPosition() {
     return (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition()) * 0.5;
