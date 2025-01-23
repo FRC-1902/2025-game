@@ -77,6 +77,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     encoderConfig.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
 
     configOne.apply(encoderConfig); 
+    configTwo.apply(encoderConfig); 
     // ResetSafeParameters not well documented 
     leftMotor.configure(configOne, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
     rightMotor.configure(configTwo, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
