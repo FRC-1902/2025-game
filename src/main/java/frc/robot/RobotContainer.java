@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.commands.drive.toPoseCommand;
 import frc.robot.commands.drive.AutoAlignCommand;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.subsystems.ControllerSubsystem;
@@ -52,6 +53,8 @@ public class RobotContainer {
 
         swerve.setDefaultCommand(closedDrive);
         new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kA.value)
+            .onTrue(new toPoseCommand(swerve));
+        new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kB.value)
             .onTrue(new AutoAlignCommand(swerve));
     }
 

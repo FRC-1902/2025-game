@@ -202,7 +202,7 @@ public final class Constants {
 
         // Waypoints
         public static final Pose2d[] WAYPOINTS = {
-            new Pose2d(3, 3.830, new Rotation2d(180)), // Blue A
+            new Pose2d(2.5, 3.830, new Rotation2d(0)), // Blue A
             new Pose2d(2.5, 4.18, new Rotation2d(-90)), // Blue B
             new Pose2d(0, 0, new Rotation2d(0)),
             new Pose2d(0, 0, new Rotation2d(0)),

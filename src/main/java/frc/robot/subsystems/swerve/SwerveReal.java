@@ -189,7 +189,7 @@ public class SwerveReal implements SwerveBase {
         }
 
         // Preload PathPlanner Path finding
-        PathfindingCommand.warmupCommand().schedule();
+        // PathfindingCommand.warmupCommand().schedule();
     }
 
     /**
