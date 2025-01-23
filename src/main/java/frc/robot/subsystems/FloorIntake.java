@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-import java.util.function.DoubleSupplier;
 public class FloorIntake extends SubsystemBase {
   private SparkMax rollerMotor;
   private SparkMax pivotMotor;
@@ -29,7 +28,6 @@ public class FloorIntake extends SubsystemBase {
   private PIDController pid;
   private Alert pivotAlert;
   private Watchdog pivotWatchdog;
-  private DoubleSupplier current;
 
   /** Creates a new FloorIntake. */
   public FloorIntake() {
@@ -48,7 +46,7 @@ public class FloorIntake extends SubsystemBase {
 
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
 
-    pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), current);
+    pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
     // Check that motors aren't supposed to be inverted
     configureMotors();
   }
@@ -145,8 +143,6 @@ public class FloorIntake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    current = () -> getAngle().getDegrees();
-
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians());
 
