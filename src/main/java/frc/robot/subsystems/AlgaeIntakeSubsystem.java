@@ -20,12 +20,15 @@ import frc.robot.Constants;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.function.DoubleSupplier;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor, pivotMotor;
   private PIDController pid;
   private Rotation2d targetAngle;
   private Alert alert;
+  private Watchdog pivotWatchdog; 
+  private DoubleSupplier current;
 
   /** Creates a new AlgaeIntakeSubsystem. */
   public AlgaeIntakeSubsystem() {
@@ -38,6 +41,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     configureMotors();
 
     alert = new Alert("Algae Pivot Out Of Bounds", AlertType.kWarning);
+
+    pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), current);
   }
 
   private void configureMotors() {
@@ -105,8 +110,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @returns whether or not pivot is out of bounds or not
    */
   private boolean pivotWatchdog() {
-    if (getAngle().getDegrees() >= Constants.AlgaeIntake.MAX_PIVOT.getDegrees()
-        || getAngle().getDegrees() <= Constants.AlgaeIntake.MIN_PIVOT.getDegrees()) {
+    if (!pivotWatchdog.checkWatchingdog()) {
       alert.set(true);
       return true;
     } else {
@@ -118,6 +122,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    current = () -> getAngle().getDegrees();
+
     double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
         + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
 

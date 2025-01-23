@@ -21,12 +21,15 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import java.util.function.DoubleSupplier;
 public class FloorIntake extends SubsystemBase {
   private SparkMax rollerMotor;
   private SparkMax pivotMotor;
   private DigitalInput irSensor;
   private PIDController pid;
   private Alert pivotAlert;
+  private Watchdog pivotWatchdog;
+  private DoubleSupplier current;
 
   /** Creates a new FloorIntake. */
   public FloorIntake() {
@@ -44,6 +47,8 @@ public class FloorIntake extends SubsystemBase {
     irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_PORT);
 
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
+
+    pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), current);
     // Check that motors aren't supposed to be inverted
     configureMotors();
   }
@@ -127,11 +132,11 @@ public class FloorIntake extends SubsystemBase {
   // checks that the pivot isn't going out of tolerance, will send an alert if it
   // does
   private boolean pivotWatchdog() {
-    if (getAngle().getDegrees() >= Constants.FloorIntake.MAX_PIVOT.getDegrees()
-        || getAngle().getDegrees() <= Constants.FloorIntake.MIN_PIVOT.getDegrees()) {
+    if(!pivotWatchdog.checkWatchingdog()){
       pivotAlert.set(true);
       return true;
-    } else {
+    }
+    else{
       pivotAlert.set(false);
       return false;
     }
@@ -140,6 +145,8 @@ public class FloorIntake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    current = () -> getAngle().getDegrees();
+
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians());
 
