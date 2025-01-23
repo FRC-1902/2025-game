@@ -1,8 +1,11 @@
 package frc.robot;
 
 import frc.robot.commands.drive.toPoseCommand;
+import frc.robot.commands.drive.PathToPoint;
 import frc.robot.commands.drive.AutoAlignCommand;
 import frc.robot.commands.drive.DriveCommand;
+import frc.robot.commands.drive.OnTheFly;
+import frc.robot.commands.drive.PathToPoint;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.swerve.SwerveReal;
@@ -56,6 +59,10 @@ public class RobotContainer {
             .onTrue(new toPoseCommand(swerve));
         new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kB.value)
             .onTrue(new AutoAlignCommand(swerve));
+        // new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kX.value)
+        //    .onTrue(new OnTheFly(swerve));
+        new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kY.value)
+           .onTrue(new PathToPoint(swerve, Constants.Vision.WAYPOINTS[1])); 
     }
 
  
