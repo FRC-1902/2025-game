@@ -127,11 +127,11 @@ public final class Constants {
         public enum Camera {
             ArducamOne(
                 "ArducamOne",
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(-15)),
+                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(50.52)),
                 new Translation3d(
-                    Units.inchesToMeters(-4.628), 
-                    Units.inchesToMeters(-10.687), 
-                    Units.inchesToMeters(6)
+                    Units.inchesToMeters(-11.233), 
+                    Units.inchesToMeters(9.691), 
+                    Units.inchesToMeters(8.036)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
@@ -139,11 +139,11 @@ public final class Constants {
 
             ArducamTwo(
                 "ArducamTwo",
-                new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)),
+                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(129.48)),
                 new Translation3d(
-                    Units.inchesToMeters(12.056),
-                    Units.inchesToMeters(-10.981),
-                    Units.inchesToMeters(8.44)
+                    Units.inchesToMeters(11.233), 
+                    Units.inchesToMeters(9.691), 
+                    Units.inchesToMeters(8.036)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
@@ -151,18 +151,6 @@ public final class Constants {
 
             ArducamThree(
                 "ArducamThree",
-                new Rotation3d(0, Units.degreesToRadians(-145), 0),
-                new Translation3d(
-                    Units.inchesToMeters(-4.628),
-                    Units.inchesToMeters(-10.687),
-                    Units.inchesToMeters(16.129)
-                ),
-                VecBuilder.fill(4, 4, 8),
-                VecBuilder.fill(0.5, 0.5, 1)
-            ),
-
-            ArducamFour(
-                "ArducamFour",
                 new Rotation3d(0, Units.degreesToRadians(-145), 0),
                 new Translation3d(
                     Units.inchesToMeters(-4.628),
@@ -196,7 +184,6 @@ public final class Constants {
             new Pose3d(Camera.ArducamOne.translation, Camera.ArducamOne.rotation),
             new Pose3d(Camera.ArducamTwo.translation, Camera.ArducamTwo.rotation),
             new Pose3d(Camera.ArducamThree.translation, Camera.ArducamThree.rotation),
-            new Pose3d(Camera.ArducamFour.translation, Camera.ArducamFour.rotation)
         };
     }
 }
