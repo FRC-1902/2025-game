@@ -15,6 +15,8 @@ import org.photonvision.PhotonCamera;
 public class DetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
   private final PhotonCamera camera = new PhotonCamera("object cam"); // TODO: only use object detection cameras
+  public boolean targetVisible;
+  public double targetYaw; 
 
   private PhotonTrackedTarget currentObject;
 
@@ -26,6 +28,7 @@ public class DetectionSubsystem extends SubsystemBase {
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
 
     currentObject = null; // XXX: maybe race condition here
+    targetVisible = false;
 
     if (!results.isEmpty()) {
       // Get the oldest unread result
@@ -39,6 +42,8 @@ public class DetectionSubsystem extends SubsystemBase {
             
             if (currentObject == null || currentObject.getDetectedObjectConfidence() < target.getDetectedObjectConfidence())
               currentObject = target;
+              targetYaw = currentObject.getYaw(); 
+              targetVisible = true;
           }
       }
     }
