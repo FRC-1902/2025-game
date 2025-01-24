@@ -56,19 +56,12 @@ public class RobotContainer {
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
         );
 
+        swerve.setDefaultCommand(closedDrive);
 
         controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
             .onTrue(new InstantCommand(swerve::zeroGyro));
-
-        swerve.setDefaultCommand(closedDrive);
-        new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kA.value)
-            .onTrue(new toPoseCommand(swerve));
-        new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kB.value)
-            .onTrue(new AutoAlignCommand(swerve));
-        // new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kX.value)
-        //    .onTrue(new OnTheFly(swerve));
-        new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kY.value)
-           .onTrue(new PathToPoint(swerve, Constants.Vision.WAYPOINTS[1])); 
+        controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+          .onTrue(new PathToPoint(swerve, Constants.Vision.WAYPOINTS[1])); 
     }
 
  

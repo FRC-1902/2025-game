@@ -1,10 +1,12 @@
 package frc.robot.commands.drive;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -21,7 +23,7 @@ public class PathToPoint extends SequentialCommandGroup {
     public PathToPoint(SwerveSubsystem swerve, Pose2d targetPose) {
         PathConstraints constraints = new PathConstraints(
             Constants.Swerve.MAX_SPEED, // Max velocity (m/s)
-            Constants.Swerve.MAX_SPEED, // Max velocity (m/s)
+            Constants.Swerve.MAX_ACCELERATION, // Max velocity (m/s)
             Constants.Swerve.MAX_ROTATION_SPEED.getRadians(), // Max acceleration (m/s^2)
             Constants.Swerve.MAX_ROTATION_SPEED.getRadians() // Max acceleration (m/s^2)
         );
@@ -40,15 +42,10 @@ public class PathToPoint extends SequentialCommandGroup {
             public void execute() {
                 Translation2d currentTranslation = swerve.getPose().getTranslation();
                 Translation2d targetTranslation = targetPose.getTranslation();
+                
+                double kP = 10; // TODO: Tune
 
-                Translation2d error = targetTranslation.minus(currentTranslation);
-                double distance = error.getNorm();
-
-                // Apply a simple P-controller for drive velocities
-                double kP = 1.0; // Tune this constant as needed
-                Translation2d velocity = error.times(kP / Math.max(distance, 0.1)); // Scale by distance, avoid div by 0
-
-                swerve.drive(velocity, targetPose.getRotation().getRadians(), true);
+                swerve.drive(((targetTranslation.minus(currentTranslation)).times(kP)), targetPose.getRotation().getRotations(), true);
             }
 
             @Override
@@ -57,8 +54,7 @@ public class PathToPoint extends SequentialCommandGroup {
 
             @Override
             public boolean isFinished() {
-                double distanceThreshold = 0.01; // 5 cm
-                return swerve.getPose().getTranslation().getDistance(targetPose.getTranslation()) < distanceThreshold;
+                return swerve.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.001;
             }
         };
 

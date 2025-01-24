@@ -72,10 +72,11 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
         Logger.start();
 
-    PathfindingCommand.warmupCommand().schedule();
     Pathfinding.setPathfinder(new LocalADStar());
     
     robotContainer = new RobotContainer();
+    PathfindingCommand.warmupCommand().schedule();
+
   }
 
   @Override

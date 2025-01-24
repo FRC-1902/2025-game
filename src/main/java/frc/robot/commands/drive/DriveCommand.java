@@ -5,6 +5,7 @@
 package frc.robot.commands.drive;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -74,5 +75,13 @@ public class DriveCommand extends Command {
     @Override
     public boolean isFinished() {
         return false;
+    }
+    public DriveCommand autoInput(Supplier<Translation2d> externalInput) {
+        return new DriveCommand(
+            swerve,
+            () -> vX.getAsDouble() + externalInput.get().getX(),
+            () -> vY.getAsDouble() + externalInput.get().getY(),
+            heading
+        );
     }
 }
