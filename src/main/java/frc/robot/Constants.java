@@ -120,6 +120,18 @@ public final class Constants {
       public static final int BACK_SENSOR_CHANNEL = 20; 
     }
 
+    public static final class Auto {
+      private Auto() {}; 
+      // Waypoints
+      public static final Pose2d[] WAYPOINTS = {
+        new Pose2d(3.2, 3.830, new Rotation2d(0)), // Blue A
+        new Pose2d(3.2, 4.18, new Rotation2d(0)), // Blue B
+        new Pose2d(8, 4, new Rotation2d(45)),
+        new Pose2d(6, 8, new Rotation2d(90)),
+        new Pose2d(6, 2, new Rotation2d(-90))
+      };
+    }
+
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
         public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
@@ -186,19 +198,6 @@ public final class Constants {
             new Pose3d(Camera.ArducamOne.translation, Camera.ArducamOne.rotation),
             new Pose3d(Camera.ArducamTwo.translation, Camera.ArducamTwo.rotation),
             new Pose3d(Camera.ArducamThree.translation, Camera.ArducamThree.rotation),
-        };
-
-        // Waypoints
-        public static final Pose2d[] WAYPOINTS = {
-            new Pose2d(3.0, 3.830, new Rotation2d(0)), // Blue A
-            new Pose2d(3.0, 4.18, new Rotation2d(0)), // Blue B
-            new Pose2d(0, 0, new Rotation2d(0)),
-            new Pose2d(0, 0, new Rotation2d(0)),
-            new Pose2d(0, 0, new Rotation2d(0)),
-            new Pose2d(0, 0, new Rotation2d(0)),
-            new Pose2d(0, 0, new Rotation2d(0)),
-            new Pose2d(0, 0, new Rotation2d(0)),
-            new Pose2d(0, 0, new Rotation2d(0))
         };
     }
 }

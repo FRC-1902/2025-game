@@ -1,11 +1,7 @@
 package frc.robot;
 
-import frc.robot.commands.drive.toPoseCommand;
 import frc.robot.commands.drive.PathToPoint;
-import frc.robot.commands.drive.AutoAlignCommand;
 import frc.robot.commands.drive.DriveCommand;
-import frc.robot.commands.drive.OnTheFly;
-import frc.robot.commands.drive.PathToPoint;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
@@ -17,16 +13,10 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.io.File;
 
-import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
@@ -61,7 +51,8 @@ public class RobotContainer {
         controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
             .onTrue(new InstantCommand(swerve::zeroGyro));
         controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-          .onTrue(new PathToPoint(swerve, Constants.Vision.WAYPOINTS[1])); 
+          .onTrue(new PathToPoint(swerve)); 
+        controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05);
     }
 
  
