@@ -20,12 +20,14 @@ import frc.robot.Constants;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor, pivotMotor;
   private PIDController pid;
   private Rotation2d targetAngle;
   private Alert alert;
+  private DigitalInput IRsensor; 
 
   /** Creates a new AlgaeIntakeSubsystem. */
   public AlgaeIntakeSubsystem() {
@@ -38,6 +40,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     configureMotors();
 
     alert = new Alert("Algae Pivot Out Of Bounds", AlertType.kWarning);
+
+    IRsensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
   }
 
   private void configureMotors() {
@@ -98,6 +102,14 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    */
   public void resetPID() {
     pid.reset();
+  }
+
+  /**
+   * 
+   * @returns if IRsensor is triggered or not 
+   */
+  public boolean isAlgaeDetected(){
+    return IRsensor.get(); 
   }
 
   /**

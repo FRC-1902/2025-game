@@ -66,6 +66,7 @@ public final class Constants {
       // todo: find id's
       public static final int ROLLER_ID = 0; 
       public static final int PIVOT_ID = 0; 
+      public static final int IR_SENSOR_ID = 0; 
       // todo: find p, i, d, g
       public static final double kP = 0; 
       public static final double kI = 0; 
