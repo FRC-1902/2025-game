@@ -58,8 +58,8 @@ public final class Constants {
         public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value
         public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
         public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
-        public static final double MAX_SPEED = 10; // m/s TODO: Adjust later
-        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(50); // m/s TODO: Adjust later
+        public static final double MAX_SPEED = 10*.1; // m/s TODO: Adjust later
+        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10*.1); // m/s TODO: Adjust later
     }
 
     public static final class AlgaeIntake{
@@ -128,11 +128,11 @@ public final class Constants {
         public enum Camera {
             ArducamOne(
                 "ArducamOne",
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(-15)),
+                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(50.52)),
                 new Translation3d(
-                    Units.inchesToMeters(-4.628), 
-                    Units.inchesToMeters(-10.687), 
-                    Units.inchesToMeters(6)
+                    Units.inchesToMeters(-11.233), 
+                    Units.inchesToMeters(9.691), 
+                    Units.inchesToMeters(8.036)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
@@ -140,11 +140,11 @@ public final class Constants {
 
             ArducamTwo(
                 "ArducamTwo",
-                new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)),
+                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(129.48)),
                 new Translation3d(
-                    Units.inchesToMeters(12.056),
-                    Units.inchesToMeters(-10.981),
-                    Units.inchesToMeters(8.44)
+                    Units.inchesToMeters(11.233), 
+                    Units.inchesToMeters(9.691), 
+                    Units.inchesToMeters(8.036)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
@@ -152,18 +152,6 @@ public final class Constants {
 
             ArducamThree(
                 "ArducamThree",
-                new Rotation3d(0, Units.degreesToRadians(-145), 0),
-                new Translation3d(
-                    Units.inchesToMeters(-4.628),
-                    Units.inchesToMeters(-10.687),
-                    Units.inchesToMeters(16.129)
-                ),
-                VecBuilder.fill(4, 4, 8),
-                VecBuilder.fill(0.5, 0.5, 1)
-            ),
-
-            ArducamFour(
-                "ArducamFour",
                 new Rotation3d(0, Units.degreesToRadians(-145), 0),
                 new Translation3d(
                     Units.inchesToMeters(-4.628),
@@ -197,7 +185,6 @@ public final class Constants {
             new Pose3d(Camera.ArducamOne.translation, Camera.ArducamOne.rotation),
             new Pose3d(Camera.ArducamTwo.translation, Camera.ArducamTwo.rotation),
             new Pose3d(Camera.ArducamThree.translation, Camera.ArducamThree.rotation),
-            new Pose3d(Camera.ArducamFour.translation, Camera.ArducamFour.rotation)
         };
 
         // Waypoints

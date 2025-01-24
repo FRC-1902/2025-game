@@ -7,6 +7,7 @@ import frc.robot.commands.drive.DriveCommand;
 import frc.robot.commands.drive.OnTheFly;
 import frc.robot.commands.drive.PathToPoint;
 import frc.robot.subsystems.ControllerSubsystem;
+import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -53,6 +55,10 @@ public class RobotContainer {
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
         );
+
+
+        controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
+            .onTrue(new InstantCommand(swerve::zeroGyro));
 
         swerve.setDefaultCommand(closedDrive);
         new JoystickButton(controllers.getCommandController(ControllerName.DRIVE).getHID(), XboxController.Button.kA.value)

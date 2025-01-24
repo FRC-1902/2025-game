@@ -110,10 +110,6 @@ public class VisionSim implements VisionBase {
                         inputs.arducamThree = true;
                         inputs.arducamThreeBestTargetID = result.getBestTarget().getFiducialId();
                         break;
-                    case ArducamFour:
-                        inputs.arducamFour = true;
-                        inputs.arducamFourBestTargetID = result.getBestTarget().getFiducialId();
-                        break;
                 }
             }
         }
