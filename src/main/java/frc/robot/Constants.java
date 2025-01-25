@@ -123,7 +123,33 @@ public final class Constants {
     public static final class Auto {
       private Auto() {}; 
       // Waypoints
-      public static final Pose2d[] WAYPOINTS = {
+      public static final Pose2d[] REEF_WAYPOINTS = {
+        new Pose2d(
+              Units.inchesToMeters(144.003),
+              Units.inchesToMeters(158.500),
+              Rotation2d.fromDegrees(180)),
+        new Pose2d(
+              Units.inchesToMeters(160.373),
+              Units.inchesToMeters(186.857),
+              Rotation2d.fromDegrees(120)),
+        new Pose2d(
+              Units.inchesToMeters(193.116),
+              Units.inchesToMeters(186.858),
+              Rotation2d.fromDegrees(60)),
+        new Pose2d(
+              Units.inchesToMeters(209.489),
+              Units.inchesToMeters(158.502),
+              Rotation2d.fromDegrees(0)),
+        new Pose2d(
+              Units.inchesToMeters(193.118),
+              Units.inchesToMeters(130.145),
+              Rotation2d.fromDegrees(-60)),
+        new Pose2d(
+              Units.inchesToMeters(160.375),
+              Units.inchesToMeters(130.144),
+              Rotation2d.fromDegrees(-120))
+      };
+      public static final Pose2d[] CORAL_WAYPOINTS = {
         new Pose2d(3.2, 3.830, new Rotation2d(0)), // Blue A
         new Pose2d(3.2, 4.18, new Rotation2d(0)), // Blue B
         new Pose2d(8, 4, new Rotation2d(45)),

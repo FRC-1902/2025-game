@@ -1,7 +1,8 @@
 package frc.robot;
 
-import frc.robot.commands.drive.PathToPoint;
+import frc.robot.commands.drive.SnapToWaypoint;
 import frc.robot.commands.drive.DriveCommand;
+import frc.robot.commands.drive.PathToWaypoint;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
@@ -18,6 +19,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -50,9 +52,8 @@ public class RobotContainer {
 
         controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
             .onTrue(new InstantCommand(swerve::zeroGyro));
-        controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-          .onTrue(new PathToPoint(swerve)); 
-        controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05);
+        controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+          .onTrue(new SequentialCommandGroup(new PathToWaypoint(swerve).withTimeout(5), new SnapToWaypoint(swerve).withTimeout(5))); // TODO: Change Timeout after PID tuning 
     }
 
  

@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -205,6 +206,22 @@ public class SwerveSubsystem extends SubsystemBase {
 
         return AutoBuilder.pathfindToPose(
                 pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
+    }
+
+    public Pose2d getReefWaypoint() {
+        Translation2d robotTranslation = swerve.getPose().getTranslation();
+        Pose2d closestWaypoint = null;
+        double closestDistance = Double.MAX_VALUE;
+
+        // Check each waypoint to see if it's closer than the current best
+        for (Pose2d waypoint : Constants.Auto.REEF_WAYPOINTS) {
+            double distance = robotTranslation.getDistance(waypoint.getTranslation());
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestWaypoint = waypoint;
+            }
+        }
+        return closestWaypoint;
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
