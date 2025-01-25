@@ -9,6 +9,8 @@ import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -27,7 +29,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private DigitalInput limitSwitch;
   private PIDController pid;
   private Position targetPosition;
-  private Alert badStart, boundsAlert;
+  private Alert badStart, boundsAlert, servoAlert;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -53,6 +55,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     servo = new Servo(Constants.Elevator.SERVO_PORT);
 
+    servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
   }
 
   private void configureMotors() {
@@ -73,11 +76,16 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     encoderConfig.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
 
+    configOne.apply(encoderConfig); 
+    configTwo.apply(encoderConfig); 
+    // ResetSafeParameters not well documented 
+    leftMotor.configure(configOne, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
+    rightMotor.configure(configTwo, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
   }
 
   /**
    * 
-   * @returns the current position of elevator
+   * @returns the current position of elevator in meters
    */
   public double getPosition() {
     return (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition()) * 0.5;
@@ -88,7 +96,12 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param targetPosition
    */
   public void setPosition(Position targetPosition) {
-    this.targetPosition = targetPosition;
+    if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB){
+      servoAlert.set(true);
+    }
+    else{
+      this.targetPosition = targetPosition;
+    }
   }
 
   /**
@@ -117,12 +130,20 @@ public class ElevatorSubsystem extends SubsystemBase {
   /**
    * locks the servo from moving
    */
-  public void isLocked(boolean lock) {
+  public void setLocked(boolean lock) {
     if (lock) {
       servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
     } else {
       servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
     }
+  }
+
+  /**
+   * 
+   * @returns if the servo is at the locked angle or not
+   */
+  public boolean isLocked(){
+    return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
   }
 
   /**
@@ -143,7 +164,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * full throttle downward for climb until limit switch is hit
    */
   private void climb() {
-    if (!limitSwitchTriggered()) {
+    if (!limitSwitchTriggered() && !isLocked()) {
       leftMotor.set(-1);
     } else {
       leftMotor.set(0);
@@ -159,7 +180,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("ELevator/Current Position", getPosition());
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
 
-    if (watchingDog()) {
+    if (watchingDog() || isLocked()) {
       leftMotor.set(0);
       return; 
     }

@@ -60,12 +60,53 @@ public final class Constants {
         public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10); // m/s TODO: Adjust later
     }
 
-    public static final class LED{
-        private LED() {}; 
-        //todo: set ports and length
-        public static final int LED_PORT = 0;
-        public static final int LED_LENGTH = 0; 
+    public static final class AlgaeIntake{
+      private AlgaeIntake() {}; 
+      // todo: find id's
+      public static final int ROLLER_ID = 0; 
+      public static final int PIVOT_ID = 0; 
+      // todo: find p, i, d, g
+      public static final double kP = 0; 
+      public static final double kI = 0; 
+      public static final double kD = 0; 
+      public static final double kG = 0;
+      // todo: find tolerances
+      public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0); 
+      public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(0); 
+      public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0); 
+      // todo: find rotations
+      public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromRotations(0);
     }
+
+  public static final class FloorIntake{
+    private FloorIntake() {}; 
+    //todo: set ports
+    public static final int ROLLERMOTOR_PORT = 0; 
+    public static final int PIVOTMOTOR_PORT = 0;
+    public static final int IR_SENSOR_PORT = 0; 
+    public static final int ENCODER_PORT = 0; 
+
+    //todo: find p, i, d, g
+    public static final double PIVOT_P = 0; 
+    public static final double PIVOT_I = 0; 
+    public static final double PIVOT_D = 0;
+    public static final double PIVOT_G = 0; 
+
+    //todo: set tolerance
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(69); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(420); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(420); 
+    
+    //todo: set offset in range from 0 to 1
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
+  } 
+
+  public static final class LED{
+    private LED() {}; 
+    //todo: set ports and length
+    public static final int LED_PORT = 0;
+    public static final int LED_LENGTH = 0; 
+  }
 
   public static final class Elevator{
     private Elevator() {}; 
@@ -82,7 +123,7 @@ public final class Constants {
     public static final double kF = 0.0; 
 
     public static final double TOLERANCE = 0; // todo: find tolerance
-    public static final double CONVERSION_FACTOR = 0; // todo: find conversion factor for encoder 
+    public static final double CONVERSION_FACTOR = 0.0095758; // todo; check number, converts to meters 
     public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(69); // todo: find optimal lock angle
     public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(420); // todo: find optimal unlocked angle
 
@@ -100,6 +141,15 @@ public final class Constants {
       }
     }
   }
+
+    public static final class EndEffector{
+      private EndEffector() {}; 
+      // todo: set ports 
+      public static final int ROLLER_MOTOR_ID = 0; 
+      // todo: set channels
+      public static final int FRONT_SENSOR_CHANNEL = 0; 
+      public static final int BACK_SENSOR_CHANNEL = 0; 
+    }
 
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
