@@ -23,7 +23,7 @@ public class AlgaeIntakeCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    earlyExit = (!algaeIntakeSubsystem.isAlgaeDetected()); // returns if algae is detected or not
+    earlyExit = (algaeIntakeSubsystem.isAlgaeDetected()); // returns if algae is detected or not
     if(earlyExit) {
       return;
     }

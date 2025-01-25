@@ -27,7 +27,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   private PIDController pid;
   private Rotation2d targetAngle;
   private Alert alert;
-  private DigitalInput IRsensor; 
+  private DigitalInput irSensor; 
 
   /** Creates a new AlgaeIntakeSubsystem. */
   public AlgaeIntakeSubsystem() {
@@ -41,7 +41,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     alert = new Alert("Algae Pivot Out Of Bounds", AlertType.kWarning);
 
-    IRsensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
+    irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
   }
 
   private void configureMotors() {
@@ -106,10 +106,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
   /**
    * 
-   * @returns if IRsensor is triggered or not 
+   * @returns if irSensor is triggered or not 
    */
   public boolean isAlgaeDetected(){
-    return IRsensor.get(); 
+    return irSensor.get(); 
   }
 
   /**
