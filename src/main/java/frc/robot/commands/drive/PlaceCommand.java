@@ -20,7 +20,7 @@ public class PlaceCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    endEffectorSubsystem.setSpeed(-0.2); // find indexing speed
+    endEffectorSubsystem.setSpeed(-0.2); // todo: find indexing speed
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -36,6 +36,6 @@ public class PlaceCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !endEffectorSubsystem.isFrontPieceSensorActive() || endEffectorSubsystem.isBackPieceSensorActive();
+    return !endEffectorSubsystem.isFrontPieceSensorActive();
   }
 }
