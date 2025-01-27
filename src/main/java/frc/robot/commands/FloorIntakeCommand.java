@@ -2,25 +2,33 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.drive;
+package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.FloorIntake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PlaceCommand extends Command {
-  private final EndEffectorSubsystem endEffectorSubsystem; 
-  /** Creates a new EndEffectorCommand. */
-  public PlaceCommand(EndEffectorSubsystem endEffectorSubsystem) {
-    this.endEffectorSubsystem = endEffectorSubsystem; 
+public class FloorIntakeCommand extends Command {
+  private final FloorIntake floorIntakeSubsystem; 
+  private boolean earlyExit; 
+
+  /** Creates a new FloorIntakeCommand. */
+  public FloorIntakeCommand(FloorIntake floorIntakeSubsystem) {
+    this.floorIntakeSubsystem = floorIntakeSubsystem; 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(endEffectorSubsystem);
+    addRequirements(floorIntakeSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    endEffectorSubsystem.setSpeed(-0.2); // todo: find indexing speed
+    earlyExit = floorIntakeSubsystem.pieceSensorActive(); 
+    if(earlyExit){
+      return;
+    }
+    floorIntakeSubsystem.setSpeed(-1);
+    floorIntakeSubsystem.setAngle(Rotation2d.fromDegrees(90)); // todo: find degrees of downwards position
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -30,12 +38,13 @@ public class PlaceCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    endEffectorSubsystem.setSpeed(0);
+    floorIntakeSubsystem.setSpeed(0);
+    floorIntakeSubsystem.setAngle(Rotation2d.fromDegrees(0)); // todo: find degrees of downwards position
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !endEffectorSubsystem.isFrontPieceSensorActive();
+    return earlyExit || floorIntakeSubsystem.pieceSensorActive();
   }
 }
