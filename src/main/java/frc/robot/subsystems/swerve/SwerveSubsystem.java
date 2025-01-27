@@ -19,10 +19,14 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.commands.drive.PathToWaypoint;
+import frc.robot.commands.drive.SnapToWaypoint;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -50,8 +54,6 @@ public class SwerveSubsystem extends SubsystemBase {
         } catch (Exception e) {
             throw new RuntimeException("Failed to load AprilTag field layout", e);
         }
-
-        swerve.setupPathPlanner(this);
     }
 
     /**
@@ -214,15 +216,33 @@ public class SwerveSubsystem extends SubsystemBase {
         double closestDistance = Double.MAX_VALUE;
 
         // Check each waypoint to see if it's closer than the current best
-        for (Pose2d waypoint : Constants.Auto.REEF_WAYPOINTS) {
-            double distance = robotTranslation.getDistance(waypoint.getTranslation());
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestWaypoint = waypoint;
+        if (isRedAlliance()) {
+            for (Pose2d waypoint : Constants.WAYPOINTS.RED_REEF) {
+                double distance = robotTranslation.getDistance(waypoint.getTranslation());
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestWaypoint = waypoint;
+                }
+            }
+        } else {
+            for (Pose2d waypoint : Constants.WAYPOINTS.BLUE_REEF) {
+                double distance = robotTranslation.getDistance(waypoint.getTranslation());
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestWaypoint = waypoint;
+                }
             }
         }
         return closestWaypoint;
     }
+
+    public Command pathAndSnapCommand() {
+        return Commands.sequence(
+            new PathToWaypoint(this),
+            new SnapToWaypoint(this)
+        );
+    }
+
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
         swerve.drive(translation, rotation, fieldRelative);

@@ -70,9 +70,7 @@ public class Robot extends LoggedRobot {
     Logger.registerURCL(URCL.startExternal()); // TODO: Remove if issues with over logging occurs
     
     // Start AdvantageKit logger
-        Logger.start();
-
-    Pathfinding.setPathfinder(new LocalADStar());
+    Logger.start();
     
     robotContainer = new RobotContainer();
     PathfindingCommand.warmupCommand().schedule();

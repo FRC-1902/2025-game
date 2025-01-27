@@ -7,6 +7,9 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -168,8 +171,8 @@ public class SwerveReal implements SwerveBase {
                     }
                 },
                 new PPHolonomicDriveController(
-                    new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(0.0, 0.0, 0.0) // Rotation PID constants
+                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
                 ),
                 config,
                 () -> {
@@ -188,8 +191,10 @@ public class SwerveReal implements SwerveBase {
             AlertManager.setAlert(AlertManager.Alerts.PATH_PLANNER, true);
         }
 
+        Pathfinding.setPathfinder(new LocalADStar());
+
         // Preload PathPlanner Path finding
-        // PathfindingCommand.warmupCommand().schedule();
+        PathfindingCommand.warmupCommand().schedule();
     }
 
     /**

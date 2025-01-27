@@ -52,11 +52,10 @@ public class RobotContainer {
 
         controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
             .onTrue(new InstantCommand(swerve::zeroGyro));
+        // Align to Reef
         controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-          .onTrue(new SequentialCommandGroup(new PathToWaypoint(swerve).withTimeout(5), new SnapToWaypoint(swerve).withTimeout(5))); // TODO: Change Timeout after PID tuning 
+            .whileTrue(swerve.pathAndSnapCommand());
     }
-
- 
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

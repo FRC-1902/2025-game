@@ -39,9 +39,7 @@ public class PathToWaypoint extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    targetTranslation = swerve.getReefWaypoint().getTranslation();
-    targetRotation = swerve.getReefWaypoint().getRotation();
-    targetPose = new Pose2d(targetTranslation, targetRotation);
+    targetPose = swerve.getReefWaypoint();
     pathCommand = AutoBuilder.pathfindToPose(targetPose, constraints, 0);
     pathCommand.schedule();
   }
@@ -53,7 +51,9 @@ public class PathToWaypoint extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    pathCommand.cancel();
+  }
 
   // Returns true when the command should end.
   @Override
