@@ -5,9 +5,12 @@
 package frc.robot.commands.drive;
 
 import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class DriveCommand extends Command {
@@ -38,8 +41,10 @@ public class DriveCommand extends Command {
     public void execute() {
         // Apply alliance-based inversions
         var alliance = DriverStation.getAlliance();
-        double xVelocity = vX.getAsDouble();
-        double yVelocity = vY.getAsDouble();
+
+        Translation2d trans = new Translation2d(vX.getAsDouble(), vY.getAsDouble()).times(Constants.Swerve.MAX_SPEED);
+        double xVelocity = trans.getX();
+        double yVelocity = trans.getY();
 
         // Additional alliance-based inversions
         if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
@@ -48,7 +53,7 @@ public class DriveCommand extends Command {
             yVelocity *= -1;
         }
 
-        double rotationVelocity = heading.getAsDouble();
+        double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians();
 
         // Create field-relative ChassisSpeeds
         ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(

@@ -105,10 +105,6 @@ public class VisionReal implements VisionBase {
                         inputs.arducamThree = true;
                         inputs.arducamThreeBestTargetID = bestTarget.getFiducialId();
                         break;
-                    case ArducamFour:
-                        inputs.arducamFour = true;
-                        inputs.arducamFourBestTargetID = bestTarget.getFiducialId();
-                        break;
                 }
             }
         }

@@ -35,6 +35,6 @@ public class VisionSubsystem extends SubsystemBase {
 
 	// TODO: Change to actual cameras
 	public boolean hasTargets() {
-		return inputs.arducamOne || inputs.arducamTwo || inputs.arducamThree || inputs.arducamFour;
+		return inputs.arducamOne || inputs.arducamTwo || inputs.arducamThree;
 	}
 }
