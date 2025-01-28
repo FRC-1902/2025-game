@@ -42,9 +42,10 @@ public class DriveCommand extends Command {
         // Apply alliance-based inversions
         var alliance = DriverStation.getAlliance();
 
+        // Apply cubic scaling to x and y velocities
         Translation2d trans = new Translation2d(vX.getAsDouble(), vY.getAsDouble()).times(Constants.Swerve.MAX_SPEED);
-        double xVelocity = trans.getX();
-        double yVelocity = trans.getY();
+        double xVelocity = Math.pow(trans.getX(), 3.0);
+        double yVelocity = Math.pow(trans.getY(), 3.0);
 
         // Additional alliance-based inversions
         if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
