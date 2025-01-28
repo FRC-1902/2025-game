@@ -25,7 +25,7 @@ public class SnapToWaypoint extends Command {
 
   @Override
   public void initialize() {
-      targetPose = swerve.getReefWaypoint();
+      targetPose = swerve.getWaypoint();
   }
 
   @Override

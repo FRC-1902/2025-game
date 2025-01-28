@@ -211,30 +211,44 @@ public class SwerveSubsystem extends SubsystemBase {
                 pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
     }
 
-    public Pose2d getReefWaypoint() {
+    public Pose2d getWaypoint() {
         Translation2d robotTranslation = swerve.getPose().getTranslation();
-        Pose2d closestWaypoint = null;
+        Pose2d targetWaypoint = null;
         double closestDistance = Double.MAX_VALUE;
 
         // Check each waypoint to see if it's closer than the current best
         if (isRedAlliance()) {
-            for (Pose2d waypoint : FieldConstants.REEF.RED_REEF) {
+            for (Pose2d waypoint : FieldConstants.RED.REEF) {
                 double distance = robotTranslation.getDistance(waypoint.getTranslation());
                 if (distance < closestDistance) {
                     closestDistance = distance;
-                    closestWaypoint = waypoint;
+                    targetWaypoint = waypoint;
                 }
             }
         } else {
-            for (Pose2d waypoint : FieldConstants.REEF.BLUE_REEF) {
+            for (Pose2d waypoint : FieldConstants.BLUE.REEF) {
                 double distance = robotTranslation.getDistance(waypoint.getTranslation());
                 if (distance < closestDistance) {
                     closestDistance = distance;
-                    closestWaypoint = waypoint;
+                    targetWaypoint = waypoint;
                 }
             }
         }
-        return closestWaypoint;
+        return targetWaypoint;
+    }
+    public Pose2d getWaypoint(String waypoint) {
+        switch (waypoint.toUpperCase()) {
+            case "PROCESSOR":
+                return isRedAlliance()
+                    ? FieldConstants.RED.PROCESSOR[0]
+                    : FieldConstants.BLUE.PROCESSOR[0];
+            case "CAGE":
+                return isRedAlliance()
+                    ? FieldConstants.RED.CAGE[0]
+                    : FieldConstants.BLUE.CAGE[0];
+            default: 
+                return null;
+        }
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {

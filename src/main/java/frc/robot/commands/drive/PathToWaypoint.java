@@ -37,7 +37,7 @@ public class PathToWaypoint extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    targetPose = swerve.getReefWaypoint();
+    targetPose = swerve.getWaypoint();
     pathCommand = AutoBuilder.pathfindToPose(targetPose, constraints, 0);
     pathCommand.initialize();
   }
