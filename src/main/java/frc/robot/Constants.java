@@ -143,40 +143,6 @@ public final class Constants {
     }
   }
 
-  public static final class Elevator{
-    private Elevator() {}; 
-    // todo: find id's
-    public static final int LEFT_MOTOR_ID = 0; 
-    public static final int RIGHT_MOTOR_ID = 0;  
-    // todo: find limit switch/servo ports 
-    public static final int LIMIT_SWITCH_PORT = 0; 
-    public static final int SERVO_PORT = 0;
-    // todo: find p, i, d, f values 
-    public static final double kP = 0; 
-    public static final double kI = 0;
-    public static final double kD = 0;
-    public static final double kF = 0.0; 
-
-    public static final double TOLERANCE = 0; // todo: find tolerance
-    public static final double CONVERSION_FACTOR = 0.0095758; // todo; check number, converts to meters 
-    public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(69); // todo: find optimal lock angle
-    public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(420); // todo: find optimal unlocked angle
-
-    public enum Position{ 
-      //todo: set height setpoints in meters
-      L1(0), L2(0), L3(0), CLIMB(0), MIN(0), MAX(0); 
-      private final double height;
-
-      Position(double height){
-        this.height = height;
-      }
-
-      public double getHeight(){
-        return height;
-      }
-    }
-  }
-
     public static final class EndEffector{
       private EndEffector() {}; 
       // todo: set ports 
