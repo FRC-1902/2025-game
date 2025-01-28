@@ -8,8 +8,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -17,8 +15,6 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class PathToWaypoint extends Command {
   private final SwerveSubsystem swerve;
-  private Translation2d targetTranslation;
-  private Rotation2d targetRotation;
   private PathConstraints constraints;
   private Pose2d targetPose;
   private Command pathCommand;
@@ -34,6 +30,8 @@ public class PathToWaypoint extends Command {
         Constants.Swerve.MAX_ROTATION_SPEED.getRadians(), // Max rotational velocity (rad/s)
         Constants.Swerve.MAX_ROTATION_SPEED.getRadians()  // Max rotational acceleration (rad/s^2)
     );
+
+    addRequirements(swerve);
   }
 
   // Called when the command is initially scheduled.
@@ -41,18 +39,19 @@ public class PathToWaypoint extends Command {
   public void initialize() {
     targetPose = swerve.getReefWaypoint();
     pathCommand = AutoBuilder.pathfindToPose(targetPose, constraints, 0);
-    pathCommand.schedule();
+    pathCommand.initialize();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    pathCommand.execute();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    pathCommand.cancel();
+        pathCommand.end(interrupted);
   }
 
   // Returns true when the command should end.

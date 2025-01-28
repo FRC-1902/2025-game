@@ -1,6 +1,7 @@
 package frc.robot;
 
 import frc.robot.commands.drive.SnapToWaypoint;
+import frc.robot.commands.drive.AutoDrive;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.commands.drive.PathToWaypoint;
 import frc.robot.subsystems.ControllerSubsystem;
@@ -34,12 +35,15 @@ public class RobotContainer {
 
     private SwerveSubsystem swerve;
     private VisionSubsystem vision;
+    private AutoDrive autoDrive;
     ControllerSubsystem controllers;
 
     public RobotContainer() {
         controllers = new ControllerSubsystem();
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+
+        autoDrive = new AutoDrive(swerve);
 
         DriveCommand closedDrive = new DriveCommand(
             swerve,
@@ -54,7 +58,7 @@ public class RobotContainer {
             .onTrue(new InstantCommand(swerve::zeroGyro));
         // Align to Reef
         controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-            .whileTrue(swerve.pathAndSnapCommand());
+            .whileTrue(autoDrive.pathAndSnapCommand());
     }
 
     /**

@@ -194,7 +194,7 @@ public class SwerveReal implements SwerveBase {
         Pathfinding.setPathfinder(new LocalADStar());
 
         // Preload PathPlanner Path finding
-        PathfindingCommand.warmupCommand().schedule();
+        // PathfindingCommand.warmupCommand().schedule();
     }
 
     /**

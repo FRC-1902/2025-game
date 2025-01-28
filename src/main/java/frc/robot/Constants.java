@@ -120,51 +120,6 @@ public final class Constants {
       public static final int BACK_SENSOR_CHANNEL = 20; 
     }
 
-    public static final class WAYPOINTS {
-        private WAYPOINTS() {}; 
-
-        // Reef Waypoints, Lettering goes counterclockwise blue, clockwise red
-
-        // TODO: Set real values
-        public static final Pose2d[] BLUE_REEF = {
-            new Pose2d(3.250, 3.830, new Rotation2d(0)), // A
-            new Pose2d(3.250, 3.830, new Rotation2d(0)), // B
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0))
-        };
-        public static final Pose2d[] RED_REEF = {
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0)),
-            new Pose2d(3.2, 3.830, new Rotation2d(0))
-        };
-
-    }
-
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
         public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
