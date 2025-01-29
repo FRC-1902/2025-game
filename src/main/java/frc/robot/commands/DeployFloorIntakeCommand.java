@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -16,11 +17,22 @@ public class DeployFloorIntakeCommand extends Command {
   private final ElevatorSubsystem elevatorSubsystem;
   private final FloorIntake floorIntakeSubsystem;
   private final EndEffectorSubsystem endEffectorSubsystem;
+
+  private Rotation2d targetAngle;
+
   /** Creates a new DeployFloorIntakeCommand. */
-  public DeployFloorIntakeCommand(ElevatorSubsystem elevatorSubsystem, FloorIntake floorIntakeSubsystem, EndEffectorSubsystem endEffectorSubsystem){
+  public DeployFloorIntakeCommand(
+      Rotation2d targetAngle,
+      ElevatorSubsystem elevatorSubsystem, 
+      FloorIntake floorIntakeSubsystem, 
+      EndEffectorSubsystem endEffectorSubsystem
+    ){
+    
     this.elevatorSubsystem = elevatorSubsystem; 
     this.floorIntakeSubsystem = floorIntakeSubsystem;
     this.endEffectorSubsystem = endEffectorSubsystem;
+
+    this.targetAngle = targetAngle;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(floorIntakeSubsystem);
   }
@@ -28,14 +40,17 @@ public class DeployFloorIntakeCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if(!endEffectorSubsystem.isFrontPieceSensorActive() && !floorIntakeSubsystem.pieceSensorActive()){
-      if(elevatorSubsystem.getPosition() == Constants.Elevator.Position.MIN.getHeight()){
-        floorIntakeSubsystem.setAngle(Rotation2d.fromDegrees(90)); // todo: get target down position
-      }
+    if(
+        endEffectorSubsystem.isFrontPieceSensorActive() || 
+        floorIntakeSubsystem.pieceSensorActive() ||
+        elevatorSubsystem.getPosition() != Constants.Elevator.Position.MIN.getHeight()
+      ){
+      DataLogManager.log("Command shouldn't start");
+      return;
     }
-    else{
-      floorIntakeSubsystem.setAngle(Rotation2d.fromDegrees(0)); // todo: get target up position
-    }
+    
+    floorIntakeSubsystem.setAngle(targetAngle); // todo: get target down position
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -44,15 +59,11 @@ public class DeployFloorIntakeCommand extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    if(elevatorSubsystem.getPosition() == Constants.Elevator.Position.MIN.getHeight()){
-      floorIntakeSubsystem.setAngle(Rotation2d.fromDegrees(0));
-    }
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return floorIntakeSubsystem.pieceSensorActive() || endEffectorSubsystem.isFrontPieceSensorActive();
+    return floorIntakeSubsystem.atSetpoint();
   }
 }
