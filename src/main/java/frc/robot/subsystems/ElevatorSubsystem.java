@@ -23,6 +23,15 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Servo;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+
+// WPILib color utilities
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+
 public class ElevatorSubsystem extends SubsystemBase {
   private SparkMax leftMotor, rightMotor;
   private Servo servo;
@@ -30,6 +39,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   private PIDController pid;
   private Position targetPosition;
   private Alert badStart, boundsAlert, servoAlert;
+
+    // ------------------ Logged Mechanism Objects ------------------
+    private final LoggedMechanism2d elevatorMech;         // The overall canvas
+    private final LoggedMechanismRoot2d elevatorRoot;     // The anchor point
+    private final LoggedMechanismLigament2d towerLigament;  // Represents the fixed tower
+    private final LoggedMechanismLigament2d carriageLigament; 
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -56,6 +71,33 @@ public class ElevatorSubsystem extends SubsystemBase {
     servo = new Servo(Constants.Elevator.SERVO_PORT);
 
     servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
+
+    elevatorMech = new LoggedMechanism2d(2, 2); // 2x2 "canvas" for the elevator
+    // Place root near bottom-left (for a nice display). You can tweak this.
+    elevatorRoot = elevatorMech.getRoot("ElevatorRoot", 0.5, 0.0);
+
+    // A fixed vertical tower (e.g., 1.5 "units" tall, angle = 90° to go up).
+    towerLigament = elevatorRoot.append(
+      new LoggedMechanismLigament2d(
+        "ElevatorTower",
+        1.5, // length in Mechanism2d "units"
+        90,  // angle in degrees (0 is right, 90 is straight up)
+        6,   // line width
+        new Color8Bit(Color.kGray)
+      )
+    );
+        // A carriage that moves up/down along the tower.
+    // We'll represent it as a second ligament that starts at length=0,
+    // but changes each loop to match the elevator's position.
+    carriageLigament = elevatorRoot.append(
+      new LoggedMechanismLigament2d(
+        "Carriage",
+        0.0,          // initial length
+        90.0,         // angle (vertical)
+        8,            // line width
+        new Color8Bit(Color.kYellow)
+      )
+    );
   }
 
   private void configureMotors() {
@@ -96,7 +138,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param targetPosition
    */
   public void setPosition(Position targetPosition) {
-    if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB){
+    if(targetPosition != Constants.Elevator.Position.CLIMB){
       servoAlert.set(true);
     }
     else{
@@ -130,21 +172,21 @@ public class ElevatorSubsystem extends SubsystemBase {
   /**
    * locks the servo from moving
    */
-  public void setLocked(boolean lock) {
-    if (lock) {
-      servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
-    } else {
-      servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
-    }
-  }
+  // public void setLocked(boolean lock) {
+  //   if (lock) {
+  //     servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
+  //   } else {
+  //     servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
+  //   }
+  // }
 
-  /**
-   * 
-   * @returns if the servo is at the locked angle or not
-   */
-  public boolean isLocked(){
-    return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
-  }
+  // /**
+  //  * 
+  //  * @returns if the servo is at the locked angle or not
+  //  */
+  // public boolean isLocked(){
+  //   return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
+  // }
 
   /**
    * Alerts if elevator is out of bounds
@@ -164,7 +206,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * full throttle downward for climb until limit switch is hit
    */
   private void climb() {
-    if (!limitSwitchTriggered() && !isLocked()) {
+    if (!limitSwitchTriggered()) {
       leftMotor.set(-1);
     } else {
       leftMotor.set(0);
@@ -180,18 +222,25 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("ELevator/Current Position", getPosition());
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
 
-    if (watchingDog() || isLocked()) {
-      leftMotor.set(0);
-      return; 
-    }
+    // Update the elevator's carriage ligament length to match the real position
+    // We assume getPosition() is in the 0-1.5m range, for example. You can scale if needed.
+    carriageLigament.setLength(getPosition());
+
+    // if (watchingDog() || isLocked()) {
+    //   leftMotor.set(0);
+    //   Logger.recordOutput("Mechanism/Elevator", elevatorMech);
+    //   return; 
+    // }
 
     switch (targetPosition) {
       case CLIMB:
         climb();
+        Logger.recordOutput("Mechanism/Elevator", elevatorMech);
         return;
       default:
         power = pid.calculate(getPosition(), targetPosition.getHeight()) + Constants.Elevator.kF;
         leftMotor.set(power);
+        Logger.recordOutput("Mechanism/Elevator", elevatorMech);
         return;
     }
   }

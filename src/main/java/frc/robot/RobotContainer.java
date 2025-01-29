@@ -1,9 +1,11 @@
 package frc.robot;
 
+import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionReal;
@@ -30,12 +32,14 @@ public class RobotContainer {
 
     private SwerveSubsystem swerve;
     private VisionSubsystem vision;
+    private ElevatorSubsystem elevator;
     ControllerSubsystem controllers;
 
     public RobotContainer() {
         controllers = new ControllerSubsystem();
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+        elevator = new ElevatorSubsystem();
 
         DriveCommand closedDrive = new DriveCommand(
             swerve,
@@ -48,6 +52,10 @@ public class RobotContainer {
             }
         );
 
+        controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+          .onTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L1));
+        controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+          .onTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L3));
 
         controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
             .onTrue(new InstantCommand(swerve::zeroGyro));

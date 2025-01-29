@@ -63,9 +63,9 @@ public final class Constants {
     public static final class AlgaeIntake{
       private AlgaeIntake() {}; 
       // todo: find id's
-      public static final int ROLLER_ID = 0; 
-      public static final int PIVOT_ID = 0; 
-      public static final int IR_SENSOR_ID = 0; 
+      public static final int ROLLER_ID = 17; 
+      public static final int PIVOT_ID = 18; 
+      public static final int IR_SENSOR_ID = 19; 
       // todo: find p, i, d, g
       public static final double kP = 0; 
       public static final double kI = 0; 
@@ -112,11 +112,11 @@ public final class Constants {
   public static final class Elevator{
     private Elevator() {}; 
     // todo: find id's
-    public static final int LEFT_MOTOR_ID = 0; 
-    public static final int RIGHT_MOTOR_ID = 0;  
+    public static final int LEFT_MOTOR_ID = 23; 
+    public static final int RIGHT_MOTOR_ID = 24;  
     // todo: find limit switch/servo ports 
-    public static final int LIMIT_SWITCH_PORT = 0; 
-    public static final int SERVO_PORT = 0;
+    public static final int LIMIT_SWITCH_PORT = 25; 
+    public static final int SERVO_PORT = 19;
     // todo: find p, i, d, f values 
     public static final double kP = 0; 
     public static final double kI = 0;
