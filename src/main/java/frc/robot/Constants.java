@@ -126,7 +126,7 @@ public final class Constants {
         // TODO: Set real values
         public enum Camera {
             ArducamOne(
-                "ArducamOne",
+                "Arducam_1",
                 new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(50.52)),
                 new Translation3d(
                     Units.inchesToMeters(-11.233), 
@@ -138,7 +138,7 @@ public final class Constants {
             ),
 
             ArducamTwo(
-                "ArducamTwo",
+                "Arducam_2",
                 new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(129.48)),
                 new Translation3d(
                     Units.inchesToMeters(11.233), 
@@ -150,7 +150,7 @@ public final class Constants {
             ),
 
             ArducamThree(
-                "ArducamThree",
+                "Arducam_3",
                 new Rotation3d(0, Units.degreesToRadians(-145), 0),
                 new Translation3d(
                     Units.inchesToMeters(-4.628),
@@ -160,6 +160,7 @@ public final class Constants {
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             );
+
 
             public final String name;
             public final Rotation3d rotation;
