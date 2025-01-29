@@ -139,7 +139,7 @@ public final class Constants {
 
             ArducamTwo(
                 "Arducam_2",
-                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(129.48)),
+                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(-50.52)),
                 new Translation3d(
                     Units.inchesToMeters(11.233), 
                     Units.inchesToMeters(9.691), 
