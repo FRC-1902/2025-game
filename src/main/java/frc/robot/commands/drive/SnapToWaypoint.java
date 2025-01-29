@@ -4,20 +4,24 @@
 
 package frc.robot.commands.drive;
 
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.FieldConstants.WaypointType;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SnapToWaypoint extends Command {
   private final SwerveSubsystem swerve;
+  private WaypointType waypointType;
   private Pose2d targetPose;
 
   /** Creates a new SnapToWaypoint. */
-  public SnapToWaypoint(SwerveSubsystem swerve) {
+  public SnapToWaypoint(SwerveSubsystem swerve, WaypointType waypointType) {
     this.swerve = swerve;
+    this.waypointType = waypointType;
 
     addRequirements(swerve);
   }
@@ -25,11 +29,12 @@ public class SnapToWaypoint extends Command {
 
   @Override
   public void initialize() {
-      targetPose = swerve.getWaypoint();
   }
 
   @Override
   public void execute() {
+    targetPose = swerve.getWaypoint(waypointType);
+
       // Current robot pose
       Pose2d currentPose = swerve.getPose();
 

@@ -4,22 +4,28 @@
 
 package frc.robot.commands.drive;
 
+import com.pathplanner.lib.path.PathConstraints;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
+import frc.robot.FieldConstants.WaypointType;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 /** Add your docs here. */
-public class AutoDrive {
+public class AutoDriveFactory {
     private SwerveSubsystem swerve;
+    private WaypointType waypoint;
 
-    public AutoDrive(SwerveSubsystem swerve) {
+    public AutoDriveFactory(SwerveSubsystem swerve, WaypointType waypoint) {
         this.swerve = swerve;
+        this.waypoint = waypoint;
     }
 
     public Command pathAndSnapCommand() {
         return Commands.sequence(
-            new PathToWaypoint(swerve),
-            new SnapToWaypoint(swerve)
+            swerve.driveToPose(swerve.getWaypoint(waypoint)), // Turns out there is already a driveToPose method in SwerveSubsystem
+            new SnapToWaypoint(swerve, waypoint)
         );
     }
 

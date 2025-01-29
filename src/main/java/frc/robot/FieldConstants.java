@@ -9,6 +9,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
  */
 public final class FieldConstants {
 
+    public enum WaypointType {
+        REEF,
+        PROCESSOR,
+        CAGE
+    }
+
     public static final class BLUE {
         private BLUE() {}; 
         // Reef Waypoints, Lettering goes counterclockwise blue, clockwise red
@@ -33,6 +39,8 @@ public final class FieldConstants {
         };
 
         public static final Pose2d[] CAGE = {
+            new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)), // TODO: Set real values
+            new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)), // TODO: Set real values
             new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)) // TODO: Set real values
         };
     }
@@ -57,6 +65,8 @@ public final class FieldConstants {
         };
 
         public static final Pose2d[] CAGE = {
+            new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)), // TODO: Set real values
+            new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)), // TODO: Set real values
             new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)) // TODO: Set real values
         };
     }

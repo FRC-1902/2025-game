@@ -24,8 +24,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
-import frc.robot.commands.drive.PathToWaypoint;
-import frc.robot.commands.drive.SnapToWaypoint;
+import frc.robot.FieldConstants.WaypointType;
+import frc.robot.commands.drive.ContinuallySnapToWaypoint;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -211,43 +211,42 @@ public class SwerveSubsystem extends SubsystemBase {
                 pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
     }
 
-    public Pose2d getWaypoint() {
-        Translation2d robotTranslation = swerve.getPose().getTranslation();
-        Pose2d targetWaypoint = null;
-        double closestDistance = Double.MAX_VALUE;
+    public Pose2d getWaypoint(WaypointType type) {
+      Translation2d robotTranslation = swerve.getPose().getTranslation();
+      Pose2d targetWaypoint = null;
+      double closestDistance = Double.MAX_VALUE;
 
-        // Check each waypoint to see if it's closer than the current best
-        if (isRedAlliance()) {
-            for (Pose2d waypoint : FieldConstants.RED.REEF) {
-                double distance = robotTranslation.getDistance(waypoint.getTranslation());
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    targetWaypoint = waypoint;
+        switch (type) {
+            case REEF:
+                if (isRedAlliance()) {
+                    for (Pose2d waypoint : FieldConstants.RED.REEF) {
+                        double distance = robotTranslation.getDistance(waypoint.getTranslation());
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            targetWaypoint = waypoint;
+                        }
+                    }
+                } else {
+                    for (Pose2d waypoint : FieldConstants.BLUE.REEF) {
+                        double distance = robotTranslation.getDistance(waypoint.getTranslation());
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            targetWaypoint = waypoint;
+                        }
+                    }
                 }
-            }
-        } else {
-            for (Pose2d waypoint : FieldConstants.BLUE.REEF) {
-                double distance = robotTranslation.getDistance(waypoint.getTranslation());
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    targetWaypoint = waypoint;
-                }
-            }
-        }
-        return targetWaypoint;
-    }
-    public Pose2d getWaypoint(String waypoint) {
-        switch (waypoint.toUpperCase()) {
-            case "PROCESSOR":
+                return targetWaypoint;
+
+            case PROCESSOR:
                 return isRedAlliance()
                     ? FieldConstants.RED.PROCESSOR[0]
                     : FieldConstants.BLUE.PROCESSOR[0];
-            case "CAGE":
+            case CAGE:
                 return isRedAlliance()
                     ? FieldConstants.RED.CAGE[0]
                     : FieldConstants.BLUE.CAGE[0];
-            default: 
-                return null;
+            default:
+                return null; // No waypoint specified
         }
     }
 

@@ -1,9 +1,9 @@
 package frc.robot;
 
-import frc.robot.commands.drive.SnapToWaypoint;
-import frc.robot.commands.drive.AutoDrive;
+import frc.robot.commands.drive.ContinuallySnapToWaypoint;
+import frc.robot.FieldConstants.WaypointType;
+import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
-import frc.robot.commands.drive.PathToWaypoint;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
@@ -20,7 +20,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -35,15 +34,13 @@ public class RobotContainer {
 
     private SwerveSubsystem swerve;
     private VisionSubsystem vision;
-    private AutoDrive autoDrive;
+    private AutoDriveFactory autoDrive;
     ControllerSubsystem controllers;
 
     public RobotContainer() {
         controllers = new ControllerSubsystem();
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
-
-        autoDrive = new AutoDrive(swerve);
 
         DriveCommand closedDrive = new DriveCommand(
             swerve,
@@ -58,7 +55,11 @@ public class RobotContainer {
             .onTrue(new InstantCommand(swerve::zeroGyro));
         // Align to Reef
         controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-            .whileTrue(autoDrive.pathAndSnapCommand());
+            .whileTrue(new AutoDriveFactory(swerve, WaypointType.REEF).pathAndSnapCommand());
+        controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+            .whileTrue(new AutoDriveFactory(swerve, WaypointType.PROCESSOR).pathAndSnapCommand());
+        controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+            .whileTrue(new AutoDriveFactory(swerve, WaypointType.CAGE).pathAndSnapCommand());
     }
 
     /**
