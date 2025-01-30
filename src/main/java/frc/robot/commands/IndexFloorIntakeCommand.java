@@ -5,15 +5,15 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.FloorIntake;
+import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class IndexFloorIntakeCommand extends Command {
-  private final FloorIntake floorIntakeSubsystem;
+  private final FloorIntakeSubsystem floorIntakeSubsystem;
   private final EndEffectorSubsystem endEffectorSubsystem;
   /** Creates a new IndexFloorIntakeCommand. */
-  public IndexFloorIntakeCommand(FloorIntake floorIntakeSubsystem, EndEffectorSubsystem endEffectorSubsystem){
+  public IndexFloorIntakeCommand(FloorIntakeSubsystem floorIntakeSubsystem, EndEffectorSubsystem endEffectorSubsystem){
     this.floorIntakeSubsystem = floorIntakeSubsystem; 
     this.endEffectorSubsystem = endEffectorSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -41,6 +41,7 @@ public class IndexFloorIntakeCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !floorIntakeSubsystem.pieceSensorActive() && endEffectorSubsystem.isFrontPieceSensorActive();
+    // XXX: may not want front piece sensor true check here, but it probably should be
+    return !floorIntakeSubsystem.pieceSensorActive() && !endEffectorSubsystem.isBackPieceSensorActive() && endEffectorSubsystem.isFrontPieceSensorActive();
   }
 }

@@ -10,12 +10,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
-import frc.robot.subsystems.FloorIntake;
+import frc.robot.subsystems.FloorIntakeSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DeployFloorIntakeCommand extends Command {
   private final ElevatorSubsystem elevatorSubsystem;
-  private final FloorIntake floorIntakeSubsystem;
+  private final FloorIntakeSubsystem floorIntakeSubsystem;
   private final EndEffectorSubsystem endEffectorSubsystem;
 
   private Rotation2d targetAngle;
@@ -24,7 +24,7 @@ public class DeployFloorIntakeCommand extends Command {
   public DeployFloorIntakeCommand(
       Rotation2d targetAngle,
       ElevatorSubsystem elevatorSubsystem, 
-      FloorIntake floorIntakeSubsystem, 
+      FloorIntakeSubsystem floorIntakeSubsystem, 
       EndEffectorSubsystem endEffectorSubsystem
     ){
     

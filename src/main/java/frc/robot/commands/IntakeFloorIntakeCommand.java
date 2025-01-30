@@ -5,14 +5,14 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.FloorIntake;
+import frc.robot.subsystems.FloorIntakeSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class IntakeFloorIntakeCommand extends Command {
-  private final FloorIntake floorIntakeSubsystem; 
+  private final FloorIntakeSubsystem floorIntakeSubsystem; 
 
   /** Creates a new IntakeFloorIntakeCommand. */
-  public IntakeFloorIntakeCommand(FloorIntake floorIntakeSubsystem) {
+  public IntakeFloorIntakeCommand(FloorIntakeSubsystem floorIntakeSubsystem) {
     this.floorIntakeSubsystem = floorIntakeSubsystem; 
 
     addRequirements(floorIntakeSubsystem);
