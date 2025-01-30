@@ -34,10 +34,14 @@ public class AutoDriveFactory {
     }
 
     public Command driveToPose(Pose2d pose) {
-        return AutoBuilder.pathfindToPose(
-                pose, constraints, 0);
+        return AutoBuilder.pathfindToPose(pose, constraints, 0);
     }
 
+    /**
+     * Drives to the waypoint and snaps to it.
+     * 
+     * @return the command
+     */
     public Command pathAndSnapCommand() {
         Pose2d targetPose = swerve.getWaypoint(waypoint);
         return Commands.sequence(

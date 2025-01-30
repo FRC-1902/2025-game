@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -211,6 +212,12 @@ public class SwerveSubsystem extends SubsystemBase {
                 pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
     }
 
+    /**
+     * Finds the closest waypoint of the specified type.
+     *
+     * @param type WaypointType
+     * @return closest waypoint of the specified type
+     */
     public Pose2d getWaypoint(WaypointType type) {
       Translation2d robotTranslation = swerve.getPose().getTranslation();
       Pose2d targetWaypoint = null;
