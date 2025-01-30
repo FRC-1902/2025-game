@@ -17,31 +17,30 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 
 /** Add your docs here. */
 public class AutoIntakeFactory {
-  FloorIntake floorIntakeSubsystem;
+	FloorIntake floorIntakeSubsystem;
 	ElevatorSubsystem elevatorSubsystem;
-  EndEffectorSubsystem endEffectorSubsystem;
+	EndEffectorSubsystem endEffectorSubsystem;
 
-  public AutoIntakeFactory(FloorIntake floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem) {
-    this.floorIntakeSubsystem = floorIntakeSubsystem;
-    this.elevatorSubsystem = elevatorSubsystem;
-    this.endEffectorSubsystem = endEffectorSubsystem;
-  }
+	public AutoIntakeFactory(FloorIntake floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem) {
+		this.floorIntakeSubsystem = floorIntakeSubsystem;
+		this.elevatorSubsystem = elevatorSubsystem;
+		this.endEffectorSubsystem = endEffectorSubsystem;
+	}
 
 	public Command getIntakeSequence() {
 		// TODO: set rotation angles
 		return new SequentialCommandGroup(
 			new ParallelCommandGroup(
 				new ElevatorCommand(
-          floorIntakeSubsystem, 
-          elevatorSubsystem, 
-          Constants.Elevator.Position.MIN
-        ),
+					elevatorSubsystem, 
+					Constants.Elevator.Position.MIN
+				),
 				new DeployFloorIntakeCommand(
-          Rotation2d.fromDegrees(61), // todo: double check zero reference
-          elevatorSubsystem, 
-          floorIntakeSubsystem, 
-          endEffectorSubsystem
-        )
+					Rotation2d.fromDegrees(61), // todo: double check zero reference
+					elevatorSubsystem, 
+					floorIntakeSubsystem, 
+					endEffectorSubsystem
+				)
 			),
 			new IntakeFloorIntakeCommand(floorIntakeSubsystem)
 		).finallyDo((wasCancelled) -> {
@@ -55,28 +54,27 @@ public class AutoIntakeFactory {
 					),
 					new IndexFloorIntakeCommand( 
 						floorIntakeSubsystem, 
-						endEffectorSubsystem,
-						elevatorSubsystem
+						endEffectorSubsystem
 					)
 				),
 				new SequentialCommandGroup(
 					// XXX: may not want this initial move out for cleanup
 					new DeployFloorIntakeCommand(
-            Rotation2d.fromDegrees(61), // todo: check # could be horrible
-            elevatorSubsystem,
-						floorIntakeSubsystem, 
-            endEffectorSubsystem
-          ),
+						Rotation2d.fromDegrees(61), // todo: check # could be horrible
+						elevatorSubsystem,
+									floorIntakeSubsystem, 
+						endEffectorSubsystem
+					),
 					new OuttakeFloorIntakeCommand(floorIntakeSubsystem),
 					new DeployFloorIntakeCommand(
-            Rotation2d.fromDegrees(61), // todo: check #
-            elevatorSubsystem,
+						Rotation2d.fromDegrees(61), // todo: check #
+						elevatorSubsystem,
 						floorIntakeSubsystem, 
-            endEffectorSubsystem
-          )
-        ),
+						endEffectorSubsystem
+					)
+        		),
 				() -> floorIntakeSubsystem.pieceSensorActive()
 			).schedule();
 		});
-  }
+	}
 }
