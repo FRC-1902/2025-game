@@ -171,9 +171,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * 
+   * @param targetPosition
+   * @returns whether the elevator is at a tolerance to the specified position or not
+   */
+  public boolean isAtPosition(Position targetPosition){
+    return Math.abs(getPosition() - targetPosition.getHeight()) <= Constants.Elevator.TOLERANCE;
+  }
+
   @Override
   public void periodic() {
-
     double power;
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());

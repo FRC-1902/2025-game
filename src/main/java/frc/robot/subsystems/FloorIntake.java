@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import java.util.logging.LogManager;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -18,6 +21,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
@@ -27,6 +31,7 @@ public class FloorIntake extends SubsystemBase {
   private DigitalInput irSensor;
   private PIDController pid;
   private Alert pivotAlert;
+  private final ElevatorSubsystem elevatorSubsystem;
 
   /** Creates a new FloorIntake. */
   public FloorIntake() {
@@ -46,6 +51,8 @@ public class FloorIntake extends SubsystemBase {
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
     // Check that motors aren't supposed to be inverted
     configureMotors();
+
+    elevatorSubsystem = new ElevatorSubsystem();
   }
 
   private void configureMotors() {
@@ -140,6 +147,11 @@ public class FloorIntake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN)){
+      DataLogManager.log("Elevator pos bad, cannot move floor intake");
+      return;
+    }
+    
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians());
 
