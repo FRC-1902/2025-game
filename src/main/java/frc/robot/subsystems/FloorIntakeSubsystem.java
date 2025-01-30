@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -18,26 +19,29 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-public class FloorIntake extends SubsystemBase {
+
+public class FloorIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor;
   private SparkMax pivotMotor;
   private DigitalInput irSensor;
   private PIDController pid;
   private Alert pivotAlert;
+  private final ElevatorSubsystem elevatorSubsystem;
 
   /** Creates a new FloorIntake. */
-  public FloorIntake() {
+  public FloorIntakeSubsystem() {
     rollerMotor = new SparkMax(Constants.FloorIntake.ROLLERMOTOR_PORT, MotorType.kBrushless);
 
     pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR_PORT, MotorType.kBrushless);
 
     pid = new PIDController(
-        Constants.FloorIntake.PIVOT_P,
-        Constants.FloorIntake.PIVOT_I,
-        Constants.FloorIntake.PIVOT_D);
+    Constants.FloorIntake.PIVOT_P,
+    Constants.FloorIntake.PIVOT_I,
+    Constants.FloorIntake.PIVOT_D);
     pid.enableContinuousInput(0, 360);
     pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
 
@@ -46,6 +50,8 @@ public class FloorIntake extends SubsystemBase {
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
     // Check that motors aren't supposed to be inverted
     configureMotors();
+
+    elevatorSubsystem = new ElevatorSubsystem();
   }
 
   private void configureMotors() {
@@ -127,8 +133,9 @@ public class FloorIntake extends SubsystemBase {
   // checks that the pivot isn't going out of tolerance, will send an alert if it
   // does
   private boolean pivotWatchdog() {
-    if (getAngle().getDegrees() >= Constants.FloorIntake.MAX_PIVOT.getDegrees()
-        || getAngle().getDegrees() <= Constants.FloorIntake.MIN_PIVOT.getDegrees()) {
+    if (getAngle().getDegrees() >= Constants.FloorIntake.MAX_PIVOT.getDegrees() || 
+        getAngle().getDegrees() <= Constants.FloorIntake.MIN_PIVOT.getDegrees()
+      ) {
       pivotAlert.set(true);
       return true;
     } else {
@@ -140,6 +147,11 @@ public class FloorIntake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < 60){
+      DataLogManager.log("Elevator spooky in relation to floor intake");
+      setAngle(Rotation2d.fromDegrees(61));
+    }
+    
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians());
 
