@@ -35,13 +35,13 @@ public final class FieldConstants {
         };
 
         public static final Pose2d[] PROCESSOR = {
-            new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)) // TODO: Set real values
+            new Pose2d(6.000, 0.450, Rotation2d.fromDegrees(270)) // TODO: Set real values
         };
 
         public static final Pose2d[] CAGE = {
-            new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)), // TODO: Set real values
-            new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)), // TODO: Set real values
-            new Pose2d(3.2, 3.830, Rotation2d.fromDegrees(0)) // TODO: Set real values
+            new Pose2d(8.750, 5.100, Rotation2d.fromDegrees(0)), // TODO: Set real values
+            new Pose2d(8.750, 6.200, Rotation2d.fromDegrees(0)), // TODO: Set real values
+            new Pose2d(8.750, 7.300, Rotation2d.fromDegrees(0)) // TODO: Set real values
         };
     }
     public static final class RED {

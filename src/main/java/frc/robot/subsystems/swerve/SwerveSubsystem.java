@@ -242,9 +242,24 @@ public class SwerveSubsystem extends SubsystemBase {
                     ? FieldConstants.RED.PROCESSOR[0]
                     : FieldConstants.BLUE.PROCESSOR[0];
             case CAGE:
-                return isRedAlliance()
-                    ? FieldConstants.RED.CAGE[0]
-                    : FieldConstants.BLUE.CAGE[0];
+                if (isRedAlliance()) {
+                  for (Pose2d waypoint : FieldConstants.RED.CAGE) {
+                      double distance = robotTranslation.getDistance(waypoint.getTranslation());
+                      if (distance < closestDistance) {
+                          closestDistance = distance;
+                          targetWaypoint = waypoint;
+                      }
+                  }
+              } else {
+                  for (Pose2d waypoint : FieldConstants.BLUE.CAGE) {
+                      double distance = robotTranslation.getDistance(waypoint.getTranslation());
+                      if (distance < closestDistance) {
+                          closestDistance = distance;
+                          targetWaypoint = waypoint;
+                      }
+                  }
+              }
+              return targetWaypoint;
             default:
                 return null; // No waypoint specified
         }

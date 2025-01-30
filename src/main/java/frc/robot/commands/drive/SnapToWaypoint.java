@@ -19,9 +19,9 @@ public class SnapToWaypoint extends Command {
   private Pose2d targetPose;
 
   /** Creates a new SnapToWaypoint. */
-  public SnapToWaypoint(SwerveSubsystem swerve, WaypointType waypointType) {
+  public SnapToWaypoint(SwerveSubsystem swerve, Pose2d targetPose) {
     this.swerve = swerve;
-    this.waypointType = waypointType;
+    this.targetPose = targetPose;
 
     addRequirements(swerve);
   }
@@ -33,14 +33,13 @@ public class SnapToWaypoint extends Command {
 
   @Override
   public void execute() {
-    targetPose = swerve.getWaypoint(waypointType);
 
       // Current robot pose
       Pose2d currentPose = swerve.getPose();
 
       // Simple P-controllers for translation and rotation
-      double velocitykP = 10.0; 
-      double rotationkP = 10.0;
+      double velocitykP = 1.10; 
+      double rotationkP = 1.10;
 
       Translation2d velocity = targetPose.getTranslation().minus(currentPose.getTranslation()).times(velocitykP);
       Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);

@@ -17,8 +17,8 @@ public class ContinuallySnapToWaypoint extends SnapToWaypoint {
   private WaypointType waypointType;
 
   /** Creates a new SnapToWaypoint. */
-  public ContinuallySnapToWaypoint(SwerveSubsystem swerve, WaypointType waypointType) {
-    super(swerve, waypointType);
+  public ContinuallySnapToWaypoint(SwerveSubsystem swerve, Pose2d targetPose) {
+    super(swerve, targetPose);
     this.swerve = swerve;
     this.waypointType = waypointType;
   }
