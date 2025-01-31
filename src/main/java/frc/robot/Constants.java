@@ -139,7 +139,7 @@ public final class Constants {
 
     public enum Position{ 
       //todo: set height setpoints in meters
-      L1(0), L2(0), L3(0), CLIMB(0), MIN(0), MAX(0); 
+      L1(0), L2(0), L3(0), CLIMB_UP(0), CLIMB_DOWN(0), MIN(0), MAX(0); 
       private final double height;
 
       Position(double height){
