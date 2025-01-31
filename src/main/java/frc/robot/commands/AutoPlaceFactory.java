@@ -11,7 +11,8 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.Constants;
-import frc.robot.Constants.Elevator.Position;   
+import frc.robot.Constants.Elevator.Position;
+import frc.robot.commands.intake.DeployFloorIntakeCommand;   
 
 /** Add your docs here. */
 public class AutoPlaceFactory {
