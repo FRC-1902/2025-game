@@ -40,8 +40,8 @@ public class SnapToWaypoint extends Command {
       Pose2d currentPose = swerve.getPose();
 
       // Simple P-controllers for translation and rotation
-      double velocitykP = 0.001; 
-      double rotationkP = 0.001;
+      double velocitykP = 0.003; 
+      double rotationkP = 0.003;
 
       Translation2d velocity = targetPose.getTranslation().minus(currentPose.getTranslation()).times(velocitykP);
       Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);

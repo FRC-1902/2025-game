@@ -44,7 +44,7 @@ public class DriveCommand extends Command {
         var alliance = DriverStation.getAlliance();
 
         // Apply cubic scaling to x and y velocities
-        Translation2d trans = new Translation2d(vX.getAsDouble(), vY.getAsDouble()).times(Constants.Swerve.MAX_SPEED);
+        Translation2d trans = new Translation2d(vX.getAsDouble(), vY.getAsDouble()).times(Constants.Swerve.MAX_SPEED).times(0.3); // TODO: remove the speed cap
         double xVelocity = Math.pow(trans.getX(), 3.0);
         double yVelocity = Math.pow(trans.getY(), 3.0);
 
@@ -55,7 +55,7 @@ public class DriveCommand extends Command {
             yVelocity *= -1;
         }
 
-        double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians();
+        double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * 0.05; // TODO: change speed cap
 
         // Create field-relative ChassisSpeeds
         ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(

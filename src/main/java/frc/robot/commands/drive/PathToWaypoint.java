@@ -28,10 +28,10 @@ public class PathToWaypoint extends Command {
     this.targetPose = targetPose;
 
     constraints = new PathConstraints(
-        Constants.Swerve.MAX_SPEED, 
-        Constants.Swerve.MAX_ACCELERATION, 
-        Constants.Swerve.MAX_ROTATION_SPEED.getRotations(), 
-        Constants.Swerve.MAX_ROTATION_SPEED.getRotations() // TODO: Change to rotation accel
+        Constants.Swerve.AUTO_MAX_SPEED, 
+        Constants.Swerve.AUTO_MAX_ACCELERATION, 
+        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations(), 
+        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations() // TODO: Change to rotation accel
     );
   }
 
