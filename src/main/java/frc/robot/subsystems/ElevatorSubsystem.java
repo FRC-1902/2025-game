@@ -138,7 +138,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param targetPosition
    */
   public void setPosition(Position targetPosition) {
-    if(targetPosition != Constants.Elevator.Position.CLIMB){
+    if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB_DOWN){
       servoAlert.set(true);
     }
     else{
@@ -172,21 +172,21 @@ public class ElevatorSubsystem extends SubsystemBase {
   /**
    * locks the servo from moving
    */
-  // public void setLocked(boolean lock) {
-  //   if (lock) {
-  //     servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
-  //   } else {
-  //     servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
-  //   }
-  // }
+  public void setLocked(boolean lock) {
+    if (lock) {
+      servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
+    } else {
+      servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
+    }
+  }
 
   // /**
   //  * 
   //  * @returns if the servo is at the locked angle or not
   //  */
-  // public boolean isLocked(){
-  //   return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
-  // }
+  public boolean isLocked(){
+    return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
+  }
 
   /**
    * Alerts if elevator is out of bounds
@@ -213,9 +213,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * 
+   * @param targetPosition
+   * @returns whether the elevator is at a tolerance to the specified position or not
+   */
+  public boolean isAtPosition(Position targetPosition){
+    return Math.abs(getPosition() - targetPosition.getHeight()) <= Constants.Elevator.TOLERANCE;
+  }
+
   @Override
   public void periodic() {
-
     double power;
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
@@ -226,14 +234,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     // We assume getPosition() is in the 0-1.5m range, for example. You can scale if needed.
     carriageLigament.setLength(getPosition());
 
-    // if (watchingDog() || isLocked()) {
-    //   leftMotor.set(0);
-    //   Logger.recordOutput("Mechanism/Elevator", elevatorMech);
-    //   return; 
-    // }
+    if (watchingDog() || isLocked()) {
+      leftMotor.set(0);
+      Logger.recordOutput("Mechanism/Elevator", elevatorMech);
+      return; 
+    }
 
     switch (targetPosition) {
-      case CLIMB:
+      case CLIMB_DOWN:
         climb();
         Logger.recordOutput("Mechanism/Elevator", elevatorMech);
         return;

@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -56,16 +57,24 @@ public final class Constants {
         public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value
         public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
         public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
-        public static final double MAX_SPEED = 10*1; // m/s TODO: Adjust later
-        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10*1.0); // m/s TODO: Adjust later
+
+        // Speeds
+        public static final double MAX_SPEED = Units.feetToMeters(16.6); // m/s TODO: Adjust later
+        public static final double MAX_ACCELERATION = Units.feetToMeters(34.44882); // m/s^2 TODO: Adjust later
+        public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10); // m/s TODO: Adjust later
+
+        // Auto Speeds
+        public static final double AUTO_MAX_SPEED = Units.feetToMeters(.5); // m/s TODO: Adjust later
+        public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(.7); // m/s^2 TODO: Adjust later
+        public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(1); // m/s TODO: Adjust later
     }
 
     public static final class AlgaeIntake{
       private AlgaeIntake() {}; 
       // todo: find id's
-      public static final int ROLLER_ID = 17; 
-      public static final int PIVOT_ID = 18; 
-      public static final int IR_SENSOR_ID = 19; 
+      public static final int ROLLER_ID = 11; 
+      public static final int PIVOT_ID = 12; 
+      public static final int IR_SENSOR_ID = 0; 
       // todo: find p, i, d, g
       public static final double kP = 0; 
       public static final double kI = 0; 
@@ -130,7 +139,7 @@ public final class Constants {
 
     public enum Position{ 
       //todo: set height setpoints in meters
-      L1(0), L2(0), L3(0), CLIMB(0), MIN(0), MAX(0); 
+      L1(0), L2(0), L3(0), CLIMB_UP(0), CLIMB_DOWN(0), MIN(0), MAX(0); 
       private final double height;
 
       Position(double height){
@@ -151,7 +160,6 @@ public final class Constants {
       public static final int FRONT_SENSOR_CHANNEL = 19; 
       public static final int BACK_SENSOR_CHANNEL = 20; 
     }
-
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
         public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
@@ -160,31 +168,37 @@ public final class Constants {
         // TODO: Set real values
         public enum Camera {
             ArducamOne(
-                "ArducamOne",
-                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(50.52)),
+                "Arducam_1",
+                new Rotation3d(Math.toRadians(0), Math.toRadians(-18), Math.toRadians(40)),
                 new Translation3d(
-                    Units.inchesToMeters(-11.233), 
-                    Units.inchesToMeters(9.691), 
-                    Units.inchesToMeters(8.036)
+                    // Units.inchesToMeters(11.233), 
+                    // Units.inchesToMeters(9.691),
+                    // Units.inchesToMeters(8.513920)
+                    Units.inchesToMeters(9.691),
+                    Units.inchesToMeters(-11.233),
+                    Units.inchesToMeters(8.513920)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             ),
 
             ArducamTwo(
-                "ArducamTwo",
-                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(129.48)),
+                "Arducam_2",
+                new Rotation3d(Math.toRadians(0), Math.toRadians(-18), Math.toRadians(-40)),
                 new Translation3d(
-                    Units.inchesToMeters(11.233), 
-                    Units.inchesToMeters(9.691), 
-                    Units.inchesToMeters(8.036)
+                    // Units.inchesToMeters(-11.233), 
+                    // Units.inchesToMeters(9.691), 
+                    // Units.inchesToMeters(8.513920)
+                    Units.inchesToMeters(9.691),
+                    Units.inchesToMeters(11.233),
+                    Units.inchesToMeters(8.513920)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             ),
 
             ArducamThree(
-                "ArducamThree",
+                "Arducam_3",
                 new Rotation3d(0, Units.degreesToRadians(-145), 0),
                 new Translation3d(
                     Units.inchesToMeters(-4.628),
@@ -194,6 +208,7 @@ public final class Constants {
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             );
+
 
             public final String name;
             public final Rotation3d rotation;
