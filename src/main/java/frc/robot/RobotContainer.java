@@ -1,7 +1,11 @@
 package frc.robot;
 
+import frc.robot.commands.drive.ContinuallySnapToWaypoint;
+import frc.robot.FieldConstants.WaypointType;
+import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.subsystems.ControllerSubsystem;
+import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -11,9 +15,11 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.io.File;
 
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -28,6 +34,7 @@ public class RobotContainer {
 
     private SwerveSubsystem swerve;
     private VisionSubsystem vision;
+    private AutoDriveFactory autoDrive;
     ControllerSubsystem controllers;
 
     public RobotContainer() {
@@ -39,10 +46,32 @@ public class RobotContainer {
             swerve,
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
-            () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
+            () -> {
+                double rightTrigger = controllers.getCommandController(ControllerName.DRIVE).getRightTriggerAxis();
+                double leftTrigger = controllers.getCommandController(ControllerName.DRIVE).getLeftTriggerAxis();
+                return MathUtil.applyDeadband(rightTrigger - leftTrigger, Constants.Controller.RIGHT_Y_DEADBAND);
+            }
         );
 
+        autoDrive = new AutoDriveFactory(swerve);
+
         swerve.setDefaultCommand(closedDrive);
+
+        bindButtons();
+    }
+
+    private void bindButtons() {
+        controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
+            .onTrue(new InstantCommand(swerve::zeroGyro));
+        
+        // Align to Reef
+        controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+            .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));
+        
+        controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+            .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
+        controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+            .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.CAGE));
     }
 
     /**
@@ -53,6 +82,6 @@ public class RobotContainer {
     public Command getAutonomousCommand()
     {
         // An example command will be run in autonomous
-        return swerve.getAutonomousCommand("New Auto");
+        return swerve.getAutonomousCommand("Test");
     }
 }
