@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.WaypointType;
-import frc.robot.commands.AlgaeIntakeCommand;
+import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
@@ -89,8 +89,8 @@ public class RobotContainer {
       //     .onTrue(new PlaceCommand(endEffector));
 
       // Score/Outtake Algae
-      //  controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
-      //      .onTrue(new AlgaeOuttakeCommand(algaeIntake));
+       controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
+           .onTrue(new AlgaeOuttakeCommand(algaeIntake));
 
       //  controllers.getTrigger(ControllerName.DRIVE, Button.LB).debounce(0.05)
       //      .onTrue(new AlgaeOuttakeCommand(algaeIntake));
@@ -141,7 +141,7 @@ public class RobotContainer {
 
       // Algae Intake
       controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)
-          .whileTrue(new AlgaeIntakeCommand(algaeIntake));
+          .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
 
       // Climber Up
       new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povUp().getAsBoolean()).debounce(0.05)
