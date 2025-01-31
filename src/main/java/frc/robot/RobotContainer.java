@@ -90,10 +90,10 @@ public class RobotContainer {
 
       // Score/Outtake Algae
        controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
-           .onTrue(new AlgaeOuttakeCommand(algaeIntake));
+           .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
 
       //  controllers.getTrigger(ControllerName.DRIVE, Button.LB).debounce(0.05)
-      //      .onTrue(new AlgaeOuttakeCommand(algaeIntake));
+      //      .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
 
       // Zero Gyro
       controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
