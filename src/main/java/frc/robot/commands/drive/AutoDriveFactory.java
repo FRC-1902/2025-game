@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.FieldConstants.WaypointType;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -18,23 +19,9 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 /** Add your docs here. */
 public class AutoDriveFactory {
     private SwerveSubsystem swerve;
-    private WaypointType waypoint;
-    private PathConstraints constraints;
 
-    public AutoDriveFactory(SwerveSubsystem swerve, WaypointType waypoint) {
+    public AutoDriveFactory(SwerveSubsystem swerve) {
         this.swerve = swerve;
-        this.waypoint = waypoint;
-
-        constraints = new PathConstraints(
-            Constants.Swerve.MAX_SPEED, 
-            Constants.Swerve.MAX_ACCELERATION, 
-            Constants.Swerve.MAX_ROTATION_SPEED.getRotations(), 
-            Constants.Swerve.MAX_ROTATION_SPEED.getRotations()
-        );
-    }
-
-    public Command driveToPose(Pose2d pose) {
-        return AutoBuilder.pathfindToPose(pose, constraints, 0);
     }
 
     /**
@@ -42,11 +29,10 @@ public class AutoDriveFactory {
      * 
      * @return the command
      */
-    public Command pathAndSnapCommand() {
-        Pose2d targetPose = swerve.getWaypoint(waypoint);
-        return Commands.sequence(
-            driveToPose(targetPose),
-            new SnapToWaypoint(swerve, targetPose)
+    public Command pathAndSnapCommand(WaypointType waypoint) {
+        return new SequentialCommandGroup(
+            new PathToWaypoint(swerve, () -> swerve.getWaypoint(waypoint)),
+            new SnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint))
         );
     }
 

@@ -5,23 +5,25 @@
 package frc.robot.commands.drive;
 
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.FieldConstants.WaypointType;
+import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SnapToWaypoint extends Command {
   private final SwerveSubsystem swerve;
-  private WaypointType waypointType;
+  private Supplier<Pose2d> targetPoseSupplier;
   private Pose2d targetPose;
 
   /** Creates a new SnapToWaypoint. */
-  public SnapToWaypoint(SwerveSubsystem swerve, Pose2d targetPose) {
+  public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
     this.swerve = swerve;
-    this.targetPose = targetPose;
+    this.targetPoseSupplier = targetPoseSupplier;
 
     addRequirements(swerve);
   }
@@ -29,26 +31,34 @@ public class SnapToWaypoint extends Command {
 
   @Override
   public void initialize() {
+    targetPose = targetPoseSupplier.get();
   }
 
   @Override
   public void execute() {
-
       // Current robot pose
       Pose2d currentPose = swerve.getPose();
 
       // Simple P-controllers for translation and rotation
-      double velocitykP = 1.10; 
-      double rotationkP = 1.10;
+      double velocitykP = 0.001; 
+      double rotationkP = 0.001;
 
       Translation2d velocity = targetPose.getTranslation().minus(currentPose.getTranslation()).times(velocitykP);
       Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
 
-      swerve.drive(velocity, rotation.getRadians(), true); // TODO: Change to radians or degrees
+      double cappedXVelocity = Math.max(Math.min(velocity.getX(), 1), -1);
+      double cappedYVelocity = Math.max(Math.min(velocity.getY(), 1), -1);
+
+      double cappedRotation = Math.max(Math.min(rotation.getRadians(), 1), -1);
+      
+      Translation2d cappedVelocty = new Translation2d(cappedXVelocity, cappedYVelocity);
+
+      swerve.drive(cappedVelocty, cappedRotation, true); // TODO: Change to radians or degrees
   }
 
   @Override
   public void end(boolean interrupted) {
+      swerve.drive(new Translation2d(0, 0), 0, true);
       // Called once when this command finishes or is interrupted
   }
 

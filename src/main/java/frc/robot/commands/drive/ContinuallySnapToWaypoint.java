@@ -4,26 +4,16 @@
 
 package frc.robot.commands.drive;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class ContinuallySnapToWaypoint extends SnapToWaypoint {
 
   /** Creates a new SnapToWaypoint. */
-  public ContinuallySnapToWaypoint(SwerveSubsystem swerve, Pose2d targetPose) {
-    super(swerve, targetPose);
-  }
-
-  @Override
-  public void initialize() {
-  }
-
-  @Override
-  public void execute() {
-  }
-
-  @Override
-  public void end(boolean interrupted) {
+  public ContinuallySnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
+    super(swerve, targetPoseSupplier);
   }
 
   @Override

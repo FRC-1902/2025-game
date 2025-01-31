@@ -49,17 +49,25 @@ public class RobotContainer {
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
         );
 
+        autoDrive = new AutoDriveFactory(swerve);
+
         swerve.setDefaultCommand(closedDrive);
 
+        bindButtons();
+    }
+
+    private void bindButtons() {
         controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
             .onTrue(new InstantCommand(swerve::zeroGyro));
+        
         // Align to Reef
         controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-            .whileTrue(new AutoDriveFactory(swerve, WaypointType.REEF).pathAndSnapCommand());
+            .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));
+        
         controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-            .whileTrue(new AutoDriveFactory(swerve, WaypointType.PROCESSOR).pathAndSnapCommand());
+            .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
         controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-            .whileTrue(new AutoDriveFactory(swerve, WaypointType.CAGE).pathAndSnapCommand());
+            .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.CAGE));
     }
 
     /**
