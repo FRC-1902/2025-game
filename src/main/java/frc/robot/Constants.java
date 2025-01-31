@@ -121,7 +121,6 @@ public final class Constants {
       public static final int FRONT_SENSOR_CHANNEL = 19; 
       public static final int BACK_SENSOR_CHANNEL = 20; 
     }
-
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
         public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
@@ -130,31 +129,37 @@ public final class Constants {
         // TODO: Set real values
         public enum Camera {
             ArducamOne(
-                "ArducamOne",
-                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(50.52)),
+                "Arducam_1",
+                new Rotation3d(Math.toRadians(0), Math.toRadians(-18), Math.toRadians(40)),
                 new Translation3d(
-                    Units.inchesToMeters(-11.233), 
-                    Units.inchesToMeters(9.691), 
-                    Units.inchesToMeters(8.036)
+                    // Units.inchesToMeters(11.233), 
+                    // Units.inchesToMeters(9.691),
+                    // Units.inchesToMeters(8.513920)
+                    Units.inchesToMeters(9.691),
+                    Units.inchesToMeters(-11.233),
+                    Units.inchesToMeters(8.513920)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             ),
 
             ArducamTwo(
-                "ArducamTwo",
-                new Rotation3d(Math.toRadians(0), Math.toRadians(18), Math.toRadians(129.48)),
+                "Arducam_2",
+                new Rotation3d(Math.toRadians(0), Math.toRadians(-18), Math.toRadians(-40)),
                 new Translation3d(
-                    Units.inchesToMeters(11.233), 
-                    Units.inchesToMeters(9.691), 
-                    Units.inchesToMeters(8.036)
+                    // Units.inchesToMeters(-11.233), 
+                    // Units.inchesToMeters(9.691), 
+                    // Units.inchesToMeters(8.513920)
+                    Units.inchesToMeters(9.691),
+                    Units.inchesToMeters(11.233),
+                    Units.inchesToMeters(8.513920)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             ),
 
             ArducamThree(
-                "ArducamThree",
+                "Arducam_3",
                 new Rotation3d(0, Units.degreesToRadians(-145), 0),
                 new Translation3d(
                     Units.inchesToMeters(-4.628),
@@ -164,6 +169,7 @@ public final class Constants {
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             );
+
 
             public final String name;
             public final Rotation3d rotation;

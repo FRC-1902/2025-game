@@ -38,7 +38,7 @@ public class SwerveReal implements SwerveBase {
             swerveDrive = new SwerveParser(directory).createSwerveDrive(
                 Constants.Swerve.MAX_SPEED,
                 new Pose2d(
-                    new Translation2d(Meter.of(8), Meter.of(4)),
+                    new Translation2d(Meter.of(3.2), Meter.of(4)),
                     Rotation2d.fromDegrees(0)
                 )
             );
@@ -51,7 +51,7 @@ public class SwerveReal implements SwerveBase {
         swerveDrive.setCosineCompensator(false);
         swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
-        //swerveDrive.pushOffsetsToEncoders();
+        //swerveDrive.pushOffsetsToEncoders(); // Removed because the gyro doesn't need it
     }
 
     @Override

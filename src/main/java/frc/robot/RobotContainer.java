@@ -46,7 +46,11 @@ public class RobotContainer {
             swerve,
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
-            () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND)
+            () -> {
+                double rightTrigger = controllers.getCommandController(ControllerName.DRIVE).getRightTriggerAxis();
+                double leftTrigger = controllers.getCommandController(ControllerName.DRIVE).getLeftTriggerAxis();
+                return MathUtil.applyDeadband(rightTrigger - leftTrigger, Constants.Controller.RIGHT_Y_DEADBAND);
+            }
         );
 
         autoDrive = new AutoDriveFactory(swerve);
