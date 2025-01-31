@@ -51,7 +51,7 @@ public class SwerveReal implements SwerveBase {
         swerveDrive.setCosineCompensator(false);
         swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
-        //swerveDrive.pushOffsetsToEncoders(); // Removed because the gyro doesn't need it
+        //swerveDrive.pushOffsetsToEncoders(); // Removed because absolute encoders have build in zeroing
     }
 
     @Override

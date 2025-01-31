@@ -40,20 +40,20 @@ public class SnapToWaypoint extends Command {
       Pose2d currentPose = swerve.getPose();
 
       // Simple P-controllers for translation and rotation
-      double velocitykP = 0.003; 
-      double rotationkP = 0.003;
+      double velocitykP = 0.003; // TODOL Tune these values
+      double rotationkP = 0.003; // TODO: Tune these values
 
       Translation2d velocity = targetPose.getTranslation().minus(currentPose.getTranslation()).times(velocitykP);
       Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
 
-      double cappedXVelocity = Math.max(Math.min(velocity.getX(), 1), -1);
-      double cappedYVelocity = Math.max(Math.min(velocity.getY(), 1), -1);
+      double cappedXVelocity = Math.max(Math.min(velocity.getX(), 1), -1); // TODO: Change cap
+      double cappedYVelocity = Math.max(Math.min(velocity.getY(), 1), -1); // TODO: Change cap
 
-      double cappedRotation = Math.max(Math.min(rotation.getRadians(), 1), -1);
+      double cappedRotation = Math.max(Math.min(rotation.getRadians(), 1), -1); // TODO: Change cap
       
       Translation2d cappedVelocty = new Translation2d(cappedXVelocity, cappedYVelocity);
 
-      swerve.drive(cappedVelocty, cappedRotation, true); // TODO: Change to radians or degrees
+      swerve.drive(cappedVelocty, cappedRotation, true);
   }
 
   @Override
