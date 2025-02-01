@@ -57,6 +57,12 @@ public class RobotContainer {
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
+        endEffector = new EndEffectorSubsystem();
+        elevator = new ElevatorSubsystem();
+        floorIntake = new FloorIntakeSubsystem(elevator);
+        LED = new LEDSubsystem();
+        algaeIntake = new AlgaeIntakeSubsystem();
+
         DriveCommand closedDrive = new DriveCommand(
             swerve,
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
@@ -68,6 +74,7 @@ public class RobotContainer {
             //     return MathUtil.applyDeadband(rightTrigger - leftTrigger, Constants.Controller.RIGHT_X_DEADBAND);
             // }
         );
+        
 
         autoDrive = new AutoDriveFactory(swerve);
         autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector);

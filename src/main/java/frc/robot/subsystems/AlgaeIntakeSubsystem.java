@@ -42,6 +42,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     alert = new Alert("Algae Pivot Out Of Bounds", AlertType.kWarning);
 
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
+
+    setAngle(Rotation2d.fromDegrees(0)); // TODO: set default angle when turn on
   }
 
   private void configureMotors() {

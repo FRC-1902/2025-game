@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Elevator;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
 
@@ -33,7 +34,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private final ElevatorSubsystem elevatorSubsystem;
 
   /** Creates a new FloorIntake. */
-  public FloorIntakeSubsystem() {
+  public FloorIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
     rollerMotor = new SparkMax(Constants.FloorIntake.ROLLERMOTOR_PORT, MotorType.kBrushless);
 
     pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR_PORT, MotorType.kBrushless);
@@ -51,7 +52,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     // Check that motors aren't supposed to be inverted
     configureMotors();
 
-    elevatorSubsystem = new ElevatorSubsystem();
+    this.elevatorSubsystem = elevatorSubsystem;
   }
 
   private void configureMotors() {
