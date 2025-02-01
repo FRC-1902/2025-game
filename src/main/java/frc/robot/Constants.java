@@ -103,9 +103,9 @@ public final class Constants {
     public static final double PIVOT_G = 0; 
 
     //todo: set tolerance
-    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(69); 
-    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(420); 
-    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(420); 
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(1); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(360); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0); 
     
     //todo: set offset in range from 0 to 1
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
@@ -139,7 +139,7 @@ public final class Constants {
 
     public enum Position{ 
       //todo: set height setpoints in meters
-      L1(0), L2(0), L3(0), CLIMB_UP(0), CLIMB_DOWN(0), MIN(0), MAX(0); 
+      L1(1), L2(2), L3(3), CLIMB_UP(.5), CLIMB_DOWN(0), MIN(0), MAX(3); 
       private final double height;
 
       Position(double height){

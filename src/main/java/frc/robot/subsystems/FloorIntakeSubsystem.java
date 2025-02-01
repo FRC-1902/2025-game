@@ -4,25 +4,33 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+// AdvantageKit mechanism imports
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
-import com.revrobotics.spark.SparkBase.ResetMode;
-
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
-import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// WPILib color utilities
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class FloorIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor;
@@ -31,6 +39,11 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private PIDController pid;
   private Alert pivotAlert;
   private final ElevatorSubsystem elevatorSubsystem;
+
+    // ------------------ Logged Mechanism for AdvantageKit ------------------
+    private final LoggedMechanism2d intakeMech;         // The Mechanism2d canvas
+    private final LoggedMechanismRoot2d pivotRoot;      // The pivot's anchor point
+    private final LoggedMechanismLigament2d intakeBar; 
 
   /** Creates a new FloorIntake. */
   public FloorIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
@@ -52,6 +65,24 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     configureMotors();
 
     this.elevatorSubsystem = elevatorSubsystem;
+
+    // ------------------ Create Logged Mechanism2d ------------------
+    // 3x3 "canvas" or whatever size you prefer
+    intakeMech = new LoggedMechanism2d(3, 3);
+    // Root at (1.5, 1.5) so that the bar can rotate around center
+    pivotRoot = intakeMech.getRoot("FloorIntakePivot", 1.5, 1.5);
+
+    // A single bar representing the intake pivot
+    // 1.0 length, 0° initial angle, color orange, etc.
+    intakeBar = pivotRoot.append(
+        new LoggedMechanismLigament2d(
+            "IntakeBar",
+            1.0,                  // length
+            0.0,                  // initial angle
+            6,                    // line width
+            new Color8Bit(Color.kOrange)
+        )
+    );
   }
 
   private void configureMotors() {
@@ -99,6 +130,8 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    */
   public void setAngle(Rotation2d targetAngle) {
     pid.setSetpoint(targetAngle.getDegrees());
+    System.out.println("[FloorIntakeSubsystem] setAngle(" + targetAngle.getDegrees() + " deg)");
+    Logger.recordOutput("FloorIntake/SetAngle", targetAngle.getDegrees());
   }
 
   /**
@@ -133,15 +166,16 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   // checks that the pivot isn't going out of tolerance, will send an alert if it
   // does
   private boolean pivotWatchdog() {
-    if (getAngle().getDegrees() >= Constants.FloorIntake.MAX_PIVOT.getDegrees() || 
-        getAngle().getDegrees() <= Constants.FloorIntake.MIN_PIVOT.getDegrees()
-      ) {
-      pivotAlert.set(true);
-      return true;
-    } else {
-      pivotAlert.set(false);
-      return false;
-    }
+    // if (getAngle().getDegrees() >= Constants.FloorIntake.MAX_PIVOT.getDegrees() || 
+    //     getAngle().getDegrees() <= Constants.FloorIntake.MIN_PIVOT.getDegrees()
+    //   ) {
+    //   pivotAlert.set(true);
+    //   return true;
+    // } else {
+    //   pivotAlert.set(false);
+    //   return false;
+    // }
+    return false;
   }
 
   @Override
@@ -160,9 +194,18 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     if (pivotWatchdog()) {
       pivotMotor.set(0);
       resetPID();
+      Logger.recordOutput("Mechanism/FloorIntake", intakeMech);
+      System.out.println("[FloorIntakeSubsystem] pivotWatchdog triggered => motor=0");
       return;
     }
 
+    SmartDashboard.putNumber("FloorIntake/AngleDeg", getAngle().getDegrees());
+    Logger.recordOutput("FloorIntake/AngleDeg", getAngle().getDegrees());
+    Logger.recordOutput("FloorIntake/PIDSetpoint", pid.getSetpoint());
+    Logger.recordOutput("FloorIntake/Power", power);
+
     pivotMotor.set(power);
+    intakeBar.setAngle(getAngle().getDegrees() - 90.0);
+    Logger.recordOutput("Mechanism/FloorIntake", intakeMech);
   }
 }

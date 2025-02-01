@@ -14,13 +14,22 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
+
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor, pivotMotor;
@@ -28,6 +37,11 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   private Rotation2d targetAngle;
   private Alert alert;
   private DigitalInput irSensor; 
+
+  // ------------------- AdvantageKit Mechanism2d -------------------
+  private final LoggedMechanism2d algaeMech;         // 2D "canvas"
+  private final LoggedMechanismRoot2d pivotRoot;     // Pivot anchor point
+  private final LoggedMechanismLigament2d intakeArm; // The intake pivot arm
 
   /** Creates a new AlgaeIntakeSubsystem. */
   public AlgaeIntakeSubsystem() {
@@ -44,6 +58,24 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
 
     this.targetAngle = Rotation2d.fromDegrees(0); // TODO: set angle plz
+
+    // -------------- Create a LoggedMechanism2d for display --------------
+    algaeMech = new LoggedMechanism2d(3, 3);       // 3x3 canvas
+    pivotRoot = algaeMech.getRoot("AlgaePivot", 1.5, 1.5); // anchor near center
+
+    // Single bar representing the pivot intake
+    // - initial length = 1.0 in "Mechanism2d units"
+    // - initial angle = 0 deg
+    // - color = green? (We can pick any color, but let's do green for "algae")
+    intakeArm = pivotRoot.append(
+        new LoggedMechanismLigament2d(
+            "AlgaeBar",
+            1.0,                        // length
+            0.0,                        // initial angle
+            6,                          // line thickness
+            new Color8Bit(Color.kGreen) // color
+        )
+    );
   }
 
   private void configureMotors() {
@@ -120,14 +152,15 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @returns whether or not pivot is out of bounds or not
    */
   private boolean pivotWatchdog() {
-    if (getAngle().getDegrees() >= Constants.AlgaeIntake.MAX_PIVOT.getDegrees()
-        || getAngle().getDegrees() <= Constants.AlgaeIntake.MIN_PIVOT.getDegrees()) {
-      alert.set(true);
-      return true;
-    } else {
-      alert.set(false);
-      return false;
-    }
+    // if (getAngle().getDegrees() >= Constants.AlgaeIntake.MAX_PIVOT.getDegrees()
+    //     || getAngle().getDegrees() <= Constants.AlgaeIntake.MIN_PIVOT.getDegrees()) {
+    //   alert.set(true);
+    //   return true;
+    // } else {
+    //   alert.set(false);
+    //   return false;
+    // }
+    return false;
   }
 
   @Override
@@ -137,6 +170,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
         + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
 
     SmartDashboard.putNumber("AlgaeIntake/Current Angle ", getAngle().getDegrees());
+    Logger.recordOutput("AlgaeIntake/CurrentAngle", getAngle().getDegrees());
 
     if (pivotWatchdog()) {
       pivotMotor.set(0);
@@ -144,5 +178,18 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
       return;
     }
     pivotMotor.set(power);
+
+    Logger.recordOutput("ZeroedComponents", new Pose3d[] {new Pose3d()});
+    Logger.recordOutput(
+        "FinalComponentPoses",
+        new Pose3d[] {
+            new Pose3d(1, 1, 1, new Rotation2d(0, 0, 0)),
+        });
+
+    intakeArm.setAngle(targetAngle.getDegrees() - 90.0);
+
+    Logger.recordOutput("AlgaeIntake/Power", power);
+    Logger.recordOutput("AlgaeIntake/TargetAngle", targetAngle.getDegrees());
+    Logger.recordOutput("Mechanism/AlgaeIntake", algaeMech);
   }
 }

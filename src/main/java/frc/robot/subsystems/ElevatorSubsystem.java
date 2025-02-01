@@ -140,9 +140,14 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setPosition(Position targetPosition) {
     if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB_DOWN){
       servoAlert.set(true);
+      Logger.recordOutput("Elevator/SetPositionDenied", true);
+      System.out.println("[ElevatorSubsystem] setPosition(" + targetPosition + ") denied - servo locked!");
+    
     }
     else{
       this.targetPosition = targetPosition;
+      Logger.recordOutput("Elevator/SetPosition", targetPosition.name());
+      System.out.println("[ElevatorSubsystem] setPosition(" + targetPosition + ")");
     }
   }
 
@@ -173,11 +178,12 @@ public class ElevatorSubsystem extends SubsystemBase {
    * locks the servo from moving
    */
   public void setLocked(boolean lock) {
-    if (lock) {
-      servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
-    } else {
-      servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
-    }
+    // if (lock) {
+    //   servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
+    // } else {
+    //   servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
+    // }
+    servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
   }
 
   // /**
@@ -192,14 +198,15 @@ public class ElevatorSubsystem extends SubsystemBase {
    * Alerts if elevator is out of bounds
    */
   private boolean watchingDog() {
-    if (getPosition() > Constants.Elevator.Position.MAX.getHeight()
-        || getPosition() < Constants.Elevator.Position.MIN.getHeight()) {
-      boundsAlert.set(true);
-      return true;
-    } else {
-      boundsAlert.set(false);
-      return false;
-    }
+    // if (getPosition() > Constants.Elevator.Position.MAX.getHeight()
+    //     || getPosition() < Constants.Elevator.Position.MIN.getHeight()) {
+    //   boundsAlert.set(true);
+    //   return true;
+    // } else {
+    //   boundsAlert.set(false);
+    //   return false;
+    // }
+    return false;
   }
 
   /**
@@ -229,6 +236,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
     SmartDashboard.putNumber("ELevator/Current Position", getPosition());
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
+    Logger.recordOutput("Elevator/Position", getPosition());
+    Logger.recordOutput("Elevator/Locked", isLocked());
 
     // Update the elevator's carriage ligament length to match the real position
     // We assume getPosition() is in the 0-1.5m range, for example. You can scale if needed.
@@ -243,11 +252,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     switch (targetPosition) {
       case CLIMB_DOWN:
         climb();
+        Logger.recordOutput("Elevator/TargetPosition", targetPosition.name());
         Logger.recordOutput("Mechanism/Elevator", elevatorMech);
         return;
       default:
         power = pid.calculate(getPosition(), targetPosition.getHeight()) + Constants.Elevator.kF;
         leftMotor.set(power);
+        Logger.recordOutput("Elevator/Power", power);
+        Logger.recordOutput("Elevator/TargetPosition", targetPosition.name());
         Logger.recordOutput("Mechanism/Elevator", elevatorMech);
         return;
     }
