@@ -114,8 +114,8 @@ public class RobotContainer {
       // Driver Controls
       
       // Place Coral
-      new Trigger(() -> controllers.getCommandController(ControllerName.DRIVE).getRightTriggerAxis() > 0.5).debounce(0.05)
-          .onTrue(new PlaceCommand(endEffector));
+    //   new Trigger(() -> controllers.getCommandController(ControllerName.DRIVE).getRightTriggerAxis() > 0.5).debounce(0.05)
+    //       .onTrue(new PlaceCommand(endEffector));
 
       //  controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
       //     .onTrue(new PlaceCommand(endEffector));
