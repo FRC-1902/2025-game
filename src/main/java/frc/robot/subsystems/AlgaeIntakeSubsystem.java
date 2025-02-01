@@ -55,7 +55,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
 
-    this.targetAngle = Rotation2d.fromDegrees(0); // TODO: set angle plz
+    setAngle(Rotation2d.fromDegrees(0)); // TODO: set default angle when turn on
   }
 
   private void configureMotors() {

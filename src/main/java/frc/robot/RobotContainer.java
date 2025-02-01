@@ -76,9 +76,10 @@ public class RobotContainer {
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
         endEffector = new EndEffectorSubsystem();
-        algaeIntake = new AlgaeIntakeSubsystem();
         elevator = new ElevatorSubsystem();
         floorIntake = new FloorIntakeSubsystem(elevator);
+        LED = new LEDSubsystem();
+        algaeIntake = new AlgaeIntakeSubsystem();
 
         DriveCommand closedDrive = new DriveCommand(
             swerve,
