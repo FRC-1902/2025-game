@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -55,6 +56,7 @@ public class Robot extends LoggedRobot {
         case SIM:
             // setUseTiming(false); // Run as fast as possible
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            SimulatedArena.getInstance();
             break;
 
         case REPLAY:
@@ -103,6 +105,8 @@ public class Robot extends LoggedRobot {
 
         // Check battery voltage at autonomous start
         checkBatteryVoltage();
+
+        SimulatedArena.getInstance().resetFieldForAuto(); // Reset field layout
     }
 
     @Override
@@ -120,6 +124,8 @@ public class Robot extends LoggedRobot {
 
         // Check battery voltage at teleop start
         checkBatteryVoltage();
+
+        SimulatedArena.getInstance().resetFieldForAuto(); // Reset field layout
     }
 
     @Override
@@ -138,6 +144,11 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void testExit() {}
+
+    @Override
+    public void simulationPeriodic() {
+        SimulatedArena.getInstance().simulationPeriodic();
+    }
 
     /**
      * Check the battery voltage and set alerts if it is low or critical.

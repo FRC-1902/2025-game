@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -101,6 +102,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // Update inputs
         swerve.updateInputs(inputs);
+
+        Pose3d[] coralPoses = SimulatedArena.getInstance().getGamePiecesArrayByType("Coral");
+        Pose3d[] algaePoses = SimulatedArena.getInstance().getGamePiecesArrayByType("Algae");
+    
+        // Publish to AdvantageKit for visualization
+        Logger.recordOutput("FieldSimulation/Coral", coralPoses);
+        Logger.recordOutput("FieldSimulation/Algae", algaePoses);
 
         Logger.processInputs("Swerve", inputs);
     }
