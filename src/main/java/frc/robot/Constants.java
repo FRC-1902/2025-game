@@ -121,7 +121,7 @@ public final class Constants {
   public static final class Elevator{
     private Elevator() {}; 
     // todo: find id's
-    public static final int LEFT_MOTOR_ID = 23; 
+    public static final int LEFT_MOTOR_ID = 22; 
     public static final int RIGHT_MOTOR_ID = 24;  
     // todo: find limit switch/servo ports 
     public static final int LIMIT_SWITCH_PORT = 25; 

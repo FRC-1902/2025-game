@@ -59,6 +59,11 @@ public class RobotContainer {
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
+        endEffector = new EndEffectorSubsystem();
+        algaeIntake = new AlgaeIntakeSubsystem();
+        floorIntake = new FloorIntakeSubsystem();
+        elevator = new ElevatorSubsystem();
+
         DriveCommand closedDrive = new DriveCommand(
             swerve,
             () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
