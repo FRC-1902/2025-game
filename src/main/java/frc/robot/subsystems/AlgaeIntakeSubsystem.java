@@ -42,6 +42,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     alert = new Alert("Algae Pivot Out Of Bounds", AlertType.kWarning);
 
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
+
+    this.targetAngle = Rotation2d.fromDegrees(0); // TODO: set angle plz
   }
 
   private void configureMotors() {
@@ -71,6 +73,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     rollerMotor.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
   }
 
   /**

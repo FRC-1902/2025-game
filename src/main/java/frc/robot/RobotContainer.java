@@ -61,8 +61,8 @@ public class RobotContainer {
 
         endEffector = new EndEffectorSubsystem();
         algaeIntake = new AlgaeIntakeSubsystem();
-        floorIntake = new FloorIntakeSubsystem();
         elevator = new ElevatorSubsystem();
+        floorIntake = new FloorIntakeSubsystem(elevator);
 
         DriveCommand closedDrive = new DriveCommand(
             swerve,
