@@ -1,4 +1,9 @@
 {
+  "Keyboard 0 Settings": {
+    "window": {
+      "visible": true
+    }
+  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
@@ -17,13 +22,14 @@
           "keyRate": 0.009999999776482582
         }
       ],
-      "axisCount": 3,
-      "buttonCount": 4,
+      "axisCount": 4,
+      "buttonCount": 5,
       "buttonKeys": [
         90,
         88,
         67,
-        86
+        86,
+        -1
       ],
       "povConfig": [
         {
@@ -91,8 +97,7 @@
   ],
   "robotJoysticks": [
     {
-      "guid": "030000006f0e0000da02000008640000",
-      "useGamepad": true
+      "guid": "Keyboard0"
     }
   ]
 }
