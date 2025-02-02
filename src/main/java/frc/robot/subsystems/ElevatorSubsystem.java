@@ -96,7 +96,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param targetPosition
    */
   public void setPosition(Position targetPosition) {
-    if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB){
+    if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB_DOWN){
       servoAlert.set(true);
     }
     else{
@@ -194,7 +194,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     switch (targetPosition) {
-      case CLIMB:
+      case CLIMB_DOWN:
         climb();
         return;
       default:

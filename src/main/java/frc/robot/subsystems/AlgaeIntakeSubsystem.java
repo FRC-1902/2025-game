@@ -28,6 +28,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   private Rotation2d targetAngle;
   private Alert alert;
   private DigitalInput irSensor; 
+  private Watchdog pivotWatchdog; 
 
   /** Creates a new AlgaeIntakeSubsystem. */
   public AlgaeIntakeSubsystem() {
@@ -42,6 +43,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     alert = new Alert("Algae Pivot Out Of Bounds", AlertType.kWarning);
 
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
+
+    pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
   }
 
   private void configureMotors() {
