@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -13,7 +14,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import swervelib.math.Matter;
 
@@ -57,15 +57,24 @@ public final class Constants {
         public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value
         public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
         public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
-        public static final double MAX_SPEED = 10; // m/s TODO: Adjust later
+
+        // Speeds
+        public static final double MAX_SPEED = Units.feetToMeters(16.6); // m/s TODO: Adjust later
+        public static final double MAX_ACCELERATION = Units.feetToMeters(34.44882); // m/s^2 TODO: Adjust later
         public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10); // m/s TODO: Adjust later
+
+        // Auto Speeds
+        public static final double AUTO_MAX_SPEED = Units.feetToMeters(.5); // m/s TODO: Adjust later
+        public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(.7); // m/s^2 TODO: Adjust later
+        public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(1); // m/s TODO: Adjust later
     }
 
     public static final class AlgaeIntake{
       private AlgaeIntake() {}; 
       // todo: find id's
-      public static final int ROLLER_ID = 0; 
-      public static final int PIVOT_ID = 0; 
+      public static final int ROLLER_ID = 11; 
+      public static final int PIVOT_ID = 12; 
+      public static final int IR_SENSOR_ID = 0; 
       // todo: find p, i, d, g
       public static final double kP = 0; 
       public static final double kI = 0; 
@@ -82,10 +91,10 @@ public final class Constants {
   public static final class FloorIntake{
     private FloorIntake() {}; 
     //todo: set ports
-    public static final int ROLLERMOTOR_PORT = 0; 
-    public static final int PIVOTMOTOR_PORT = 0;
-    public static final int IR_SENSOR_PORT = 0; 
-    public static final int ENCODER_PORT = 0; 
+    public static final int ROLLERMOTOR_PORT = 13; 
+    public static final int PIVOTMOTOR_PORT = 14;
+    public static final int IR_SENSOR_PORT = 15; 
+    public static final int ENCODER_PORT = 16; 
 
     //todo: find p, i, d, g
     public static final double PIVOT_P = 0; 
@@ -105,19 +114,52 @@ public final class Constants {
   public static final class LED{
     private LED() {}; 
     //todo: set ports and length
-    public static final int LED_PORT = 0;
-    public static final int LED_LENGTH = 0; 
+    public static final int LED_PORT = 17;
+    public static final int LED_LENGTH = 10; 
+  }
+
+  public static final class Elevator{
+    private Elevator() {}; 
+    // todo: find id's
+    public static final int LEFT_MOTOR_ID = 0; 
+    public static final int RIGHT_MOTOR_ID = 0;  
+    // todo: find limit switch/servo ports 
+    public static final int LIMIT_SWITCH_PORT = 0; 
+    public static final int SERVO_PORT = 0;
+    // todo: find p, i, d, f values 
+    public static final double kP = 0; 
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kF = 0.0; 
+
+    public static final double TOLERANCE = 0; // todo: find tolerance
+    public static final double CONVERSION_FACTOR = 0.0095758; // todo; check number, converts to meters 
+    public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(69); // todo: find optimal lock angle
+    public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(420); // todo: find optimal unlocked angle
+
+    public enum Position{ 
+      //todo: set height setpoints in meters
+      L1(0), L2(0), L3(0), CLIMB_UP(0), CLIMB_DOWN(0), MIN(0), MAX(0); 
+      private final double height;
+
+      Position(double height){
+        this.height = height;
+      }
+
+      public double getHeight(){
+        return height;
+      }
+    }
   }
 
     public static final class EndEffector{
       private EndEffector() {}; 
       // todo: set ports 
-      public static final int ROLLER_MOTOR_ID = 0; 
+      public static final int ROLLER_MOTOR_ID = 18; 
       // todo: set channels
-      public static final int FRONT_SENSOR_CHANNEL = 0; 
-      public static final int BACK_SENSOR_CHANNEL = 0; 
+      public static final int FRONT_SENSOR_CHANNEL = 19; 
+      public static final int BACK_SENSOR_CHANNEL = 20; 
     }
-
     public static final class Vision {
         // Maximum allowed ambiguity for the cameras
         public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
@@ -126,43 +168,37 @@ public final class Constants {
         // TODO: Set real values
         public enum Camera {
             ArducamOne(
-                "ArducamOne",
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(-15)),
+                "Arducam_1",
+                new Rotation3d(Math.toRadians(0), Math.toRadians(-18), Math.toRadians(40)),
                 new Translation3d(
-                    Units.inchesToMeters(-4.628), 
-                    Units.inchesToMeters(-10.687), 
-                    Units.inchesToMeters(6)
+                    // Units.inchesToMeters(11.233), 
+                    // Units.inchesToMeters(9.691),
+                    // Units.inchesToMeters(8.513920)
+                    Units.inchesToMeters(9.691),
+                    Units.inchesToMeters(-11.233),
+                    Units.inchesToMeters(8.513920)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             ),
 
             ArducamTwo(
-                "ArducamTwo",
-                new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)),
+                "Arducam_2",
+                new Rotation3d(Math.toRadians(0), Math.toRadians(-18), Math.toRadians(-40)),
                 new Translation3d(
-                    Units.inchesToMeters(12.056),
-                    Units.inchesToMeters(-10.981),
-                    Units.inchesToMeters(8.44)
+                    // Units.inchesToMeters(-11.233), 
+                    // Units.inchesToMeters(9.691), 
+                    // Units.inchesToMeters(8.513920)
+                    Units.inchesToMeters(9.691),
+                    Units.inchesToMeters(11.233),
+                    Units.inchesToMeters(8.513920)
                 ),
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             ),
 
             ArducamThree(
-                "ArducamThree",
-                new Rotation3d(0, Units.degreesToRadians(-145), 0),
-                new Translation3d(
-                    Units.inchesToMeters(-4.628),
-                    Units.inchesToMeters(-10.687),
-                    Units.inchesToMeters(16.129)
-                ),
-                VecBuilder.fill(4, 4, 8),
-                VecBuilder.fill(0.5, 0.5, 1)
-            ),
-
-            ArducamFour(
-                "ArducamFour",
+                "Arducam_3",
                 new Rotation3d(0, Units.degreesToRadians(-145), 0),
                 new Translation3d(
                     Units.inchesToMeters(-4.628),
@@ -172,6 +208,7 @@ public final class Constants {
                 VecBuilder.fill(4, 4, 8),
                 VecBuilder.fill(0.5, 0.5, 1)
             );
+
 
             public final String name;
             public final Rotation3d rotation;
@@ -196,7 +233,6 @@ public final class Constants {
             new Pose3d(Camera.ArducamOne.translation, Camera.ArducamOne.rotation),
             new Pose3d(Camera.ArducamTwo.translation, Camera.ArducamTwo.rotation),
             new Pose3d(Camera.ArducamThree.translation, Camera.ArducamThree.rotation),
-            new Pose3d(Camera.ArducamFour.translation, Camera.ArducamFour.rotation)
         };
     }
 public static final class VisionConstants{
