@@ -58,7 +58,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
 
-    elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MIN.getHeight(), Constants.Elevator.Position.MAX.getHeight(), () -> getPosition());
+    elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight(), Constants.Elevator.Position.MIN.getHeight(), this::getPosition);
   }
 
   private void configureMotors() {
