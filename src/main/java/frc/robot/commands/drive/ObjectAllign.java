@@ -28,14 +28,15 @@ public class ObjectAllign extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if(detectionSubsystem.targetVisible){
-      turn = -1.0 * detectionSubsystem.targetYaw * Constants.VisionConstants.TURN_KP * Constants.Swerve.MAX_ROTATION_SPEED.getRadians();
-    }
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if(detectionSubsystem.targetVisible){
+      turn = -1.0 * detectionSubsystem.targetYaw * Constants.Swerve.TURN_KP * Constants.Swerve.MAX_ROTATION_SPEED.getRadians();
+    }
     turn = -controller.get(ControllerName.DRIVE, Axis.RX) * Constants.Swerve.MAX_ROTATION_SPEED.getRadians();
   }
 
