@@ -31,6 +31,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private PIDController pid;
   private Alert pivotAlert;
   private final ElevatorSubsystem elevatorSubsystem;
+  private Watchdog pivotWatchdog; 
 
   /** Creates a new FloorIntake. */
   public FloorIntakeSubsystem() {
@@ -52,6 +53,8 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     configureMotors();
 
     elevatorSubsystem = new ElevatorSubsystem();
+
+    pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
   }
 
   private void configureMotors() {
@@ -133,9 +136,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   // checks that the pivot isn't going out of tolerance, will send an alert if it
   // does
   private boolean pivotWatchdog() {
-    if (getAngle().getDegrees() >= Constants.FloorIntake.MAX_PIVOT.getDegrees() || 
-        getAngle().getDegrees() <= Constants.FloorIntake.MIN_PIVOT.getDegrees()
-      ) {
+    if (!pivotWatchdog.checkWatchingdog()) {
       pivotAlert.set(true);
       return true;
     } else {

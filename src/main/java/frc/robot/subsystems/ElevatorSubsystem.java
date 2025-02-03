@@ -30,6 +30,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private PIDController pid;
   private Position targetPosition;
   private Alert badStart, boundsAlert, servoAlert;
+  private Watchdog elevatorWatchdog; 
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -56,6 +57,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     servo = new Servo(Constants.Elevator.SERVO_PORT);
 
     servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
+
+    elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight(), Constants.Elevator.Position.MIN.getHeight(), this::getPosition);
   }
 
   private void configureMotors() {
@@ -150,8 +153,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * Alerts if elevator is out of bounds
    */
   private boolean watchingDog() {
-    if (getPosition() > Constants.Elevator.Position.MAX.getHeight()
-        || getPosition() < Constants.Elevator.Position.MIN.getHeight()) {
+    if (!elevatorWatchdog.checkWatchingdog()) {
       boundsAlert.set(true);
       return true;
     } else {
