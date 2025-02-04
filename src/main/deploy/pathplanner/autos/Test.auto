@@ -7,13 +7,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Copy of Example Path"
+            "pathName": "1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
+            "pathName": "2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "6"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "7"
           }
         }
       ]

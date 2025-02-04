@@ -23,17 +23,16 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-// WPILib color utilities
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+
 
 public class FloorIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor;
@@ -42,11 +41,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private PIDController pid;
   private Alert pivotAlert;
   private final ElevatorSubsystem elevatorSubsystem;
-
-    // ------------------ Logged Mechanism for AdvantageKit ------------------
-    private final LoggedMechanism2d intakeMech;         // The Mechanism2d canvas
-    private final LoggedMechanismRoot2d pivotRoot;      // The pivot's anchor point
-    private final LoggedMechanismLigament2d intakeBar; 
 
   /** Creates a new FloorIntake. */
   public FloorIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
@@ -69,23 +63,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     this.elevatorSubsystem = elevatorSubsystem;
 
-    // ------------------ Create Logged Mechanism2d ------------------
-    // 3x3 "canvas" or whatever size you prefer
-    intakeMech = new LoggedMechanism2d(3, 3);
-    // Root at (1.5, 1.5) so that the bar can rotate around center
-    pivotRoot = intakeMech.getRoot("FloorIntakePivot", 1.5, 1.5);
-
-    // A single bar representing the intake pivot
-    // 1.0 length, 0° initial angle, color orange, etc.
-    intakeBar = pivotRoot.append(
-        new LoggedMechanismLigament2d(
-            "IntakeBar",
-            1.0,                  // length
-            0.0,                  // initial angle
-            6,                    // line width
-            new Color8Bit(Color.kOrange)
-        )
-    );
   }
 
   private void configureMotors() {
@@ -197,7 +174,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     if (pivotWatchdog()) {
       pivotMotor.set(0);
       resetPID();
-      Logger.recordOutput("Mechanism/FloorIntake", intakeMech);
       System.out.println("[FloorIntakeSubsystem] pivotWatchdog triggered => motor=0");
       return;
     }
@@ -208,7 +184,13 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     Logger.recordOutput("FloorIntake/Power", power);
 
     pivotMotor.set(power);
-    intakeBar.setAngle(getAngle().getDegrees() - 90.0);
-    Logger.recordOutput("Mechanism/FloorIntake", intakeMech);
+
+    Translation3d intakeTranslation = new Translation3d(-0.3, 0.0, 0.15);
+    double intakeAngleRadians = getAngle().getRadians();
+    Pose3d floorIntakePose = new Pose3d(
+        intakeTranslation,
+        new Rotation3d(0.0, intakeAngleRadians, 0.0)
+    );
+    Logger.recordOutput("FloorIntake/IntakeArmPose", floorIntakePose);
   }
 }

@@ -11,29 +11,29 @@
     "components": [],
     "cameras": [
       {
-        "name": "FrontCamera",
+        "name": "Arducam1",
         "rotations": [
           { "axis": "x", "degrees": 0 },
-          { "axis": "y", "degrees": 0 },
-          { "axis": "z", "degrees": 0 }
+          { "axis": "y", "degrees": -22.75 },
+          { "axis": "z", "degrees": 40 }
         ],
-        "position": [0.2, 0.0, 0.5],
-        "resolution": [640, 480],
-        "fov": 90
+        "position": [0.2461514, -0.2853182, 0.216253568],
+        "resolution": [1280, 800],
+        "fov": 70
       },
       {
-        "name": "SideCamera",
+        "name": "Arducam2",
         "rotations": [
           { "axis": "x", "degrees": 0 },
-          { "axis": "y", "degrees": 90 },
-          { "axis": "z", "degrees": 0 }
+          { "axis": "y", "degrees": -22.75 },
+          { "axis": "z", "degrees": -40 }
         ],
-        "position": [0.0, 0.3, 0.5],
-        "resolution": [640, 480],
-        "fov": 90
+        "position": [0.2461514, 0.2853182, 0.216253568],
+        "resolution": [1280, 800],
+        "fov": 70
       },
       {
-        "name": "RearCamera",
+        "name": "Arducam3",
         "rotations": [
           { "axis": "x", "degrees": 0 },
           { "axis": "y", "degrees": 180 },
@@ -46,28 +46,37 @@
     ],
     "components": [
       {
-        "name": "AlgaeIntake",
+        "name": "Elevator",
         "zeroedRotations": [ 
           { "axis": "x", "degrees": 90 }, 
           { "axis": "y", "degrees": 0 }, 
+          { "axis": "z", "degrees": 270 } ],
+        "zeroedPosition": [-0.2, 0.0, -0.05]
+      },
+      {
+        "name": "EndEffector",
+        "zeroedRotations": [ 
+          { "axis": "x", "degrees": 90 }, 
+          { "axis": "y", "degrees": 0 }, 
+          { "axis": "z", "degrees": 270 } ],
+        "zeroedPosition": [0.0, 0.0, 0.0]
+      },
+      {
+        "name": "AlgaeIntake",
+        "zeroedRotations": [ 
+          { "axis": "x", "degrees": -2.5 }, 
+          { "axis": "y", "degrees": 0}, 
           { "axis": "z", "degrees": 270 } 
         ],
-        "zeroedPosition": [-0.30, 0, -0.4]
-
+        "zeroedPosition": [-0.385, 0, 0.3250]
       },
       {
         "name": "Intake",
-        "zeroedRotations": [ { "axis": "x", "degrees": 0 }, { "axis": "y", "degrees": 0 }, { "axis": "z", "degrees": 0 } ],
-        "zeroedPosition": [0.0, 0.0, 0.0],
-        "rotations": [ { "axis": "x", "degrees": 0 }, { "axis": "y", "degrees": 0 }, { "axis": "z", "degrees": 0 } ],
-        "position": [0.5, 0.0, 0.0]
-      },
-      {
-        "name": "Elevator",
-        "zeroedRotations": [ { "axis": "x", "degrees": 0 }, { "axis": "y", "degrees": 0 }, { "axis": "z", "degrees": 0 } ],
-        "zeroedPosition": [0.0, 0.0, 0.0],
-        "rotations": [ { "axis": "x", "degrees": 0 }, { "axis": "y", "degrees": 0 }, { "axis": "z", "degrees": 0 } ],
-        "position": [0.5, 0.0, 0.0]
+        "zeroedRotations": [ 
+          { "axis": "x", "degrees": 90 }, 
+          { "axis": "y", "degrees": 0 }, 
+          { "axis": "z", "degrees": 270 } ],
+        "zeroedPosition": [0.3, 0.0, -0.15]
       }
     ]
 }

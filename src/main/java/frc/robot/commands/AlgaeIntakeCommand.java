@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -28,7 +29,7 @@ public class AlgaeIntakeCommand extends Command {
       return;
     }
     algaeIntakeSubsystem.setSpeed(-1); // todo: find actual speed 
-    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(90)); // todo: find actual downward angle 
+    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(-45)); // todo: find actual downward angle 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -38,7 +39,7 @@ public class AlgaeIntakeCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(0)); // todo: find upward angle 
+    algaeIntakeSubsystem.setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); // todo: find upward angle 
     algaeIntakeSubsystem.setSpeed(0);
   }
 

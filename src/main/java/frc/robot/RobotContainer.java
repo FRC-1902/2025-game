@@ -7,8 +7,10 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.WaypointType;
+import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.PlaceCommand;
@@ -25,6 +27,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.SimSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionReal;
@@ -58,28 +61,33 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
  */
 public class RobotContainer {
 
-    private SwerveSubsystem swerve;
-    private VisionSubsystem vision;
-    private AlgaeIntakeSubsystem algaeIntake;
-    private ElevatorSubsystem elevator;
-    private EndEffectorSubsystem endEffector;
-    private FloorIntakeSubsystem floorIntake;
-    private LEDSubsystem LED;
-    private ControllerSubsystem controllers;
+    SwerveSubsystem swerve;
+    VisionSubsystem vision;
+    AlgaeIntakeSubsystem algaeIntake;
+    ElevatorSubsystem elevator;
+    EndEffectorSubsystem endEffector;
+    FloorIntakeSubsystem floorIntake;
+    LEDSubsystem LED;
+    ControllerSubsystem controllers;
 
-    private AutoDriveFactory autoDrive;
-    private AutoIntakeFactory autoIntake;
+    private SimSubsystem simSubsystem;
+
+    AutoDriveFactory autoDrive;
+    AutoIntakeFactory autoIntake;
 
     public RobotContainer() {
         controllers = new ControllerSubsystem();
         vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
         swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
+
         endEffector = new EndEffectorSubsystem();
         elevator = new ElevatorSubsystem();
         floorIntake = new FloorIntakeSubsystem(elevator);
         LED = new LEDSubsystem();
         algaeIntake = new AlgaeIntakeSubsystem();
+
+        simSubsystem = new SimSubsystem(algaeIntake, elevator, floorIntake, endEffector);
 
         DriveCommand closedDrive = new DriveCommand(
             swerve,
@@ -94,6 +102,8 @@ public class RobotContainer {
         );
 
         if (Robot.isSimulation()) {
+          simSubsystem.setSimEnabled(true);
+
           SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralAlgaeStack(new Translation2d(1.2, 2.1)));
           SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralAlgaeStack(new Translation2d(1.2, 4)));
           SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralAlgaeStack(new Translation2d(1.2, 5.8)));
@@ -157,7 +167,7 @@ public class RobotContainer {
       controllers.getTrigger(ControllerName.MANIP, Button.RB).debounce(0.05)
           .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L2));
       // L1
-      controllers.getTrigger(ControllerName.MANIP, Button.B).debounce(0.05)
+      controllers.getTrigger(ControllerName.MANIP, Button.Y).debounce(0.05)
           .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L1));
 
       // Spit Floor Intake
@@ -169,19 +179,19 @@ public class RobotContainer {
           .whileTrue(autoIntake.getIntakeSequence());
 
       // HP Intake TODO: Uncomment when HPIntake is implemented
-      // controllers.getTrigger(ControllerName.MANIP, Button.B).debounce(0.05)
+      // controllers.getTrigger(ControllerName.MANIP, Button.X).debounce(0.05)
       //     .whileTrue(new HPIntake(floorIntake));
 
       // Algae Intake
       controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)
-          .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
+          .whileTrue(new AlgaeIntakeCommand(algaeIntake));
 
       // Climber Up
       new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povUp().getAsBoolean()).debounce(0.05)
           .onTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_UP));
 
       // Climber Down
-      new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povUp().getAsBoolean()).debounce(0.05)
+      new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povDown().getAsBoolean()).debounce(0.05)
           .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
     }
 

@@ -81,6 +81,8 @@ public final class Constants {
       public static final double kD = 0; 
       public static final double kG = 0;
 
+      public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(-90); // TODO: Set tolerance
+
       public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(1); // TODO: Set tolerance
       public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(90); // TODO: Set MAX
       public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0);  // TODO: Set MIN
@@ -138,7 +140,7 @@ public final class Constants {
 
     public enum Position{ 
       //todo: set height setpoints in meters
-      L1(1), L2(2), L3(3), CLIMB_UP(.5), CLIMB_DOWN(0), MIN(0), MAX(3); 
+      L1(0.45), L2(0.75), L3(1.15), CLIMB_UP(.3), CLIMB_DOWN(0), MIN(0), MAX(1.5); 
       private final double height;
 
       Position(double height){

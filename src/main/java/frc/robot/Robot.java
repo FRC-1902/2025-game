@@ -69,7 +69,7 @@ public class Robot extends LoggedRobot {
     }
 
     // Initialize URCL 
-    Logger.registerURCL(URCL.startExternal()); // TODO: Remove if issues with over logging occurs
+    // Logger.registerURCL(URCL.startExternal()); // TODO: Remove if issues with over logging occurs
     
     // Start AdvantageKit logger
     Logger.start();

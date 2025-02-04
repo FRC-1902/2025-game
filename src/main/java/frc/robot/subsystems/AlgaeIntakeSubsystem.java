@@ -4,39 +4,34 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor, pivotMotor;
   private PIDController pid;
-  private Rotation2d targetAngle;
+  public Rotation2d targetAngle;
   private Alert alert;
   private DigitalInput irSensor; 
 
@@ -55,7 +50,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
 
-    setAngle(Rotation2d.fromDegrees(0)); // TODO: set default angle when turn on
+    setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); // TODO: set default angle when turn on
   }
 
   private void configureMotors() {
@@ -89,7 +84,6 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   }
 
   /**
-   * 
    * @returns current angle in Rotation2d's. Impacts pivot. 
    */
   public Rotation2d getAngle() {
@@ -97,16 +91,14 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   }
 
   /**
-   * 
-   * @param targetAngle
+   * @param targetAngle Sets the target pivot angle
    */
   public void setAngle(Rotation2d targetAngle) {
     this.targetAngle = targetAngle;
   }
 
   /**
-   * 
-   * @param targetSpeed
+   * @param targetSpeed Sets the roller motor speed (from –1 to 1)
    */
   public void setSpeed(double targetSpeed) {
     rollerMotor.set(targetSpeed);
@@ -120,7 +112,6 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   }
 
   /**
-   * 
    * @returns if irSensor is triggered or not 
    */
   public boolean isAlgaeDetected(){
@@ -158,18 +149,6 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
       return;
     }
     pivotMotor.set(power);
-
-    Translation3d pivotTranslation = new Translation3d(0.3, 0.0, 0.4); // Example position in meters
-    double pivotAngleRadians = targetAngle.getDegrees();
-
-    Pose3d intakeArmPose = new Pose3d(
-        pivotTranslation,
-        new Rotation3d(0.0, pivotAngleRadians, 0.0) // Rotating around Y-axis
-    );
-
-    Logger.recordOutput("AlgaeIntake/IntakeArmPose", intakeArmPose);
-
-    Logger.recordOutput("ZeroedComponents", new Pose3d[] {new Pose3d()});
 
     Logger.recordOutput("AlgaeIntake/Power", power);
     Logger.recordOutput("AlgaeIntake/TargetAngle", targetAngle.getDegrees());
