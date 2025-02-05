@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.WaypointType;
 import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.ElevatorCommand;
+import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
@@ -51,6 +52,7 @@ public class RobotContainer {
 
     private AutoDriveFactory autoDrive;
     private AutoIntakeFactory autoIntake;
+    private ElevatorFactory elevatorFactory;
 
     public RobotContainer() {
         controllers = new ControllerSubsystem();
@@ -71,6 +73,7 @@ public class RobotContainer {
 
         autoDrive = new AutoDriveFactory(swerve);
         autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector);
+        elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
         swerve.setDefaultCommand(closedDrive);
 
@@ -119,13 +122,13 @@ public class RobotContainer {
 
       // L3
       new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).getRightTriggerAxis() > 0.5).debounce(0.05)
-          .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L3));
+          .whileTrue(elevatorFactory.getPosition(Constants.Elevator.Position.L3));
       // L2
       controllers.getTrigger(ControllerName.MANIP, Button.RB).debounce(0.05)
-          .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L2));
+          .whileTrue(elevatorFactory.getPosition(Constants.Elevator.Position.L2));
       // L1
       controllers.getTrigger(ControllerName.MANIP, Button.B).debounce(0.05)
-          .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L1));
+          .whileTrue(elevatorFactory.getPosition(Constants.Elevator.Position.L1));
 
       // Spit Floor Intake
       controllers.getTrigger(ControllerName.MANIP, Button.LS).debounce(0.05)
