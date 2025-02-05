@@ -4,14 +4,9 @@
 
 package frc.robot.subsystems;
 
+import org.dyn4j.geometry.Rotation;
 // AdvantageKit mechanism imports
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.Elevator;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -32,6 +27,8 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 
 public class FloorIntakeSubsystem extends SubsystemBase {
@@ -41,6 +38,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private PIDController pid;
   private Alert pivotAlert;
   private final ElevatorSubsystem elevatorSubsystem;
+  private Rotation2d targetAngle = Rotation2d.fromDegrees(0.0);
 
   /** Creates a new FloorIntake. */
   public FloorIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
@@ -110,6 +108,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    */
   public void setAngle(Rotation2d targetAngle) {
     pid.setSetpoint(targetAngle.getDegrees());
+    targetAngle = targetAngle;
     System.out.println("[FloorIntakeSubsystem] setAngle(" + targetAngle.getDegrees() + " deg)");
     Logger.recordOutput("FloorIntake/SetAngle", targetAngle.getDegrees());
   }
@@ -186,7 +185,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     pivotMotor.set(power);
 
     Translation3d intakeTranslation = new Translation3d(-0.3, 0.0, 0.15);
-    double intakeAngleRadians = getAngle().getRadians();
+    double intakeAngleRadians = targetAngle.getRadians();
     Pose3d floorIntakePose = new Pose3d(
         intakeTranslation,
         new Rotation3d(0.0, intakeAngleRadians, 0.0)

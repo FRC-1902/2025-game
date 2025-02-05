@@ -40,14 +40,15 @@ public class DeployFloorIntakeCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if(
-        endEffectorSubsystem.isFrontPieceSensorActive() || 
-        floorIntakeSubsystem.pieceSensorActive() ||
-        elevatorSubsystem.getPosition() != Constants.Elevator.Position.MIN.getHeight()
-      ){
-      DataLogManager.log("Command shouldn't start");
-      return;
-    }
+    // if(
+    //     endEffectorSubsystem.isFrontPieceSensorActive() || 
+    //     floorIntakeSubsystem.pieceSensorActive() ||
+    //     elevatorSubsystem.getPosition() != Constants.Elevator.Position.MIN.getHeight()
+    //   ){
+    //   DataLogManager.log("Floor Intake Can't Deploy");
+    //   DataLogManager.log(String.valueOf(Constants.Elevator.Position.MIN.getHeight()));
+    //   return;
+    // }
     
     floorIntakeSubsystem.setAngle(targetAngle); // todo: get target down position
 

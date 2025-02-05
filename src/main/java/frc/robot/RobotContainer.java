@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.WaypointType;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
+import frc.robot.commands.AutoPlaceFactory;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
@@ -74,6 +75,7 @@ public class RobotContainer {
 
     AutoDriveFactory autoDrive;
     AutoIntakeFactory autoIntake;
+    AutoPlaceFactory autoPlaceFactory;
 
     public RobotContainer() {
         controllers = new ControllerSubsystem();
@@ -114,6 +116,7 @@ public class RobotContainer {
 
         autoDrive = new AutoDriveFactory(swerve);
         autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector);
+        autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
 
         swerve.setDefaultCommand(closedDrive);
 
@@ -162,20 +165,25 @@ public class RobotContainer {
 
       // L3
       new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).getRightTriggerAxis() > 0.5).debounce(0.05)
-          .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L3));
+          .whileTrue(autoPlaceFactory.getAutoPlace(Constants.Elevator.Position.L3));
+          // .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
       // L2
       controllers.getTrigger(ControllerName.MANIP, Button.RB).debounce(0.05)
-          .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L2));
+          .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L2))
+          .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
+
       // L1
       controllers.getTrigger(ControllerName.MANIP, Button.Y).debounce(0.05)
-          .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L1));
+          .whileTrue(autoPlaceFactory.getAutoPlace(Constants.Elevator.Position.L1));
+          // .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
 
       // Spit Floor Intake
       controllers.getTrigger(ControllerName.MANIP, Button.LS).debounce(0.05)
           .whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
 
       // Floor Intake
-      new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).getLeftTriggerAxis() > 0.5).debounce(0.05)
+      //new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).getLeftTriggerAxis() > 0.5).debounce(0.05)
+      controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)
           .whileTrue(autoIntake.getIntakeSequence());
 
       // HP Intake TODO: Uncomment when HPIntake is implemented
