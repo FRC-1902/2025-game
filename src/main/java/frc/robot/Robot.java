@@ -1,16 +1,3 @@
-// Copyright 2021-2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot;
 
 import org.littletonrobotics.junction.LogFileUtil;
@@ -30,6 +17,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.Elastic;
 
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
@@ -47,33 +35,32 @@ public class Robot extends LoggedRobot {
     Logger.recordMetadata("ProjectName", "2025-game");
 
     switch (Constants.currentMode) {
-        case REAL:
-            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs") TODO: Set USB Path
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-            new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-            break;
+      case REAL:
+        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs") TODO: Set USB Path
+        Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+        new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        break;
 
-        case SIM:
-            // setUseTiming(false); // Run as fast as possible
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-            break;
+      case SIM:
+        // setUseTiming(false); // Run as fast as possible
+        Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+        break;
 
-        case REPLAY:
-            // Replaying a log, set up replay source
-            setUseTiming(false); // Run as fast as possible
-            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-            Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-            break;
+      case REPLAY:
+        // Replaying a log, set up replay source
+        setUseTiming(false); // Run as fast as possible
+        String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+        Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+        break;
     }
 
     // Initialize URCL 
     // Logger.registerURCL(URCL.startExternal()); // TODO: Remove if issues with over logging occurs
     
     // Set up alerts
-        lowBatteryAlert = new Alert("Low Battery", AlertType.kWarning);
-        criticalBatteryAlert = new Alert("Critcal Battery", AlertType.kError);
-
+    lowBatteryAlert = new Alert("Low Battery", AlertType.kWarning);
+    criticalBatteryAlert = new Alert("Critcal Battery", AlertType.kError);
 
     // Start AdvantageKit logger
     Logger.start();
@@ -84,13 +71,13 @@ public class Robot extends LoggedRobot {
 
   @Override
     public void robotPeriodic() {
-        CommandScheduler.getInstance().run();
+      CommandScheduler.getInstance().run();
     }
 
     @Override
     public void disabledInit() {
-        // Check battery voltage when disabled
-        checkBatteryVoltage();
+      // Check battery voltage when disabled
+      checkBatteryVoltage();
     }
 
     @Override
@@ -101,14 +88,16 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        autonomousCommand = robotContainer.getAutonomousCommand();
+      autonomousCommand = robotContainer.getAutonomousCommand();
 
-        if (autonomousCommand != null) {
-            autonomousCommand.schedule();
-        }
+      if (autonomousCommand != null) {
+          autonomousCommand.schedule();
+      }
 
-        // Check battery voltage at autonomous start
-        checkBatteryVoltage();
+      Elastic.selectTab("Auto"); // TODO: Enable during comp
+
+      // Check battery voltage at autonomous start
+      checkBatteryVoltage();
     }
 
     @Override
@@ -119,13 +108,14 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
+      if (autonomousCommand != null) {
+          autonomousCommand.cancel();
+      }
 
-        if (autonomousCommand != null) {
-            autonomousCommand.cancel();
-        }
+      Elastic.selectTab("Telly"); // TODO: Enable during comp
 
-        // Check battery voltage at teleop start
-        checkBatteryVoltage();
+      // Check battery voltage at teleop start
+      checkBatteryVoltage();
     }
 
     @Override
@@ -149,11 +139,16 @@ public class Robot extends LoggedRobot {
      * Check the battery voltage and set alerts if it is low or critical.
      */
     private void checkBatteryVoltage() {
-        double voltage = RobotController.getBatteryVoltage();
-        if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
-            criticalBatteryAlert.set(true);
-        } else if (voltage <= Constants.BATTERY_VOLTAGE_WARNING) {
-            lowBatteryAlert.set(true);
-        }
+      Elastic.Notification lowBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Battery Level Low", "");
+      Elastic.Notification criticalBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "Battery Level Critical", "");
+
+      double voltage = RobotController.getBatteryVoltage();
+      if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
+        criticalBatteryAlert.set(true);
+        Elastic.sendNotification(criticalBatteryElastic);
+      } else if (voltage <= Constants.BATTERY_VOLTAGE_WARNING) {
+        lowBatteryAlert.set(true);
+        Elastic.sendNotification(lowBatteryElastic);
+      }
     }
 }
