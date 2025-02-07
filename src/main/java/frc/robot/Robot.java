@@ -22,18 +22,19 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.pathfinding.LocalADStar;
-import com.pathplanner.lib.pathfinding.Pathfinding;
 
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.util.AlertManager;
 
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
+  private Alert lowBatteryAlert;
+  private Alert criticalBatteryAlert;
 
   private final RobotContainer robotContainer;
 
@@ -67,8 +68,13 @@ public class Robot extends LoggedRobot {
     }
 
     // Initialize URCL 
-    Logger.registerURCL(URCL.startExternal()); // TODO: Remove if issues with over logging occurs
+    // Logger.registerURCL(URCL.startExternal()); // TODO: Remove if issues with over logging occurs
     
+    // Set up alerts
+        lowBatteryAlert = new Alert("Low Battery", AlertType.kWarning);
+        criticalBatteryAlert = new Alert("Critcal Battery", AlertType.kError);
+
+
     // Start AdvantageKit logger
     Logger.start();
     
@@ -145,9 +151,9 @@ public class Robot extends LoggedRobot {
     private void checkBatteryVoltage() {
         double voltage = RobotController.getBatteryVoltage();
         if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
-            AlertManager.setAlert(AlertManager.Alerts.CRITICAL_BATTERY, true);
+            criticalBatteryAlert.set(true);
         } else if (voltage <= Constants.BATTERY_VOLTAGE_WARNING) {
-            AlertManager.setAlert(AlertManager.Alerts.LOW_BATTERY, true);
+            lowBatteryAlert.set(true);
         }
     }
 }

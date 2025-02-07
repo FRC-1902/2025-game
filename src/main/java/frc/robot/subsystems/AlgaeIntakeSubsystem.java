@@ -5,6 +5,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -14,7 +17,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.Alert;
@@ -29,6 +35,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   private Alert alert;
   private DigitalInput irSensor; 
   private Watchdog pivotWatchdog; 
+  private Pose3d intakePose;
 
   /** Creates a new AlgaeIntakeSubsystem. */
   public AlgaeIntakeSubsystem() {
@@ -135,8 +142,12 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
         + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
 
-    SmartDashboard.putNumber("AlgaeIntake/Current Angle ", getAngle().getDegrees());
+    Pose3d intakePose = new Pose3d(new Translation3d(0.312, 0, 0.4), new Rotation3d(0,0,0)); // TODO: Offset and Math
 
+    SmartDashboard.putNumber("AlgaeIntake/Pivot Angle ", getAngle().getDegrees());
+    SmartDashboard.putBoolean("AlgaeIntake/Algae Detected ", isAlgaeDetected());
+    Logger.recordOutput("AlgaeIntake/Intake Pose", intakePose);
+    
     if (pivotWatchdog()) {
       pivotMotor.set(0);
       resetPID();

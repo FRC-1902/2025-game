@@ -3,7 +3,6 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.Meter;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -16,9 +15,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
-import frc.robot.util.AlertManager;
 
 import java.io.File;
 import swervelib.SwerveController;
@@ -30,6 +29,8 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 public class SwerveReal implements SwerveBase {
     private final SwerveDrive swerveDrive;
     private final SwerveInputs inputs = new SwerveInputs();
+    private Alert configAlert;
+
 
     public SwerveReal(File directory) {
         // Configure the Telemetry before creating the SwerveDrive
@@ -45,6 +46,8 @@ public class SwerveReal implements SwerveBase {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        configAlert = new Alert("Swerve Configuration Not Found!", Alert.AlertType.kError);
 
         // Configure SwerveDrive settings TODO: Maybe adjust if needed
         swerveDrive.setHeadingCorrection(false);
@@ -188,7 +191,7 @@ public class SwerveReal implements SwerveBase {
 
         } catch (Exception e) {
             e.printStackTrace();
-            AlertManager.setAlert(AlertManager.Alerts.PATH_PLANNER, true);
+            configAlert.set(true);
         }
 
         Pathfinding.setPathfinder(new LocalADStar());
