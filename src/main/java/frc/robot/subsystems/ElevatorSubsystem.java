@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -44,9 +40,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem() {
     leftMotor = new SparkMax(Constants.Elevator.LEFT_MOTOR_ID, MotorType.kBrushless);
     rightMotor = new SparkMax(Constants.Elevator.RIGHT_MOTOR_ID, MotorType.kBrushless);
-
-    configureMotors();
-
+    servo = new Servo(Constants.Elevator.SERVO_PORT);
     limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_PORT);
 
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
@@ -61,12 +55,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     boundsAlert = new Alert("Elevator/Elevator out of bounds", AlertType.kError);
-
-    servo = new Servo(Constants.Elevator.SERVO_PORT);
-
     servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
 
     elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight(), Constants.Elevator.Position.MIN.getHeight(), this::getPosition);
+
+    configureMotors();
   }
 
   private void configureMotors() {

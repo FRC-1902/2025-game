@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,6 +24,7 @@ public class ControllerSubsystem extends SubsystemBase {
       this.id = id;
     }
   }
+
   /**
    * Enumeration of axes on the Xbox controller.
    */
@@ -52,7 +49,7 @@ public class ControllerSubsystem extends SubsystemBase {
     manipController = commandManipController.getHID();
   }
 
-/**
+  /**
    * Checks if the specified button is pressed.
    * @param name Controller name (DRIVE or MANIP)
    * @param button Button name
@@ -123,14 +120,14 @@ public class ControllerSubsystem extends SubsystemBase {
     }
   }
 
-    public CommandXboxController getCommandController(ControllerName name) {
-        switch(name){
-            case DRIVE:
-                return commandDriveController;
-            case MANIP:
-                return commandManipController;
-            default:
-                return null;
-        }
+  public CommandXboxController getCommandController(ControllerName name) {
+    switch(name){
+      case DRIVE:
+        return commandDriveController;
+      case MANIP:
+        return commandManipController;
+      default:
+        return null;
     }
+  }
 }

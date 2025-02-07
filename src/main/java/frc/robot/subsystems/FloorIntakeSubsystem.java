@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,25 +39,22 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   /** Creates a new FloorIntake. */
   public FloorIntakeSubsystem() {
     rollerMotor = new SparkMax(Constants.FloorIntake.ROLLERMOTOR_PORT, MotorType.kBrushless);
-
     pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR_PORT, MotorType.kBrushless);
-
-    pid = new PIDController(
-    Constants.FloorIntake.PIVOT_P,
-    Constants.FloorIntake.PIVOT_I,
-    Constants.FloorIntake.PIVOT_D);
-    pid.enableContinuousInput(0, 360);
-    pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
 
     irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_PORT);
 
+    pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
+    pid.enableContinuousInput(0, 360);
+    pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
+
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
-    // Check that motors aren't supposed to be inverted
-    configureMotors();
+
+    pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
 
     elevatorSubsystem = new ElevatorSubsystem();
 
-    pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
+    // TODO: Check that motors aren't supposed to be inverted
+    configureMotors();
   }
 
   private void configureMotors() {

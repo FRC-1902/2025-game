@@ -15,107 +15,107 @@ import swervelib.SwerveController;
 import swervelib.parser.SwerveDriveConfiguration;
 
 public interface SwerveBase {
-    @AutoLog
-    public static class SwerveInputs implements LoggableInputs {
-        // Robot pose and orientation
-        public Pose2d robotPose = new Pose2d();
-        public Rotation2d gyroYaw = new Rotation2d();
-        public Rotation2d gyroPitch = new Rotation2d();
+  @AutoLog
+  public static class SwerveInputs implements LoggableInputs {
+    // Robot pose and orientation
+    public Pose2d robotPose = new Pose2d();
+    public Rotation2d gyroYaw = new Rotation2d();
+    public Rotation2d gyroPitch = new Rotation2d();
 
-        // Module states
-        public SwerveModuleState[] moduleStates = new SwerveModuleState[4];
-        public SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+    // Module states
+    public SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+    public SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
 
-        // Chassis speeds
-        public ChassisSpeeds fieldSpeeds = new ChassisSpeeds();
-        public ChassisSpeeds robotSpeeds = new ChassisSpeeds();
+    // Chassis speeds
+    public ChassisSpeeds fieldSpeeds = new ChassisSpeeds();
+    public ChassisSpeeds robotSpeeds = new ChassisSpeeds();
 
-        // Driving parameters
-        public boolean isFieldRelative = true;
-        public boolean isOpenLoop = false;
+    // Driving parameters
+    public boolean isFieldRelative = true;
+    public boolean isOpenLoop = false;
 
-        // Loggable inputs
-        @Override
-        public void toLog(LogTable table) {
-            table.put("RobotPose", robotPose);
-            table.put("GyroYaw", gyroYaw);
-            table.put("GyroPitch", gyroPitch);
-            table.put("ModuleStates", moduleStates);
-            table.put("ModulePositions", modulePositions);
-            table.put("FieldSpeeds", fieldSpeeds);
-            table.put("RobotSpeeds", robotSpeeds);
-            table.put("IsFieldRelative", isFieldRelative);
-            table.put("IsOpenLoop", isOpenLoop);
-        }
-
-        // Loggable outputs
-        @Override
-        public void fromLog(LogTable table) {
-            robotPose = table.get("RobotPose", robotPose);
-            gyroYaw = table.get("GyroYaw", gyroYaw);
-            gyroPitch = table.get("GyroPitch", gyroPitch);
-            moduleStates = table.get("ModuleStates", moduleStates);
-            modulePositions = table.get("ModulePositions", modulePositions);
-            fieldSpeeds = table.get("FieldSpeeds", fieldSpeeds);
-            robotSpeeds = table.get("RobotSpeeds", robotSpeeds);
-            isFieldRelative = table.get("IsFieldRelative", isFieldRelative);
-            isOpenLoop = table.get("IsOpenLoop", isOpenLoop);
-        }
+    // Loggable inputs
+    @Override
+    public void toLog(LogTable table) {
+      table.put("RobotPose", robotPose);
+      table.put("GyroYaw", gyroYaw);
+      table.put("GyroPitch", gyroPitch);
+      table.put("ModuleStates", moduleStates);
+      table.put("ModulePositions", modulePositions);
+      table.put("FieldSpeeds", fieldSpeeds);
+      table.put("RobotSpeeds", robotSpeeds);
+      table.put("IsFieldRelative", isFieldRelative);
+      table.put("IsOpenLoop", isOpenLoop);
     }
 
-    /** Updates the set of loggable inputs. */
-    public void updateInputs(SwerveInputs inputs);
+    // Loggable outputs
+    @Override
+    public void fromLog(LogTable table) {
+      robotPose = table.get("RobotPose", robotPose);
+      gyroYaw = table.get("GyroYaw", gyroYaw);
+      gyroPitch = table.get("GyroPitch", gyroPitch);
+      moduleStates = table.get("ModuleStates", moduleStates);
+      modulePositions = table.get("ModulePositions", modulePositions);
+      fieldSpeeds = table.get("FieldSpeeds", fieldSpeeds);
+      robotSpeeds = table.get("RobotSpeeds", robotSpeeds);
+      isFieldRelative = table.get("IsFieldRelative", isFieldRelative);
+      isOpenLoop = table.get("IsOpenLoop", isOpenLoop);
+    }
+  }
 
-    /** Drive the swerve with translation and rotation. */
-    public void drive(Translation2d translation, double rotation, boolean fieldRelative);
+  /** Updates the set of loggable inputs. */
+  public void updateInputs(SwerveInputs inputs);
 
-    /** Drive with robot-oriented chassis speeds. */
-    public void drive(ChassisSpeeds velocity);
+  /** Drive the swerve with translation and rotation. */
+  public void drive(Translation2d translation, double rotation, boolean fieldRelative);
 
-    /** Set chassis speeds directly. */
-    public void setChassisSpeeds(ChassisSpeeds chassisSpeeds);
+  /** Drive with robot-oriented chassis speeds. */
+  public void drive(ChassisSpeeds velocity);
 
-    /** Reset the odometry to a specific pose. */
-    public void resetOdometry(Pose2d pose);
+  /** Set chassis speeds directly. */
+  public void setChassisSpeeds(ChassisSpeeds chassisSpeeds);
 
-    /** Zero the gyro. */
-    public void zeroGyro();
+  /** Reset the odometry to a specific pose. */
+  public void resetOdometry(Pose2d pose);
 
-    /** Set motor brake mode. */
-    public void setMotorBrake(boolean brake);
+  /** Zero the gyro. */
+  public void zeroGyro();
 
-    /** Get the current pose. */
-    public Pose2d getPose();
+  /** Set motor brake mode. */
+  public void setMotorBrake(boolean brake);
 
-    /** Get the current heading. */
-    public Rotation2d getHeading();
+  /** Get the current pose. */
+  public Pose2d getPose();
 
-    /** Get the current pitch. */
-    public Rotation2d getPitch();
+  /** Get the current heading. */
+  public Rotation2d getHeading();
 
-    /** Get the field-relative velocity. */
-    public ChassisSpeeds getFieldVelocity();
+  /** Get the current pitch. */
+  public Rotation2d getPitch();
 
-    /** Get the robot-relative velocity. */
-    public ChassisSpeeds getRobotVelocity();
+  /** Get the field-relative velocity. */
+  public ChassisSpeeds getFieldVelocity();
 
-    /** Get the swerve drive kinematics. */
-    public SwerveDriveKinematics getKinematics();
+  /** Get the robot-relative velocity. */
+  public ChassisSpeeds getRobotVelocity();
 
-    /** Get the swerve controller. */
-    public SwerveController getSwerveController();
+  /** Get the swerve drive kinematics. */
+  public SwerveDriveKinematics getKinematics();
 
-    /** Get the swerve drive configuration. */
-    public SwerveDriveConfiguration getSwerveDriveConfiguration();
+  /** Get the swerve controller. */
+  public SwerveController getSwerveController();
 
-    /** Lock the swerve drive. */
-    public void lock();
+  /** Get the swerve drive configuration. */
+  public SwerveDriveConfiguration getSwerveDriveConfiguration();
 
-    /** Post a trajectory to the field. */
-    public void postTrajectory(Trajectory trajectory);
+  /** Lock the swerve drive. */
+  public void lock();
 
-    /** Setup PathPlanner. */
-    public void setupPathPlanner(SwerveSubsystem swerveSubsystem);
+  /** Post a trajectory to the field. */
+  public void postTrajectory(Trajectory trajectory);
 
-    public void addVisionMeasurement(Pose2d pose, double timestamp);
+  /** Setup PathPlanner. */
+  public void setupPathPlanner(SwerveSubsystem swerveSubsystem);
+
+  public void addVisionMeasurement(Pose2d pose, double timestamp);
 }
