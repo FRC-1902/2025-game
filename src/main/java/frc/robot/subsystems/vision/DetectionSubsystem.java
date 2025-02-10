@@ -9,14 +9,15 @@ import java.util.List;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.photonvision.PhotonCamera;
 
 public class DetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
   private final PhotonCamera camera = new PhotonCamera("object cam"); // TODO: only use object detection cameras
-  public boolean targetVisible;
-  public double targetYaw; 
+  private boolean targetVisible;
+  private double targetYaw; 
 
   private PhotonTrackedTarget currentObject;
 
@@ -47,5 +48,21 @@ public class DetectionSubsystem extends SubsystemBase {
           }
       }
     }
+  }
+
+  /**
+   * 
+   * @returns if object is visible or not 
+   */
+  public boolean isTargetVisible(){
+    return targetVisible;
+  }
+
+  /**
+   * 
+   * @returns the specific targetYaw of the object in Rotation2d's
+   */
+  public Rotation2d getTargetYaw(){
+    return Rotation2d.fromRadians(targetYaw);
   }
 }
