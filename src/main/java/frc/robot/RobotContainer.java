@@ -30,9 +30,11 @@ import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.DetectionSubsystem;
 import frc.robot.subsystems.vision.VisionReal;
 import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.commands.drive.ObjectAlign;
 
 
 public class RobotContainer {
@@ -45,6 +47,7 @@ public class RobotContainer {
   FloorIntakeSubsystem floorIntake;
   LEDSubsystem LED;
   ControllerSubsystem controllers;
+  DetectionSubsystem detectionSubsystem;
 
   AutoDriveFactory autoDrive;
   AutoIntakeFactory autoIntake;
@@ -60,6 +63,8 @@ public class RobotContainer {
     floorIntake = new FloorIntakeSubsystem(elevator);
     LED = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem();
+
+    detectionSubsystem = new DetectionSubsystem();
 
 
     DriveCommand closedDrive = new DriveCommand(
@@ -79,6 +84,7 @@ public class RobotContainer {
     autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
 
     swerve.setDefaultCommand(closedDrive);
+    
 
     bindButtons();
   }
@@ -166,6 +172,8 @@ public class RobotContainer {
     // Climber Down
     new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povDown().getAsBoolean()).debounce(0.05)
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
+    
+      controllers.getTrigger(ControllerName.MANIP, Button.X).whileTrue(new ObjectAlign(detectionSubsystem, swerve));
   }
 
   /**

@@ -12,12 +12,12 @@ import frc.robot.subsystems.vision.DetectionSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ObjectAllign extends Command {
+public class ObjectAlign extends Command {
 
   private final DetectionSubsystem detectionSubsystem;
   private final SwerveSubsystem swerveSubsystem;
   /** Creates a new ObjectAllign. */
-  public ObjectAllign(DetectionSubsystem detectionSubsystem, SwerveSubsystem swerveSubsystem) {
+  public ObjectAlign(DetectionSubsystem detectionSubsystem, SwerveSubsystem swerveSubsystem) {
     this.detectionSubsystem = detectionSubsystem;
     this.swerveSubsystem = swerveSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -32,7 +32,7 @@ public class ObjectAllign extends Command {
   @Override
   public void execute() {
     if(detectionSubsystem.isTargetVisible()){
-      double turn = -1.0 * detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP * Constants.Swerve.MAX_ROTATION_SPEED.getRadians();
+      double turn = detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP * Constants.Swerve.MAX_ROTATION_SPEED.getRadians();
       swerveSubsystem.drive(new Translation2d(0,0), turn, true);
     }
     else{
