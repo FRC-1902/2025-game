@@ -4,11 +4,16 @@ import java.io.File;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.WaypointType;
+import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
+import frc.robot.commands.AutoPlaceFactory;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
@@ -32,22 +37,30 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
 
-  private SwerveSubsystem swerve;
-  private VisionSubsystem vision;
-  private AlgaeIntakeSubsystem algaeIntake;
-  private ElevatorSubsystem elevator;
-  private EndEffectorSubsystem endEffector;
-  private FloorIntakeSubsystem floorIntake;
-  private LEDSubsystem LED;
-  private ControllerSubsystem controllers;
+  SwerveSubsystem swerve;
+  VisionSubsystem vision;
+  AlgaeIntakeSubsystem algaeIntake;
+  ElevatorSubsystem elevator;
+  EndEffectorSubsystem endEffector;
+  FloorIntakeSubsystem floorIntake;
+  LEDSubsystem LED;
+  ControllerSubsystem controllers;
 
-  private AutoDriveFactory autoDrive;
-  private AutoIntakeFactory autoIntake;
+  AutoDriveFactory autoDrive;
+  AutoIntakeFactory autoIntake;
+  AutoPlaceFactory autoPlaceFactory;
 
   public RobotContainer() {
     controllers = new ControllerSubsystem();
     vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
     swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+
+    endEffector = new EndEffectorSubsystem();
+    elevator = new ElevatorSubsystem();
+    floorIntake = new FloorIntakeSubsystem(elevator);
+    LED = new LEDSubsystem();
+    algaeIntake = new AlgaeIntakeSubsystem();
+
 
     DriveCommand closedDrive = new DriveCommand(
       swerve,
@@ -63,6 +76,7 @@ public class RobotContainer {
 
     autoDrive = new AutoDriveFactory(swerve);
     autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector);
+    autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
 
     swerve.setDefaultCommand(closedDrive);
 
@@ -74,18 +88,18 @@ public class RobotContainer {
     // Driver Controls
     
     // Place Coral
-    new Trigger(() -> controllers.getCommandController(ControllerName.DRIVE).getRightTriggerAxis() > 0.5).debounce(0.05)
-      .onTrue(new PlaceCommand(endEffector));
+    //   new Trigger(() -> controllers.getCommandController(ControllerName.DRIVE).getRightTriggerAxis() > 0.5).debounce(0.05)
+    //       .onTrue(new PlaceCommand(endEffector));
 
     //  controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
-    //   .onTrue(new PlaceCommand(endEffector));
+    //     .onTrue(new PlaceCommand(endEffector));
 
     // Score/Outtake Algae
-      controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
-        .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
+    controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
+      .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
 
     //  controllers.getTrigger(ControllerName.DRIVE, Button.LB).debounce(0.05)
-    //    .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
+    //      .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
 
     // Zero Gyro
     controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
@@ -101,38 +115,48 @@ public class RobotContainer {
 
     // Align with Coral TODO: Change when Align PR is merged
     // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-    //   .whileTrue(new ObjectAlign());
+    //       .whileTrue(new ObjectAlign());
 
     // Align to Cage, Removed for now
     // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-    //   .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.CAGE));
+    //     .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.CAGE));
 
     // Manipulator Controls
 
     // L3
     new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).getRightTriggerAxis() > 0.5).debounce(0.05)
-      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L3));
+      .whileTrue(autoPlaceFactory.getAutoPlace(Constants.Elevator.Position.L3));
+        // .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
+
     // L2
     controllers.getTrigger(ControllerName.MANIP, Button.RB).debounce(0.05)
-      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L2));
+      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L2))
+      .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
+
     // L1
-    controllers.getTrigger(ControllerName.MANIP, Button.B).debounce(0.05)
-      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L1));
+    controllers.getTrigger(ControllerName.MANIP, Button.Y).debounce(0.05)
+      .whileTrue(autoPlaceFactory.getAutoPlace(Constants.Elevator.Position.L1));
+      // .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
 
     // Spit Floor Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LS).debounce(0.05)
       .whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
 
     // Floor Intake
-    new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).getLeftTriggerAxis() > 0.5).debounce(0.05)
-      .whileTrue(autoIntake.getIntakeSequence());
+    //new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).getLeftTriggerAxis() > 0.5).debounce(0.05)
+    // controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)
+    //   .whileTrue(autoIntake.getIntakeSequence());
 
     // HP Intake TODO: Uncomment when HPIntake is implemented
-    // controllers.getTrigger(ControllerName.MANIP, Button.B).debounce(0.05)
-    //   .whileTrue(new HPIntake(floorIntake));
+    // controllers.getTrigger(ControllerName.MANIP, Button.X).debounce(0.05)
+    //     .whileTrue(new HPIntake(floorIntake));
 
     // Algae Intake
-    controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)
+    // controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)
+    controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)
+      .whileTrue(new AlgaeIntakeCommand(algaeIntake));
+
+    controllers.getTrigger(ControllerName.MANIP, Button.B).debounce(0.05)
       .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
 
     // Climber Up
@@ -140,7 +164,7 @@ public class RobotContainer {
       .onTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_UP));
 
     // Climber Down
-    new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povUp().getAsBoolean()).debounce(0.05)
+    new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povDown().getAsBoolean()).debounce(0.05)
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
   }
 

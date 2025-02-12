@@ -59,6 +59,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight(), Constants.Elevator.Position.MIN.getHeight(), this::getPosition);
 
+    targetPosition = Constants.Elevator.Position.MIN;
+
     configureMotors();
   }
 

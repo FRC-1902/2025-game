@@ -37,7 +37,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private Pose3d intakePose;
 
   /** Creates a new FloorIntake. */
-  public FloorIntakeSubsystem() {
+  public FloorIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
     rollerMotor = new SparkMax(Constants.FloorIntake.ROLLERMOTOR_PORT, MotorType.kBrushless);
     pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR_PORT, MotorType.kBrushless);
 
@@ -51,8 +51,8 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
 
-    elevatorSubsystem = new ElevatorSubsystem();
-
+    this.elevatorSubsystem = elevatorSubsystem;
+    
     // TODO: Check that motors aren't supposed to be inverted
     configureMotors();
   }
@@ -149,7 +149,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < 60){
-      DataLogManager.log("Elevator spooky in relation to floor intake");
+      // DataLogManager.log("Elevator spooky in relation to floor intake");
       setAngle(Rotation2d.fromDegrees(61));
     }
     
