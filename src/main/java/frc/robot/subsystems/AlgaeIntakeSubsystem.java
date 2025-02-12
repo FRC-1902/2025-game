@@ -32,9 +32,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   private DigitalInput irSensor; 
   private Watchdog pivotWatchdog; 
   private Pose3d intakePose;
+  private final ElevatorSubsystem elevatorSubsystem;
 
   /** Creates a new AlgaeIntakeSubsystem. */
-  public AlgaeIntakeSubsystem() {
+  public AlgaeIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
     rollerMotor = new SparkMax(Constants.AlgaeIntake.ROLLER_MOTOR_ID, MotorType.kBrushless);
     pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
@@ -48,6 +49,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
 
     pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
+
+    this.elevatorSubsystem = elevatorSubsystem;
 
     setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); // TODO: set default angle when turn on
   }
@@ -140,7 +143,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
         + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
 
-    Pose3d intakePose = new Pose3d(new Translation3d(0.312, 0, 0.4), new Rotation3d(0,0,0)); // TODO: Offset and Math
+    Pose3d intakePose = new Pose3d(new Translation3d(0.312, 0 + elevatorSubsystem.getPosition(), 0.4), new Rotation3d(0,0,0)); // TODO: Offset and Math
 
     SmartDashboard.putNumber("AlgaeIntake/Pivot Angle ", getAngle().getDegrees());
     SmartDashboard.putBoolean("AlgaeIntake/Algae Detected ", isAlgaeDetected());

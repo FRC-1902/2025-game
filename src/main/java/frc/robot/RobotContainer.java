@@ -59,7 +59,7 @@ public class RobotContainer {
     elevator = new ElevatorSubsystem();
     floorIntake = new FloorIntakeSubsystem(elevator);
     LED = new LEDSubsystem();
-    algaeIntake = new AlgaeIntakeSubsystem();
+    algaeIntake = new AlgaeIntakeSubsystem(elevator);
 
 
     DriveCommand closedDrive = new DriveCommand(

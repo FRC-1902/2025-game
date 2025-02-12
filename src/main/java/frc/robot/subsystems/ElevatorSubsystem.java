@@ -193,7 +193,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
 
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
-    SmartDashboard.putNumber("ELevator/Current Position", getPosition());
+    SmartDashboard.putNumber("Elevator/Current Position", getPosition());
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
     SmartDashboard.putBoolean("Elevator/Elevator Locked", isLocked());
 
