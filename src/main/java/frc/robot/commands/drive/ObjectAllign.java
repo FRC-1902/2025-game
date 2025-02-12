@@ -5,6 +5,7 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.vision.DetectionSubsystem;
@@ -34,6 +35,9 @@ public class ObjectAllign extends Command {
       double turn = -1.0 * detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP * Constants.Swerve.MAX_ROTATION_SPEED.getRadians();
       swerveSubsystem.drive(new Translation2d(0,0), turn, true);
     }
+    else{
+      swerveSubsystem.drive(new Translation2d(0,0), 0, true);
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -45,6 +49,11 @@ public class ObjectAllign extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(swerveSubsystem.getPose().getRotation().getRadians() - detectionSubsystem.getTargetYaw().getRadians()) <= 0.01;
+    if (!detectionSubsystem.isTargetVisible()) {
+      DataLogManager.log("Piece not visible");
+      return true;
+    }
+
+    return Math.abs(swerveSubsystem.getPose().getRotation().getRadians() - detectionSubsystem.getTargetYaw().getRadians()) <= 0.05;
   }
 }
