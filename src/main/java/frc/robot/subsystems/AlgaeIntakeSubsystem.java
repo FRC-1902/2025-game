@@ -48,6 +48,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
 
     pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
+
+    setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); // TODO: set default angle when turn on
   }
 
   private void configureMotors() {
@@ -67,8 +69,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     rollerConfig.idleMode(IdleMode.kBrake);
     rollerConfig.inverted(false); // todo: finish inverted
     rollerConfig.disableFollowerMode();
-    rollerConfig.secondaryCurrentLimit(30);
-    rollerConfig.smartCurrentLimit(30);
+    rollerConfig.secondaryCurrentLimit(40);
+    rollerConfig.smartCurrentLimit(40);
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Config 

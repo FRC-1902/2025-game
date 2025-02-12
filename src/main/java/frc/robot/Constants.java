@@ -59,8 +59,8 @@ public final class Constants {
     private AlgaeIntake() {}; 
     // todo: find id's
     public static final int ROLLER_MOTOR_ID = 11; 
-    public static final int PIVOT_MOTOR_ID = 12; 
-    public static final int IR_SENSOR_ID = 0; 
+    public static final int PIVOT_MOTOR_ID = 5; 
+    public static final int IR_SENSOR_ID = 20; 
     // todo: find p, i, d, g
     public static final double kP = 0; 
     public static final double kI = 0; 
@@ -72,15 +72,17 @@ public final class Constants {
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0); 
     // todo: find rotations
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromRotations(0);
+
+    public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(90);
   }
 
   public static final class FloorIntake{
     private FloorIntake() {}; 
     //todo: set ports
-    public static final int ROLLER_MOTOR_ID = 13; 
-    public static final int PIVOT_MOTOR_ID = 14;
-    public static final int IR_SENSOR_ID = 15; 
-    public static final int PIVOT_ENCODER_ID = 16; 
+    public static final int ROLLER_MOTOR_ID = 6; 
+    public static final int PIVOT_MOTOR_ID = 7;
+    public static final int IR_SENSOR_ID = 19; 
+    public static final int PIVOT_ENCODER_ID = 0; 
 
     //todo: find p, i, d, g
     public static final double PIVOT_P = 0; 
@@ -89,9 +91,9 @@ public final class Constants {
     public static final double PIVOT_G = 0; 
 
     //todo: set tolerance
-    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(69); 
-    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(420); 
-    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(420); 
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(0); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0); 
     
     //todo: set offset in range from 0 to 1
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
@@ -100,18 +102,18 @@ public final class Constants {
   public static final class LED{
     private LED() {}; 
     //todo: set ports and length
-    public static final int LED_PORT = 17;
-    public static final int LED_LENGTH = 10; 
+    public static final int LED_PORT = 0;
+    public static final int LED_LENGTH = 156; 
   }
 
   public static final class Elevator{
     private Elevator() {}; 
     // todo: find id's
-    public static final int LEFT_MOTOR_ID = 0; 
-    public static final int RIGHT_MOTOR_ID = 0;  
+    public static final int LEFT_MOTOR_ID = 20; 
+    public static final int RIGHT_MOTOR_ID = 14;  
     // todo: find limit switch/servo ports 
-    public static final int LIMIT_SWITCH_ID = 0; 
-    public static final int SERVO_ID = 0;
+    public static final int LIMIT_SWITCH_ID = 18; 
+    public static final int SERVO_ID = 17;
     // todo: find p, i, d, f values 
     public static final double kP = 0; 
     public static final double kI = 0;
@@ -120,8 +122,8 @@ public final class Constants {
 
     public static final double TOLERANCE = 0; // todo: find tolerance
     public static final double CONVERSION_FACTOR = 0.0095758; // todo; check number, converts to meters 
-    public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(69); // todo: find optimal lock angle
-    public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(420); // todo: find optimal unlocked angle
+    public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(0); // todo: find optimal lock angle
+    public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(0); // todo: find optimal unlocked angle
 
     public enum Position{ 
       //todo: set height setpoints in meters
@@ -141,10 +143,10 @@ public final class Constants {
   public static final class EndEffector{
     private EndEffector() {}; 
     // todo: set ids 
-    public static final int ROLLER_MOTOR_ID = 18; 
+    public static final int ROLLER_MOTOR_ID = 4;
     // todo: set ids
-    public static final int FRONT_IR_SENSOR_ID = 19; 
-    public static final int BACK_IR_SENSOR_ID = 20; 
+    public static final int FRONT_IR_SENSOR_ID = 16; 
+    public static final int BACK_IR_SENSOR_ID = 15; 
   }
 
   public static final class Vision {
@@ -155,8 +157,8 @@ public final class Constants {
     // TODO: Set real values
     public enum Camera {
       ArducamOne(
-        "Arducam_1",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-18), Math.toRadians(40)),
+        "arducamOne",
+        new Rotation3d(Math.toRadians(0), Math.toRadians(-22.75), Math.toRadians(40)),
         new Translation3d(
           // Units.inchesToMeters(11.233), 
           // Units.inchesToMeters(9.691),
@@ -170,8 +172,8 @@ public final class Constants {
       ),
 
       ArducamTwo(
-        "Arducam_2",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-18), Math.toRadians(-40)),
+        "arducamTwo",
+        new Rotation3d(Math.toRadians(0), Math.toRadians(-22.75), Math.toRadians(-40)),
         new Translation3d(
           // Units.inchesToMeters(-11.233), 
           // Units.inchesToMeters(9.691), 
@@ -185,7 +187,7 @@ public final class Constants {
       ),
 
       ArducamThree(
-        "Arducam_3",
+        "arducamThree",
         new Rotation3d(0, Units.degreesToRadians(-145), 0),
         new Translation3d(
             Units.inchesToMeters(-4.628),
