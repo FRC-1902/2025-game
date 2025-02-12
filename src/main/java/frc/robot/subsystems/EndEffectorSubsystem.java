@@ -23,8 +23,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public EndEffectorSubsystem() {
     rollerMotor = new SparkMax(Constants.EndEffector.ROLLER_MOTOR_ID, MotorType.kBrushless);
 
-    frontSensor = new DigitalInput(Constants.EndEffector.FRONT_SENSOR_CHANNEL);
-    backSensor = new DigitalInput(Constants.EndEffector.BACK_SENSOR_CHANNEL);
+    frontSensor = new DigitalInput(Constants.EndEffector.FRONT_IR_SENSOR_ID);
+    backSensor = new DigitalInput(Constants.EndEffector.BACK_IR_SENSOR_ID);
 
     configureMotors();
   }

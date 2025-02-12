@@ -38,10 +38,10 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
   /** Creates a new FloorIntake. */
   public FloorIntakeSubsystem() {
-    rollerMotor = new SparkMax(Constants.FloorIntake.ROLLERMOTOR_PORT, MotorType.kBrushless);
-    pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR_PORT, MotorType.kBrushless);
+    rollerMotor = new SparkMax(Constants.FloorIntake.ROLLER_MOTOR_ID, MotorType.kBrushless);
+    pivotMotor = new SparkMax(Constants.FloorIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
-    irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_PORT);
+    irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_ID);
 
     pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
     pid.enableContinuousInput(0, 360);

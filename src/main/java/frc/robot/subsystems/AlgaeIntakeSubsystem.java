@@ -35,8 +35,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
   /** Creates a new AlgaeIntakeSubsystem. */
   public AlgaeIntakeSubsystem() {
-    rollerMotor = new SparkMax(Constants.AlgaeIntake.ROLLER_ID, MotorType.kBrushless);
-    pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_ID, MotorType.kBrushless);
+    rollerMotor = new SparkMax(Constants.AlgaeIntake.ROLLER_MOTOR_ID, MotorType.kBrushless);
+    pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
     pid = new PIDController(Constants.AlgaeIntake.kP, Constants.AlgaeIntake.kI, Constants.AlgaeIntake.kD);
     pid.enableContinuousInput(0, 360);

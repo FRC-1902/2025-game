@@ -40,8 +40,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem() {
     leftMotor = new SparkMax(Constants.Elevator.LEFT_MOTOR_ID, MotorType.kBrushless);
     rightMotor = new SparkMax(Constants.Elevator.RIGHT_MOTOR_ID, MotorType.kBrushless);
-    servo = new Servo(Constants.Elevator.SERVO_PORT);
-    limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_PORT);
+    servo = new Servo(Constants.Elevator.SERVO_ID);
+    limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_ID);
 
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
     pid.setTolerance(Constants.Elevator.TOLERANCE);

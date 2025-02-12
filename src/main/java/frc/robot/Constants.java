@@ -58,8 +58,8 @@ public final class Constants {
   public static final class AlgaeIntake{
     private AlgaeIntake() {}; 
     // todo: find id's
-    public static final int ROLLER_ID = 11; 
-    public static final int PIVOT_ID = 12; 
+    public static final int ROLLER_MOTOR_ID = 11; 
+    public static final int PIVOT_MOTOR_ID = 12; 
     public static final int IR_SENSOR_ID = 0; 
     // todo: find p, i, d, g
     public static final double kP = 0; 
@@ -77,10 +77,10 @@ public final class Constants {
   public static final class FloorIntake{
     private FloorIntake() {}; 
     //todo: set ports
-    public static final int ROLLERMOTOR_PORT = 13; 
-    public static final int PIVOTMOTOR_PORT = 14;
-    public static final int IR_SENSOR_PORT = 15; 
-    public static final int ENCODER_PORT = 16; 
+    public static final int ROLLER_MOTOR_ID = 13; 
+    public static final int PIVOT_MOTOR_ID = 14;
+    public static final int IR_SENSOR_ID = 15; 
+    public static final int PIVOT_ENCODER_ID = 16; 
 
     //todo: find p, i, d, g
     public static final double PIVOT_P = 0; 
@@ -110,8 +110,8 @@ public final class Constants {
     public static final int LEFT_MOTOR_ID = 0; 
     public static final int RIGHT_MOTOR_ID = 0;  
     // todo: find limit switch/servo ports 
-    public static final int LIMIT_SWITCH_PORT = 0; 
-    public static final int SERVO_PORT = 0;
+    public static final int LIMIT_SWITCH_ID = 0; 
+    public static final int SERVO_ID = 0;
     // todo: find p, i, d, f values 
     public static final double kP = 0; 
     public static final double kI = 0;
@@ -140,11 +140,11 @@ public final class Constants {
 
   public static final class EndEffector{
     private EndEffector() {}; 
-    // todo: set ports 
+    // todo: set ids 
     public static final int ROLLER_MOTOR_ID = 18; 
-    // todo: set channels
-    public static final int FRONT_SENSOR_CHANNEL = 19; 
-    public static final int BACK_SENSOR_CHANNEL = 20; 
+    // todo: set ids
+    public static final int FRONT_IR_SENSOR_ID = 19; 
+    public static final int BACK_IR_SENSOR_ID = 20; 
   }
 
   public static final class Vision {
