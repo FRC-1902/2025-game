@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.WaypointType;
 import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.ElevatorCommand;
-import frc.robot.commands.ElevatorFactory;
+import frc.robot.commands.ElevatorDownFactory;
+import frc.robot.commands.ElevatorUpFactory;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
@@ -52,7 +53,8 @@ public class RobotContainer {
 
     private AutoDriveFactory autoDrive;
     private AutoIntakeFactory autoIntake;
-    private ElevatorFactory elevatorFactory;
+    private ElevatorUpFactory elevatorUpFactory;
+    private ElevatorDownFactory elevatorDownFactory;
 
     public RobotContainer() {
         controllers = new ControllerSubsystem();
@@ -73,7 +75,8 @@ public class RobotContainer {
 
         autoDrive = new AutoDriveFactory(swerve);
         autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector);
-        elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
+        elevatorUpFactory = new ElevatorUpFactory(endEffector, elevator, floorIntake);
+        elevatorDownFactory = new ElevatorDownFactory(endEffector, elevator, floorIntake);
 
         swerve.setDefaultCommand(closedDrive);
 
@@ -122,13 +125,16 @@ public class RobotContainer {
 
       // L3
       new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).getRightTriggerAxis() > 0.5).debounce(0.05)
-          .whileTrue(elevatorFactory.getPosition(Constants.Elevator.Position.L3));
+          .whileTrue(elevatorUpFactory.getPosition(Constants.Elevator.Position.L3))
+          .onFalse(elevatorDownFactory.getPosition());
       // L2
       controllers.getTrigger(ControllerName.MANIP, Button.RB).debounce(0.05)
-          .whileTrue(elevatorFactory.getPosition(Constants.Elevator.Position.L2));
+          .whileTrue(elevatorUpFactory.getPosition(Constants.Elevator.Position.L2))
+          .onFalse(elevatorDownFactory.getPosition());
       // L1
       controllers.getTrigger(ControllerName.MANIP, Button.B).debounce(0.05)
-          .whileTrue(elevatorFactory.getPosition(Constants.Elevator.Position.L1));
+          .whileTrue(elevatorUpFactory.getPosition(Constants.Elevator.Position.L1))
+          .onFalse(elevatorDownFactory.getPosition());
 
       // Spit Floor Intake
       controllers.getTrigger(ControllerName.MANIP, Button.LS).debounce(0.05)
