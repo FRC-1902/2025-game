@@ -119,6 +119,10 @@ public class RobotContainer {
     controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
 
+    controllers.getTrigger(ControllerName.DRIVE, Button.A)
+      .whileTrue(new ObjectAlign(detectionSubsystem, swerve));
+
+
     // Align with Coral TODO: Change when Align PR is merged
     // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
     //       .whileTrue(new ObjectAlign());
@@ -173,7 +177,6 @@ public class RobotContainer {
     new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povDown().getAsBoolean()).debounce(0.05)
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
     
-      controllers.getTrigger(ControllerName.MANIP, Button.X).whileTrue(new ObjectAlign(detectionSubsystem, swerve));
   }
 
   /**

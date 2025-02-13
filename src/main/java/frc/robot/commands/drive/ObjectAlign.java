@@ -15,13 +15,13 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 public class ObjectAlign extends Command {
 
   private final DetectionSubsystem detectionSubsystem;
-  private final SwerveSubsystem swerveSubsystem;
+  private final SwerveSubsystem swerve;
   /** Creates a new ObjectAllign. */
-  public ObjectAlign(DetectionSubsystem detectionSubsystem, SwerveSubsystem swerveSubsystem) {
+  public ObjectAlign(DetectionSubsystem detectionSubsystem, SwerveSubsystem swerve) {
     this.detectionSubsystem = detectionSubsystem;
-    this.swerveSubsystem = swerveSubsystem;
+    this.swerve = swerve;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(detectionSubsystem);
+    addRequirements(detectionSubsystem, swerve);
   }
 
   // Called when the command is initially scheduled.
@@ -32,18 +32,21 @@ public class ObjectAlign extends Command {
   @Override
   public void execute() {
     if(detectionSubsystem.isTargetVisible()){
-      double turn = detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP * Constants.Swerve.MAX_ROTATION_SPEED.getRadians();
-      swerveSubsystem.drive(new Translation2d(0,0), turn, true);
+      DataLogManager.log("Target Visible, driving");
+      double turn = -detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP;
+      DataLogManager.log(Double.toString(turn));
+      swerve.drive(new Translation2d(0,0), turn, true);
     }
     else{
-      swerveSubsystem.drive(new Translation2d(0,0), 0, true);
+      DataLogManager.log("No Target Visible, stationary");
+      swerve.drive(new Translation2d(0,0), 0, true);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    swerveSubsystem.drive(new Translation2d(0,0), 0, true);
+    swerve.drive(new Translation2d(0,0), 0, true);
   }
 
   // Returns true when the command should end.
@@ -54,6 +57,6 @@ public class ObjectAlign extends Command {
       return true;
     }
 
-    return Math.abs(swerveSubsystem.getPose().getRotation().getRadians() - detectionSubsystem.getTargetYaw().getRadians()) <= 0.05;
+    return Math.abs(swerve.getPose().getRotation().getRadians() - detectionSubsystem.getTargetYaw().getRadians()) <= 0.001;
   }
 }
