@@ -15,20 +15,37 @@ import frc.robot.Constants.Elevator.Position;
 import frc.robot.commands.intake.DeployFloorIntakeCommand;   
 
 /** Add your docs here. */
-public class ElevatorDownFactory {
+public class ElevatorFactory {
   private final EndEffectorSubsystem endEffectorSubsystem;
   private final ElevatorSubsystem elevatorSubsystem; 
   private final FloorIntakeSubsystem floorIntakeSubsystem;
 
-  public ElevatorDownFactory(EndEffectorSubsystem endEffectorSubsystem, ElevatorSubsystem elevatorSubsystem, FloorIntakeSubsystem floorIntakeSubsystem){
+  public ElevatorFactory(EndEffectorSubsystem endEffectorSubsystem, ElevatorSubsystem elevatorSubsystem, FloorIntakeSubsystem floorIntakeSubsystem){
     this.endEffectorSubsystem = endEffectorSubsystem; 
     this.elevatorSubsystem = elevatorSubsystem;
     this.floorIntakeSubsystem = floorIntakeSubsystem;
   }
 
-  public Command getPosition(){
+
+  /**
+   * Returns a command that sets the elevator to the target position while deploying the intake out of the way of the elevator
+   * @param targetPosition
+   * @return
+   */
+  public Command getElevatorCommand(Position targetPosition){
     return new SequentialCommandGroup(
-      new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(61), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem), // todo: figure out what resting angle should be at
+      new ElevatorCommand(elevatorSubsystem, targetPosition)
+    );
+  }
+
+  /**
+   * Returns a command that sets the elevator to MIN Position and retracts intake
+   * @return
+   */
+  public Command getElevatorDownCommand(){
+    return new SequentialCommandGroup(
+      getElevatorCommand(Position.MIN),
       new DeployFloorIntakeCommand(Rotation2d.fromDegrees(0), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem)
     );
   }
