@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
@@ -13,6 +9,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -26,8 +23,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public EndEffectorSubsystem() {
     rollerMotor = new SparkMax(Constants.EndEffector.ROLLER_MOTOR_ID, MotorType.kBrushless);
 
-    frontSensor = new DigitalInput(Constants.EndEffector.FRONT_SENSOR_CHANNEL);
-    backSensor = new DigitalInput(Constants.EndEffector.BACK_SENSOR_CHANNEL);
+    frontSensor = new DigitalInput(Constants.EndEffector.FRONT_IR_SENSOR_ID);
+    backSensor = new DigitalInput(Constants.EndEffector.BACK_IR_SENSOR_ID);
 
     configureMotors();
   }
@@ -71,6 +68,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("EndEffector/Front Piece Sensor", isFrontPieceSensorActive());
+    SmartDashboard.putBoolean("EndEffector/Back Piece Sensor", isBackPieceSensorActive());
   }
 }

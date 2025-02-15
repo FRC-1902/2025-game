@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,13 +6,19 @@ import frc.robot.Constants;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
 import com.revrobotics.spark.SparkMax;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -32,29 +34,27 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private Alert pivotAlert;
   private final ElevatorSubsystem elevatorSubsystem;
   private Watchdog pivotWatchdog; 
+  private Pose3d intakePose;
 
   /** Creates a new FloorIntake. */
-  public FloorIntakeSubsystem() {
-    rollerMotor = new SparkMax(Constants.FloorIntake.ROLLERMOTOR_PORT, MotorType.kBrushless);
+  public FloorIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
+    rollerMotor = new SparkMax(Constants.FloorIntake.ROLLER_MOTOR_ID, MotorType.kBrushless);
+    pivotMotor = new SparkMax(Constants.FloorIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
-    pivotMotor = new SparkMax(Constants.FloorIntake.PIVOTMOTOR_PORT, MotorType.kBrushless);
+    irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_ID);
 
-    pid = new PIDController(
-    Constants.FloorIntake.PIVOT_P,
-    Constants.FloorIntake.PIVOT_I,
-    Constants.FloorIntake.PIVOT_D);
+    pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
     pid.enableContinuousInput(0, 360);
     pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
 
-    irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_PORT);
-
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
-    // Check that motors aren't supposed to be inverted
-    configureMotors();
-
-    elevatorSubsystem = new ElevatorSubsystem();
 
     pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
+
+    this.elevatorSubsystem = elevatorSubsystem;
+    
+    // TODO: Check that motors aren't supposed to be inverted
+    configureMotors();
   }
 
   private void configureMotors() {
@@ -149,14 +149,18 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < 60){
-      DataLogManager.log("Elevator spooky in relation to floor intake");
+      // DataLogManager.log("Elevator spooky in relation to floor intake");
       setAngle(Rotation2d.fromDegrees(61));
     }
     
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians());
 
-    SmartDashboard.putNumber("Floor-Intake/Current Angle", getAngle().getDegrees());
+    intakePose = new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, getAngle().getDegrees(), 0)); // TODO: Math and offset
+
+    SmartDashboard.putNumber("FloorIntake/Current Angle", getAngle().getDegrees());
+    SmartDashboard.putBoolean("FloorIntake/Piece Sensor", pieceSensorActive());
+    Logger.recordOutput("FloorIntake/Intake Pose", intakePose);
 
     if (pivotWatchdog()) {
       pivotMotor.set(0);
