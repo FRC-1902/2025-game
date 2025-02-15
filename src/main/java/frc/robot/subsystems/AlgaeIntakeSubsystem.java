@@ -1,10 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -14,7 +13,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.Alert;
@@ -29,11 +31,13 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   private Alert alert;
   private DigitalInput irSensor; 
   private Watchdog pivotWatchdog; 
+  private Pose3d intakePose;
+  private final ElevatorSubsystem elevatorSubsystem;
 
   /** Creates a new AlgaeIntakeSubsystem. */
-  public AlgaeIntakeSubsystem() {
-    rollerMotor = new SparkMax(Constants.AlgaeIntake.ROLLER_ID, MotorType.kBrushless);
-    pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_ID, MotorType.kBrushless);
+  public AlgaeIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
+    rollerMotor = new SparkMax(Constants.AlgaeIntake.ROLLER_MOTOR_ID, MotorType.kBrushless);
+    pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
     pid = new PIDController(Constants.AlgaeIntake.kP, Constants.AlgaeIntake.kI, Constants.AlgaeIntake.kD);
     pid.enableContinuousInput(0, 360);
@@ -45,6 +49,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
 
     pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
+
+    this.elevatorSubsystem = elevatorSubsystem;
+
+    setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); // TODO: set default angle when turn on
   }
 
   private void configureMotors() {
@@ -64,8 +72,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     rollerConfig.idleMode(IdleMode.kBrake);
     rollerConfig.inverted(false); // todo: finish inverted
     rollerConfig.disableFollowerMode();
-    rollerConfig.secondaryCurrentLimit(30);
-    rollerConfig.smartCurrentLimit(30);
+    rollerConfig.secondaryCurrentLimit(40);
+    rollerConfig.smartCurrentLimit(40);
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Config 
@@ -85,7 +93,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   }
 
   /**
-   * 
+   *
    * @param targetAngle
    */
   public void setAngle(Rotation2d targetAngle) {
@@ -135,8 +143,12 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
         + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
 
-    SmartDashboard.putNumber("AlgaeIntake/Current Angle ", getAngle().getDegrees());
+    Pose3d intakePose = new Pose3d(new Translation3d(0.312, 0 + elevatorSubsystem.getPosition(), 0.4), new Rotation3d(0,0,0)); // TODO: Offset and Math
 
+    SmartDashboard.putNumber("AlgaeIntake/Pivot Angle ", getAngle().getDegrees());
+    SmartDashboard.putBoolean("AlgaeIntake/Algae Detected ", isAlgaeDetected());
+    Logger.recordOutput("AlgaeIntake/Intake Pose", intakePose);
+    
     if (pivotWatchdog()) {
       pivotMotor.set(0);
       resetPID();

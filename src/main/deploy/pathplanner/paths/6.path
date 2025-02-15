@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.8244696301476473,
+        "y": 7.218900513382831
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.619770458904288,
+        "y": 5.73889200544545
+      },
+      "isLocked": false,
+      "linkedName": "HP"
+    },
+    {
+      "anchor": {
+        "x": 3.250862487772149,
+        "y": 4.212303342657748
+      },
+      "prevControl": {
+        "x": 3.0589230322884764,
+        "y": 4.372488377628657
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -2.121096396661448
+  },
+  "reversed": false,
+  "folder": "DropAndGo",
+  "idealStartingState": {
+    "velocity": 1000,
+    "rotation": -52.187215362644146
+  },
+  "useDefaultConstraints": true
+}

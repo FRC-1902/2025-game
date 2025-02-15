@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -9,6 +5,9 @@ import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
 
 import com.revrobotics.spark.SparkMax;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -20,6 +19,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Servo;
 
@@ -31,15 +33,15 @@ public class ElevatorSubsystem extends SubsystemBase {
   private Position targetPosition;
   private Alert badStart, boundsAlert, servoAlert;
   private Watchdog elevatorWatchdog; 
+  private Pose3d elevatorPose;
+  private Pose3d carriagePose;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
     leftMotor = new SparkMax(Constants.Elevator.LEFT_MOTOR_ID, MotorType.kBrushless);
     rightMotor = new SparkMax(Constants.Elevator.RIGHT_MOTOR_ID, MotorType.kBrushless);
-
-    configureMotors();
-
-    limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_PORT);
+    servo = new Servo(Constants.Elevator.SERVO_ID);
+    limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_ID);
 
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
     pid.setTolerance(Constants.Elevator.TOLERANCE);
@@ -53,12 +55,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     boundsAlert = new Alert("Elevator/Elevator out of bounds", AlertType.kError);
-
-    servo = new Servo(Constants.Elevator.SERVO_PORT);
-
     servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
 
     elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight(), Constants.Elevator.Position.MIN.getHeight(), this::getPosition);
+
+    targetPosition = Constants.Elevator.Position.MIN;
+
+    configureMotors();
   }
 
   private void configureMotors() {
@@ -185,10 +188,17 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     double power;
-    // This method will be called once per scheduler run
+
+    elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
+    carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
+
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
-    SmartDashboard.putNumber("ELevator/Current Position", getPosition());
+    SmartDashboard.putNumber("Elevator/Current Position", getPosition());
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
+    SmartDashboard.putBoolean("Elevator/Elevator Locked", isLocked());
+
+    Logger.recordOutput("Elevator/Stage", elevatorPose);
+    Logger.recordOutput("Elevator/Carriage", carriagePose);
 
     if (watchingDog() || isLocked()) {
       leftMotor.set(0);

@@ -16,7 +16,6 @@ public class VisionSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-
 		// Update inputs
 		vision.updateInputs(inputs);
 
