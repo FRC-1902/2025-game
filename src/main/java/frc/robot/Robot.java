@@ -36,7 +36,7 @@ public class Robot extends LoggedRobot {
 
     switch (Constants.currentMode) {
       case REAL:
-        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs") TODO: Set USB Path
+        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
         new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
         break;
@@ -139,14 +139,14 @@ public class Robot extends LoggedRobot {
      * Check the battery voltage and set alerts if it is low or critical.
      */
     private void checkBatteryVoltage() {
-      Elastic.Notification lowBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Battery Level Low", "");
-      Elastic.Notification criticalBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "Battery Level Critical", "");
 
       double voltage = RobotController.getBatteryVoltage();
       if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
+        Elastic.Notification criticalBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "Battery Level Critical", "");
         criticalBatteryAlert.set(true);
         Elastic.sendNotification(criticalBatteryElastic);
       } else if (voltage <= Constants.BATTERY_VOLTAGE_WARNING) {
+        Elastic.Notification lowBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Battery Level Low", "");
         lowBatteryAlert.set(true);
         Elastic.sendNotification(lowBatteryElastic);
       }
