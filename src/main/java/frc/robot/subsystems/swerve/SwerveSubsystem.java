@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import java.io.IOException;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -18,9 +20,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.struct.parser.ParseException;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
@@ -208,6 +212,18 @@ public class SwerveSubsystem extends SubsystemBase {
       );
 
     return AutoBuilder.pathfindToPose(pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
+  }
+
+  public Command getFollowPathCommand(String pathName) {
+    PathPlannerPath path;
+    try {
+        path = PathPlannerPath.fromPathFile(pathName);
+    } catch (Exception e) {
+        DataLogManager.log("Failed to load path: " + pathName);
+        return new InstantCommand();
+    }
+
+    return AutoBuilder.followPath(path);
   }
 
   /**

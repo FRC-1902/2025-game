@@ -14,6 +14,12 @@ public final class FieldConstants {
     PROCESSOR,
     CAGE
   }
+  public static final class FIELD_DIMENSIONS {
+    private FIELD_DIMENSIONS() {};
+    public static final double WIDTH = 317; // Inches
+    public static final double LENGTH = 690.875; // Inches
+  }
+
 
   public static final class BLUE {
     private BLUE() {}; 

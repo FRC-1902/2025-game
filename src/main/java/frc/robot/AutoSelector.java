@@ -1,5 +1,6 @@
 package frc.robot;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -15,18 +16,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.Constants.AlgaeIntake;
 import frc.robot.commands.AutoPlaceFactory;
-import frc.robot.commands.drive.AutoDriveFactory;
+import frc.robot.commands.ElevatorFactory;
+import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.intake.DeployFloorIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.FieldConstants;
+import frc.robot.Constants.EndEffector;
 
 /*
  * Publishes a network table chooser to smart dashboard to select the autonomous command. 
@@ -34,7 +34,6 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
  */
 public class AutoSelector {
   private LoggedDashboardChooser<Command> autoChooser;
-  private LoggedDashboardChooser<String> alternativeSelector;
 
   RobotContainer robotContainer;
   SwerveSubsystem swerve;
@@ -43,7 +42,8 @@ public class AutoSelector {
   EndEffectorSubsystem endEffector;
 
   DeployFloorIntakeCommand deployFloorIntakeCommand;
-  AutoPlaceFactory AutoPlaceFactory;
+  AutoPlaceFactory autoPlaceFactory;
+  ElevatorFactory elevatorFactory;
   
   public AutoSelector(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
@@ -76,35 +76,41 @@ public class AutoSelector {
     }
   }
 
-  // Auto definitions
-
-  private SequentialCommandGroup getDoNothingAuto() {
-    return new SequentialCommandGroup(
-      new ConditionalCommand(
-        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(0, 0, Rotation2d.fromDegrees(180)))),
-        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(0, 0, Rotation2d.fromDegrees(0)))),
-        this::isBlue
-      )
+  private ConditionalCommand getStartPosition(double x, double y) {
+    return new ConditionalCommand(
+      new SequentialCommandGroup(
+        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(x, y, Rotation2d.fromDegrees(180)))), // TODO: Check if correct
+        new InstantCommand(() -> swerve.zeroGyroWithAlliance())
+      ),
+      new SequentialCommandGroup(
+        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(FieldConstants.FIELD_DIMENSIONS.LENGTH - x, FieldConstants.FIELD_DIMENSIONS.WIDTH - y, Rotation2d.fromDegrees(0)))),  // TODO: Check if correct
+        new InstantCommand(() -> swerve.zeroGyroWithAlliance())
+      ),
+      this::isBlue
     );
   }
 
+  // Auto definitions
+  private SequentialCommandGroup getDoNothingAuto() {
+    return new SequentialCommandGroup(getStartPosition(0, 0));
+  }
+
   /**
-   * 5 piece auto test PLACE HOLDER
+   * Test Auto Top, not complete, for example
    */
   private SequentialCommandGroup getTest5() {
     return new SequentialCommandGroup(
       // setup odometry
-      new ConditionalCommand(
-        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(0, 0, Rotation2d.fromDegrees(180)))),
-        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(0, 0, Rotation2d.fromDegrees(0)))),
-        this::isBlue
-      ),
+      getStartPosition(20, 10),
       // drive to reef
       new ParallelCommandGroup(
-        AutoPlaceFactory.getAutoPlace(Constants.Elevator.Position.L3)
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+        swerve.getFollowPathCommand("1.path")
       ),
-      // Drive to HP/Object
+      new InstantCommand(() -> new PlaceCommand(endEffector)),
       new ParallelCommandGroup(
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
+        swerve.getFollowPathCommand("1.2.path")
       )
     );
   }
