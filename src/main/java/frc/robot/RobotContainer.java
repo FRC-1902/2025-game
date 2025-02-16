@@ -29,12 +29,13 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.swerve.NonLinearProfile;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionReal;
 import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
-
+import frc.robot.subsystems.swerve.NonLinearProfile;
 
 public class RobotContainer {
 
@@ -63,6 +64,9 @@ public class RobotContainer {
     LED = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
 
+    NonLinearProfile leftX = new NonLinearProfile(controllers.getCommandController(ControllerName.DRIVE).getLeftX());
+    NonLinearProfile leftY = new NonLinearProfile(controllers.getCommandController(ControllerName.DRIVE).getLeftY());
+    NonLinearProfile rightX = new NonLinearProfile(controllers.getCommandController(ControllerName.DRIVE).getRightX());
 
     DriveCommand closedDrive = new DriveCommand(
       swerve,
@@ -75,6 +79,14 @@ public class RobotContainer {
       //     return MathUtil.applyDeadband(rightTrigger - leftTrigger, Constants.Controller.RIGHT_X_DEADBAND);
       // }
     );
+
+    //guessed that the non-linear profile works like a deadband
+    DriveCommand nonLinearDrive = new DriveCommand(
+      swerve,
+      () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), leftY.scaleInputs()), 
+      () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), leftX.scaleInputs()), 
+      () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), rightX.scaleInputs())
+      );
 
     autoDrive = new AutoDriveFactory(swerve);
     autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector);
