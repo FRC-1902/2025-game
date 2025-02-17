@@ -35,7 +35,6 @@ import frc.robot.subsystems.vision.VisionReal;
 import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
-
 public class RobotContainer {
 
   SwerveSubsystem swerve;
@@ -75,6 +74,8 @@ public class RobotContainer {
       //     return MathUtil.applyDeadband(rightTrigger - leftTrigger, Constants.Controller.RIGHT_X_DEADBAND);
       // }
     );
+
+    
 
     autoDrive = new AutoDriveFactory(swerve);
     autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector);
