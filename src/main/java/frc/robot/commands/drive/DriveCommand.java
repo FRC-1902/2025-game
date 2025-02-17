@@ -38,10 +38,11 @@ public class DriveCommand extends Command {
     // Apply alliance-based inversions
     var alliance = DriverStation.getAlliance();
 
+    // take away cubic scaling!!!!!
     // Apply cubic scaling to x and y velocities
-    Translation2d trans = new Translation2d(vX.getAsDouble(), vY.getAsDouble()).times(Constants.Swerve.MAX_SPEED).times(0.3); // TODO: remove the speed cap
-    double xVelocity = Math.pow(trans.getX(), 3.0);
-    double yVelocity = Math.pow(trans.getY(), 3.0);
+    Translation2d trans = new Translation2d(scaleInputsOne(vX.getAsDouble()), scaleInputsOne(vY.getAsDouble())).times(Constants.Swerve.MAX_SPEED).times(0.3); // TODO: remove the speed cap
+    double xVelocity = trans.getX(); 
+    double yVelocity = trans.getY();
 
     // Additional alliance-based inversions
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
@@ -79,5 +80,25 @@ public class DriveCommand extends Command {
       () -> vY.getAsDouble() + externalInput.get().getY(),
       heading
     );
+  }
+
+  // y = .8 * x + .2 * x^3
+  public double scaleInputsOne(double input){
+    return (.8 * input + .2 * Math.pow(input, 3));
+  }
+
+  // y = .6 * x + .4 * x^3
+  public double scaleInputsTwo(double input){
+    return (.6 * input + .4 * Math.pow(input, 3));
+  }
+
+  // y = .4 * x + .6 * x^3 
+  public double scaleInputsThree(double input){
+    return (.4 * input + .6 * Math.pow(input, 3));
+  }
+
+  // y = .2 * x + .8 * x^3
+  public double scaleInputsFour(double input){
+    return (.2 * input + .8 * Math.pow(input, 3));
   }
 }
