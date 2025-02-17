@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -35,7 +36,6 @@ import frc.robot.Constants.EndEffector;
 public class AutoSelector {
   private LoggedDashboardChooser<Command> autoChooser;
 
-  RobotContainer robotContainer;
   SwerveSubsystem swerve;
   AlgaeIntakeSubsystem algaeIntake;
   FloorIntakeSubsystem floorIntake;
@@ -46,7 +46,6 @@ public class AutoSelector {
   ElevatorFactory elevatorFactory;
   
   public AutoSelector(RobotContainer robotContainer) {
-    this.robotContainer = robotContainer;
     swerve = robotContainer.swerve;
     algaeIntake = robotContainer.algaeIntake;
     floorIntake = robotContainer.floorIntake;
@@ -76,14 +75,14 @@ public class AutoSelector {
     }
   }
 
-  private ConditionalCommand getStartPosition(double x, double y) {
+  private Command setStartPosition(double x, double y) {
     return new ConditionalCommand(
       new SequentialCommandGroup(
         new InstantCommand(() -> swerve.resetOdometry(new Pose2d(x, y, Rotation2d.fromDegrees(180)))), // TODO: Check if correct
         new InstantCommand(() -> swerve.zeroGyroWithAlliance())
       ),
       new SequentialCommandGroup(
-        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(FieldConstants.FIELD_DIMENSIONS.LENGTH - x, FieldConstants.FIELD_DIMENSIONS.WIDTH - y, Rotation2d.fromDegrees(0)))),  // TODO: Check if correct
+        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(FieldConstants.LENGTH - x, FieldConstants.WIDTH - y, Rotation2d.fromDegrees(0)))),  // TODO: Check if correct
         new InstantCommand(() -> swerve.zeroGyroWithAlliance())
       ),
       this::isBlue
@@ -91,8 +90,12 @@ public class AutoSelector {
   }
 
   // Auto definitions
-  private SequentialCommandGroup getDoNothingAuto() {
-    return new SequentialCommandGroup(getStartPosition(0, 0));
+
+  /**
+   * Auto that doesn't do anything
+   */
+  private Command getDoNothingAuto() {
+    return setStartPosition(0, 0); // TODO: Configure
   }
 
   /**
@@ -101,13 +104,13 @@ public class AutoSelector {
   private SequentialCommandGroup getTest5() {
     return new SequentialCommandGroup(
       // setup odometry
-      getStartPosition(20, 10),
+      setStartPosition(20, 10),
       // drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
         swerve.getFollowPathCommand("1.path")
       ),
-      new InstantCommand(() -> new PlaceCommand(endEffector)),
+      new PlaceCommand(endEffector),
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
         swerve.getFollowPathCommand("1.2.path")
