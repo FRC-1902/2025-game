@@ -62,7 +62,7 @@ public class AutoSelector {
    * @return The selected auto from smart dashboard
   */
   public Command getSelectedCommand() {
-    DataLogManager.log("Sending command: " + autoChooser.get().toString());
+    DataLogManager.log("Sending command: " + autoChooser.toString());
     return autoChooser.get();
   }
 
