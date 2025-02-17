@@ -3,6 +3,7 @@ package frc.robot;
 import java.lang.reflect.Field;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -62,7 +63,6 @@ public class AutoSelector {
    * @return The selected auto from smart dashboard
   */
   public Command getSelectedCommand() {
-    DataLogManager.log("Sending command: " + autoChooser.toString());
     return autoChooser.get();
   }
 
