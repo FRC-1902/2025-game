@@ -31,9 +31,11 @@ import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.DetectionSubsystem;
 import frc.robot.subsystems.vision.VisionReal;
 import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.commands.drive.ObjectAlign;
 
 public class RobotContainer {
 
@@ -45,6 +47,7 @@ public class RobotContainer {
   FloorIntakeSubsystem floorIntake;
   LEDSubsystem LED;
   ControllerSubsystem controllers;
+  DetectionSubsystem detectionSubsystem;
 
   AutoDriveFactory autoDrive;
   AutoIntakeFactory autoIntake;
@@ -61,6 +64,8 @@ public class RobotContainer {
     floorIntake = new FloorIntakeSubsystem(elevator);
     LED = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
+
+    detectionSubsystem = new DetectionSubsystem();
 
 
     DriveCommand closedDrive = new DriveCommand(
@@ -83,6 +88,7 @@ public class RobotContainer {
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
     swerve.setDefaultCommand(closedDrive);
+    
 
     bindButtons();
   }
@@ -116,6 +122,10 @@ public class RobotContainer {
     // Align to Processor
     controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
+
+    controllers.getTrigger(ControllerName.DRIVE, Button.A)
+      .whileTrue(new ObjectAlign(detectionSubsystem, swerve));
+
 
     // Align with Coral TODO: Change when Align PR is merged
     // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
@@ -168,6 +178,7 @@ public class RobotContainer {
     // Climber Down
     new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povDown().getAsBoolean()).debounce(0.05)
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
+    
   }
 
   /**
