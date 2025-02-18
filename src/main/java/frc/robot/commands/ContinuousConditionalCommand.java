@@ -11,7 +11,7 @@ import java.util.function.BooleanSupplier;
 public class ContinuousConditionalCommand extends Command {
   Command incomingCommand, baseCommand;
   BooleanSupplier supplier;
-  boolean flag;
+  private boolean flag;
   /** Creates a new ContinuousConditionalCommand. */
   public ContinuousConditionalCommand(Command incomingCommand, Command baseCommand, BooleanSupplier supplier) {
   this.supplier = supplier;
@@ -30,25 +30,26 @@ public class ContinuousConditionalCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(!flag){
-      if(supplier.getAsBoolean()){
-        baseCommand.cancel();
-        incomingCommand.schedule();
-        flag = true;
-      }
-      else{
-        incomingCommand.cancel();
-      }
+    if(!flag && supplier.getAsBoolean()){
+      baseCommand.cancel();
+      incomingCommand.schedule();
+      flag = true;
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    baseCommand.cancel();
+    incomingCommand.cancel();
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return flag;
+    if(flag){
+      return incomingCommand.isFinished();
+    }
+    return baseCommand.isFinished();
   }
 }
