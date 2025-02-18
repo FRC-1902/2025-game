@@ -30,8 +30,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   private Rotation2d targetAngle;
   private Alert alert;
   private DigitalInput irSensor; 
-  private Watchdog pivotWatchdog; 
-  private Pose3d intakePose;
+  private Watchdog pivotWatchdog;
   private final ElevatorSubsystem elevatorSubsystem;
 
   /** Creates a new AlgaeIntakeSubsystem. */
@@ -64,16 +63,16 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     pivotConfig.idleMode(IdleMode.kBrake);
     pivotConfig.inverted(false); // todo: finish inverted
     pivotConfig.disableFollowerMode();
-    pivotConfig.secondaryCurrentLimit(30);
-    pivotConfig.smartCurrentLimit(30);
+    // pivotConfig.secondaryCurrentLimit(40);
+    pivotConfig.smartCurrentLimit(40);
     pivotConfig.voltageCompensation(12.00);
 
     // Roller Configs
     rollerConfig.idleMode(IdleMode.kBrake);
     rollerConfig.inverted(false); // todo: finish inverted
     rollerConfig.disableFollowerMode();
-    rollerConfig.secondaryCurrentLimit(40);
-    rollerConfig.smartCurrentLimit(40);
+    // rollerConfig.secondaryCurrentLimit(30);
+    rollerConfig.smartCurrentLimit(30);
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Config 
@@ -141,7 +140,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
-        + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
+      + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
 
     Pose3d intakePose = new Pose3d(new Translation3d(0.312, 0 + elevatorSubsystem.getPosition(), 0.4), new Rotation3d(0,0,0)); // TODO: Offset and Math
 

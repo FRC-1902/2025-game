@@ -3,7 +3,7 @@ package frc.robot.commands.intake;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
+import frc.robot.Constants.Elevator.Position;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
@@ -35,14 +35,14 @@ public class DeployFloorIntakeCommand extends Command {
   @Override
   public void initialize() {
     if(
-        endEffectorSubsystem.isFrontPieceSensorActive() || 
+        endEffectorSubsystem.isFrontPieceSensorActive() ||
         floorIntakeSubsystem.pieceSensorActive() ||
-        elevatorSubsystem.getPosition() != Constants.Elevator.Position.MIN.getHeight()
+        !elevatorSubsystem.isAtPosition(Position.MIN)
       ){
       DataLogManager.log("Command shouldn't start");
       return;
     }
-    floorIntakeSubsystem.setAngle(targetAngle); // todo: get target down position
+    floorIntakeSubsystem.setAngle(targetAngle);
   }
 
   @Override

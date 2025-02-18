@@ -56,7 +56,7 @@ public class Robot extends LoggedRobot {
     }
 
     // Initialize URCL 
-    // Logger.registerURCL(URCL.startExternal()); // TODO: Remove if issues with over logging occurs
+    // Logger.registerURCL(URCL.startExternal());
     
     // Set up alerts
     lowBatteryAlert = new Alert("Low Battery", AlertType.kWarning);
@@ -94,7 +94,7 @@ public class Robot extends LoggedRobot {
           autonomousCommand.schedule();
       }
 
-      Elastic.selectTab("Auto"); // TODO: Enable during comp
+      Elastic.selectTab("Auto");
 
       // Check battery voltage at autonomous start
       checkBatteryVoltage();
@@ -112,7 +112,7 @@ public class Robot extends LoggedRobot {
           autonomousCommand.cancel();
       }
 
-      Elastic.selectTab("Telly"); // TODO: Enable during comp
+      Elastic.selectTab("TeleOp");
 
       // Check battery voltage at teleop start
       checkBatteryVoltage();
@@ -126,7 +126,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void testInit() {
-        CommandScheduler.getInstance().cancelAll();
+      CommandScheduler.getInstance().cancelAll();
     }
 
     @Override
@@ -141,10 +141,12 @@ public class Robot extends LoggedRobot {
     private void checkBatteryVoltage() {
 
       double voltage = RobotController.getBatteryVoltage();
+
       if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
         Elastic.Notification criticalBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "Battery Level Critical", "");
         criticalBatteryAlert.set(true);
         Elastic.sendNotification(criticalBatteryElastic);
+      
       } else if (voltage <= Constants.BATTERY_VOLTAGE_WARNING) {
         Elastic.Notification lowBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Battery Level Low", "");
         lowBatteryAlert.set(true);

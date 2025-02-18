@@ -32,9 +32,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private PIDController pid;
   private Position targetPosition;
   private Alert badStart, boundsAlert, servoAlert;
-  private Watchdog elevatorWatchdog; 
-  private Pose3d elevatorPose;
-  private Pose3d carriagePose;
+  private Watchdog elevatorWatchdog;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -189,8 +187,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     double power;
 
-    elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
-    carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
+    Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
+    Pose3d carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
 
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
     SmartDashboard.putNumber("Elevator/Current Position", getPosition());

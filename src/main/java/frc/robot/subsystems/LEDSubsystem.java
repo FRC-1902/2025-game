@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+// TODO: setup lengths and spacings
 public class LEDSubsystem extends SubsystemBase {
  
   private final AddressableLED led;
@@ -23,7 +24,7 @@ public class LEDSubsystem extends SubsystemBase {
 
   private static final Distance kLedSpacing = Meters.of(1 / 120.0);
 
-  private final LEDPattern scrollingrainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing).atBrightness(Percent.of(50));
+  private final LEDPattern scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing).atBrightness(Percent.of(50));
 
 
   public LEDSubsystem() {

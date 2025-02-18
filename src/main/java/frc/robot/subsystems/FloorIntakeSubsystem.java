@@ -21,7 +21,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
@@ -66,15 +65,15 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     pivotConfig.idleMode(IdleMode.kBrake);
     pivotConfig.inverted(false);
     pivotConfig.disableFollowerMode();
-    pivotConfig.secondaryCurrentLimit(30);
-    pivotConfig.smartCurrentLimit(30);
+    // pivotConfig.secondaryCurrentLimit(40);
+    pivotConfig.smartCurrentLimit(40);
     pivotConfig.voltageCompensation(12.00);
 
     // Roller configs
     rollerConfig.idleMode(IdleMode.kCoast);
     rollerConfig.inverted(false);
     rollerConfig.disableFollowerMode(); 
-    rollerConfig.secondaryCurrentLimit(30);
+    // rollerConfig.secondaryCurrentLimit(30);
     rollerConfig.smartCurrentLimit(30);
     rollerConfig.voltageCompensation(12.00);
 

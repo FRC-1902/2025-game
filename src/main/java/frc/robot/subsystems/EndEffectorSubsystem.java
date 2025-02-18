@@ -35,7 +35,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     rollerConfig.idleMode(IdleMode.kCoast);
     rollerConfig.inverted(false);
     rollerConfig.disableFollowerMode(); 
-    rollerConfig.secondaryCurrentLimit(30);
+    // rollerConfig.secondaryCurrentLimit(30);
     rollerConfig.smartCurrentLimit(30);
     rollerConfig.voltageCompensation(12.00);
     // ResetSafeParameters subject to change; not well documented 
