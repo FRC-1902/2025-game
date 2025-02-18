@@ -22,11 +22,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutoPlaceFactory;
 import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.PlaceCommand;
+import frc.robot.commands.drive.CancelPathCommand;
+import frc.robot.commands.drive.ObjectAlign;
 import frc.robot.commands.intake.DeployFloorIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.DetectionSubsystem;
 import frc.robot.FieldConstants;
 import frc.robot.Constants.EndEffector;
 
@@ -41,16 +44,20 @@ public class AutoSelector {
   AlgaeIntakeSubsystem algaeIntake;
   FloorIntakeSubsystem floorIntake;
   EndEffectorSubsystem endEffector;
+  DetectionSubsystem detectionSubsystem;
 
   DeployFloorIntakeCommand deployFloorIntakeCommand;
   AutoPlaceFactory autoPlaceFactory;
   ElevatorFactory elevatorFactory;
+
+  CancelPathCommand cancelPathCommand;
   
   public AutoSelector(RobotContainer robotContainer) {
     swerve = robotContainer.swerve;
     algaeIntake = robotContainer.algaeIntake;
     floorIntake = robotContainer.floorIntake;
     endEffector = robotContainer.endEffector;
+    detectionSubsystem = robotContainer.detectionSubsystem;
 
     autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
@@ -89,6 +96,19 @@ public class AutoSelector {
     );
   }
 
+  private Command getPiece(String pathName) {
+    // new cancel path cmnd
+    return new ParallelCommandGroup(
+        new CancelPathCommand(swerve, pathName),
+        new ConditionalCommand(
+            new SequentialCommandGroup(
+                new InstantCommand(() -> cancelPathCommand.cancel()),
+                new ObjectAlign(detectionSubsystem, swerve)),
+            cancelPathCommand,
+            () -> detectionSubsystem.isTargetVisible()));
+  }
+  
+
   // Auto definitions
 
   /**
@@ -118,4 +138,21 @@ public class AutoSelector {
     );
   }
 
+  //
+  private SequentialCommandGroup getSpecialAuto(){
+    return new SequentialCommandGroup(
+      // setup odometry
+      setStartPosition(20, 10),
+      // drive to reef
+      new ParallelCommandGroup(
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+        swerve.getFollowPathCommand("1.path")
+      ),
+      new PlaceCommand(endEffector),
+      new ParallelCommandGroup(
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
+        getPiece("GLord")
+      )
+    );
+  }
 }
