@@ -41,7 +41,7 @@ public class VisionReal implements VisionBase {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
     for (Constants.Vision.Camera cam : Constants.Vision.Camera.values()) {
-      cameras.put(cam, new PhotonCamera(cam.name));
+      cameras.put(cam, new PhotonCamera(cam.camName));
       currentResults.put(cam, new PhotonPipelineResult()); // Empty initial result
       currentStdDevs.put(cam, cam.singleTagStdDevs);
 
@@ -115,7 +115,7 @@ public class VisionReal implements VisionBase {
 
   /** Updates robot pose estimation using data from all cameras */
   public void updatePoseEstimation(Pose2d currentPose) {
-    Map<Constants.Vision.Camera, EstimatedRobotPose> cameraEstimates = new EnumMap<>(Constants.Vision.Camera.class);;
+    Map<Constants.Vision.Camera, EstimatedRobotPose> cameraEstimates = new EnumMap<>(Constants.Vision.Camera.class);
 
     for (Map.Entry<Constants.Vision.Camera, PhotonPoseEstimator> entry : poseEstimators.entrySet()) {
       Constants.Vision.Camera cam = entry.getKey();
@@ -131,7 +131,7 @@ public class VisionReal implements VisionBase {
         PhotonTrackedTarget target = result.getBestTarget();
         if (target.getPoseAmbiguity() > Constants.Vision.MAXIMUM_AMBIGUITY) {
           Logger.recordOutput(
-            "Vision/" + cam.name + "/RejectedAmbiguity", target.getPoseAmbiguity());
+            "Vision/" + cam.camName + "/RejectedAmbiguity", target.getPoseAmbiguity());
           continue;
         }
       }
@@ -148,9 +148,9 @@ public class VisionReal implements VisionBase {
         updateEstimationStdDevs(cam, poseResult, result.getTargets());
         cameraEstimates.put(cam, estimate);
 
-        Logger.recordOutput("Vision/" + cam.name + "/EstimatedPose", estimate.estimatedPose);
-        Logger.recordOutput("Vision/" + cam.name + "/TimestampSeconds", estimate.timestampSeconds);
-        Logger.recordOutput("Vision/" + cam.name + "/TagCount", estimate.targetsUsed.size());
+        Logger.recordOutput("Vision/" + cam.camName + "/EstimatedPose", estimate.estimatedPose);
+        Logger.recordOutput("Vision/" + cam.camName + "/TimestampSeconds", estimate.timestampSeconds);
+        Logger.recordOutput("Vision/" + cam.camName + "/TagCount", estimate.targetsUsed.size());
       }
     }
 

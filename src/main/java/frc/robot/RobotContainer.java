@@ -13,6 +13,7 @@ import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.AutoPlaceFactory;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
+import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.commands.intake.AutoIntakeFactory;
@@ -40,7 +41,7 @@ public class RobotContainer {
   ElevatorSubsystem elevator;
   EndEffectorSubsystem endEffector;
   FloorIntakeSubsystem floorIntake;
-  LEDSubsystem LED;
+  LEDSubsystem led;
   ControllerSubsystem controllers;
 
   AutoDriveFactory autoDrive;
@@ -56,7 +57,7 @@ public class RobotContainer {
     endEffector = new EndEffectorSubsystem();
     elevator = new ElevatorSubsystem();
     floorIntake = new FloorIntakeSubsystem(elevator);
-    LED = new LEDSubsystem();
+    led = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
 
 
@@ -87,34 +88,28 @@ public class RobotContainer {
     // Driver Controls
     
     // Place Coral
-    //   new Trigger(() -> controllers.getCommandController(ControllerName.DRIVE).getRightTriggerAxis() > 0.5).debounce(0.05)
-    //       .onTrue(new PlaceCommand(endEffector));
-
-    //  controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
-    //     .onTrue(new PlaceCommand(endEffector));
+    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.RT) > 0.5)
+      .onTrue(new PlaceCommand(endEffector));
 
     // Score/Outtake Algae
     controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
       .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
 
-    //  controllers.getTrigger(ControllerName.DRIVE, Button.LB).debounce(0.05)
-    //      .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
+    // Align with Coral TODO: Change when Align PR is merged
+    // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+    //       .whileTrue(new ObjectAlign());
 
-    // Zero Gyro
-    controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
-      .onTrue(new InstantCommand(swerve::zeroGyro));
-    
-    // Align to Reef
-    controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));
-    
     // Align to Processor
     controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
 
-    // Align with Coral TODO: Change when Align PR is merged
-    // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-    //       .whileTrue(new ObjectAlign());
+    // Align to Reef
+    controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
+
+    // Zero Gyro
+    controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
+      .onTrue(new InstantCommand(swerve::zeroGyro));
 
     // Align to Cage, Removed for now
     // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)

@@ -28,6 +28,7 @@ public final class Constants {
   public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts TODO: Adjust later
 
   public static final class Controller{
+    private Controller() {}
     // Controller Ports
     public static final int DRIVE_CONTROLLER_PORT = 0; // TODO: Set port
     public static final int MANIP_CONTROLLER_PORT = 1; // TODO: Set port
@@ -40,6 +41,7 @@ public final class Constants {
   }
 
   public static final class Swerve {
+    private Swerve() {}
     public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
     public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
@@ -56,7 +58,7 @@ public final class Constants {
   }
 
   public static final class AlgaeIntake{
-    private AlgaeIntake() {}; 
+    private AlgaeIntake() {}
     // todo: find id's
     public static final int ROLLER_MOTOR_ID = 11; 
     public static final int PIVOT_MOTOR_ID = 5; 
@@ -77,7 +79,7 @@ public final class Constants {
   }
 
   public static final class FloorIntake{
-    private FloorIntake() {}; 
+    private FloorIntake() {}
     //todo: set ports
     public static final int ROLLER_MOTOR_ID = 6; 
     public static final int PIVOT_MOTOR_ID = 7;
@@ -100,14 +102,14 @@ public final class Constants {
   } 
 
   public static final class LED{
-    private LED() {}; 
+    private LED() {}
     //todo: set ports and length
     public static final int LED_PORT = 0;
     public static final int LED_LENGTH = 156; 
   }
 
   public static final class Elevator{
-    private Elevator() {}; 
+    private Elevator() {}
     // todo: find id's
     public static final int LEFT_MOTOR_ID = 20; 
     public static final int RIGHT_MOTOR_ID = 14;  
@@ -141,7 +143,7 @@ public final class Constants {
   }
 
   public static final class EndEffector{
-    private EndEffector() {}; 
+    private EndEffector() {}
     // todo: set ids 
     public static final int ROLLER_MOTOR_ID = 4;
     // todo: set ids
@@ -199,19 +201,19 @@ public final class Constants {
       );
 
 
-      public final String name;
+      public final String camName;
       public final Rotation3d rotation;
       public final Translation3d translation;
       public final Matrix<N3, N1> singleTagStdDevs;
       public final Matrix<N3, N1> multiTagStdDevs;
 
       Camera(
-      String name,
+      String camName,
       Rotation3d rotation,
       Translation3d translation,
       Matrix<N3, N1> singleTagStdDevs,
       Matrix<N3, N1> multiTagStdDevs) {
-        this.name = name;
+        this.camName = camName;
         this.rotation = rotation;
         this.translation = translation;
         this.singleTagStdDevs = singleTagStdDevs;

@@ -16,8 +16,8 @@ import frc.robot.Constants;
 public class EndEffectorSubsystem extends SubsystemBase {
 
   private SparkMax rollerMotor; 
-  private DigitalInput frontSensor, backSensor;
-  private double targetSpeed; 
+  private DigitalInput frontSensor;
+  private DigitalInput backSensor;
 
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem() {

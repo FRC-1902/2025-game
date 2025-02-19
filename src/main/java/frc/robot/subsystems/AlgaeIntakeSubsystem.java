@@ -25,7 +25,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
-  private SparkMax rollerMotor, pivotMotor;
+  private SparkMax rollerMotor;
+  private SparkMax pivotMotor;
   private PIDController pid;
   private Rotation2d targetAngle;
   private Alert alert;

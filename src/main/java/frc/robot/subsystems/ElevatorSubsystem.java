@@ -26,12 +26,15 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Servo;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  private SparkMax leftMotor, rightMotor;
+  private SparkMax leftMotor;
+  private SparkMax rightMotor;
   private Servo servo;
   private DigitalInput limitSwitch;
   private PIDController pid;
   private Position targetPosition;
-  private Alert badStart, boundsAlert, servoAlert;
+  private Alert badStart;
+  private Alert boundsAlert;
+  private Alert servoAlert;
   private Watchdog elevatorWatchdog;
 
   /** Creates a new Elevator. */
