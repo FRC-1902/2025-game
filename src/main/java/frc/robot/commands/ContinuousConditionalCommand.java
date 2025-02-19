@@ -13,7 +13,7 @@ public class ContinuousConditionalCommand extends Command {
   BooleanSupplier supplier;
   private boolean flag;
   /** Creates a new ContinuousConditionalCommand. */
-  public ContinuousConditionalCommand(Command incomingCommand, Command baseCommand, BooleanSupplier supplier) {
+  public ContinuousConditionalCommand(Command baseCommand, Command incomingCommand, BooleanSupplier supplier) {
   this.supplier = supplier;
   this.incomingCommand = incomingCommand;
   this.baseCommand = baseCommand;

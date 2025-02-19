@@ -20,9 +20,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutoPlaceFactory;
+import frc.robot.commands.ContinuousConditionalCommand;
 import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.PlaceCommand;
-import frc.robot.commands.drive.CancelPathCommand;
 import frc.robot.commands.drive.ObjectAlign;
 import frc.robot.commands.intake.DeployFloorIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
@@ -50,14 +50,15 @@ public class AutoSelector {
   AutoPlaceFactory autoPlaceFactory;
   ElevatorFactory elevatorFactory;
 
-  CancelPathCommand cancelPathCommand;
+  ContinuousConditionalCommand continuousConditionalCommand;
   
-  public AutoSelector(RobotContainer robotContainer) {
+  public AutoSelector(RobotContainer robotContainer, ContinuousConditionalCommand continuousConditionalCommand) {
     swerve = robotContainer.swerve;
     algaeIntake = robotContainer.algaeIntake;
     floorIntake = robotContainer.floorIntake;
     endEffector = robotContainer.endEffector;
     detectionSubsystem = robotContainer.detectionSubsystem;
+    this.continuousConditionalCommand = continuousConditionalCommand;
 
     autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
@@ -96,16 +97,12 @@ public class AutoSelector {
     );
   }
 
-  private Command getPiece(String pathName) {
-    // new cancel path cmnd
-    return new ParallelCommandGroup(
-        new CancelPathCommand(swerve, pathName),
-        new ConditionalCommand(
-            new SequentialCommandGroup(
-                new InstantCommand(() -> cancelPathCommand.cancel()),
-                new ObjectAlign(detectionSubsystem, swerve)),
-            cancelPathCommand,
-            () -> detectionSubsystem.isTargetVisible()));
+  private Command getPieceRoutine(String PathName){
+    return new ContinuousConditionalCommand(
+      swerve.getFollowPathCommand(PathName),
+      new ObjectAlign(detectionSubsystem, swerve),
+      () -> detectionSubsystem.isTargetVisible()
+    );
   }
   
 
@@ -151,7 +148,7 @@ public class AutoSelector {
       new PlaceCommand(endEffector),
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
-        getPiece("GLord")
+        getPieceRoutine("gussy is special")
       )
     );
   }
