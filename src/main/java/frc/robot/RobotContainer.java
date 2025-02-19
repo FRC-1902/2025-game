@@ -135,27 +135,23 @@ public class RobotContainer {
       .whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
 
     // Floor Intake
-    //new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).getLeftTriggerAxis() > 0.5).debounce(0.05)
-    // controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)
-    //   .whileTrue(autoIntake.getIntakeSequence());
+    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.5)
+      .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
 
-    // HP Intake TODO: Uncomment when HPIntake is implemented
-    // controllers.getTrigger(ControllerName.MANIP, Button.X).debounce(0.05)
-    //     .whileTrue(new HPIntake(floorIntake));
+    // HP Intake
+    controllers.getTrigger(ControllerName.MANIP, Button.X).debounce(0.05)
+        .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.HP_ANGLE));
 
     // Algae Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)
       .whileTrue(new AlgaeIntakeCommand(algaeIntake));
-
-    // controllers.getTrigger(ControllerName.MANIP, Button.B).debounce(0.05)
-    //   .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
-
+      
     // Climber Up
-    new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povUp().getAsBoolean()).debounce(0.05)
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) > 180) // TODO: Get Correct angle
       .onTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_UP));
 
     // Climber Down
-    new Trigger(() -> controllers.getCommandController(ControllerName.MANIP).povDown().getAsBoolean()).debounce(0.05)
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) < 180) // TODO: Get Correct angle
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
   }
 

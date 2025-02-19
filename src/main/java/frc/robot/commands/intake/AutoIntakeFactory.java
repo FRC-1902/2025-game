@@ -8,6 +8,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.Constants;
 import frc.robot.commands.ElevatorCommand;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -16,6 +17,7 @@ public class AutoIntakeFactory {
 	FloorIntakeSubsystem floorIntakeSubsystem;
 	ElevatorSubsystem elevatorSubsystem;
 	EndEffectorSubsystem endEffectorSubsystem;
+  Double angle;
 
 	public AutoIntakeFactory(FloorIntakeSubsystem floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem) {
 		this.floorIntakeSubsystem = floorIntakeSubsystem;
@@ -23,7 +25,7 @@ public class AutoIntakeFactory {
 		this.endEffectorSubsystem = endEffectorSubsystem;
 	}
 
-	public Command getIntakeSequence() {
+	public Command getIntakeSequence(double angle) {
 		// TODO: set rotation angles
 		return new SequentialCommandGroup(
 			new ParallelCommandGroup(
@@ -32,7 +34,7 @@ public class AutoIntakeFactory {
 					Constants.Elevator.Position.MIN
 				),
 				new DeployFloorIntakeCommand(
-					Rotation2d.fromDegrees(180), // todo: double check zero reference -> out deploy
+					Rotation2d.fromDegrees(angle), // todo: double check zero reference -> out deploy
 					elevatorSubsystem, 
 					floorIntakeSubsystem, 
 					endEffectorSubsystem

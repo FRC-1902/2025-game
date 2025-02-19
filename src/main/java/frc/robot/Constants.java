@@ -99,6 +99,10 @@ public final class Constants {
     
     //todo: set offset in range from 0 to 1
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
+
+    // TODO: Set real values
+    public static final double HP_ANGLE = 120.0;
+    public static final double FLOOR_ANGLE = 180.0;
   } 
 
   public static final class LED{
