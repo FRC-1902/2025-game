@@ -19,7 +19,7 @@ public class AutoDriveFactory {
    */
   public Command pathAndSnapCommand(WaypointType waypoint) {
     return new SequentialCommandGroup(
-      new PathToWaypoint(() -> swerve.getWaypoint(waypoint)),
+      new PathToWaypoint(() -> swerve.getWaypoint(waypoint), swerve),
       new SnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint))
     );
   }
