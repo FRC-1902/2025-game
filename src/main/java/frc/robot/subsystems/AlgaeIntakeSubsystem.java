@@ -105,7 +105,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed) {
-    rollerMotor.set(targetSpeed);
+    //rollerMotor.set(targetSpeed);
   }
 
   /**
@@ -150,10 +150,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     Logger.recordOutput("AlgaeIntake/Intake Pose", intakePose);
     
     if (pivotWatchdog()) {
-      pivotMotor.set(0);
+      //pivotMotor.set(0);
       resetPID();
       return;
     }
-    pivotMotor.set(power);
+    //pivotMotor.set(power);
   }
 }

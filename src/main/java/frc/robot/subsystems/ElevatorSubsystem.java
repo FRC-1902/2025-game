@@ -171,9 +171,9 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   private void climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
-      leftMotor.set(-1);
+      //leftMotor.set(-1);
     } else {
-      leftMotor.set(0);
+      //leftMotor.set(0);
     }
   }
 
@@ -202,7 +202,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     Logger.recordOutput("Elevator/Carriage", carriagePose);
 
     if (watchingDog() || isLocked()) {
-      leftMotor.set(0);
+      //leftMotor.set(0);
       return; 
     }
 
@@ -212,7 +212,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return;
       default:
         power = pid.calculate(getPosition(), targetPosition.getHeight()) + Constants.Elevator.kF;
-        leftMotor.set(power);
+        //leftMotor.set(power);
         return;
     }
   }

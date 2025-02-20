@@ -18,8 +18,8 @@ public class IndexFloorIntakeCommand extends Command {
 
   @Override
   public void initialize() {
-    floorIntakeSubsystem.setSpeed(0.2); // todo: find indexing speed
-    endEffectorSubsystem.setSpeed(0.2); // todo: find indexing speed
+    //floorIntakeSubsystem.setSpeed(0.2); // todo: find indexing speed
+    //endEffectorSubsystem.setSpeed(0.2); // todo: find indexing speed
   }
 
   @Override
@@ -27,8 +27,8 @@ public class IndexFloorIntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    floorIntakeSubsystem.setSpeed(0);
-    endEffectorSubsystem.setSpeed(0);
+    //floorIntakeSubsystem.setSpeed(0);
+    //endEffectorSubsystem.setSpeed(0);
   }
 
   @Override

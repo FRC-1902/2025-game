@@ -21,8 +21,8 @@ public class AlgaeIntakeCommand extends Command {
     if(earlyExit) {
       return;
     }
-    algaeIntakeSubsystem.setSpeed(-0.44); // todo: find actual speed 
-    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(90)); // todo: find actual downward angle 
+    //algaeIntakeSubsystem.setSpeed(-0.44); // todo: find actual speed 
+    //algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(90)); // todo: find actual downward angle 
   }
 
   @Override
@@ -30,8 +30,8 @@ public class AlgaeIntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(0)); // todo: find upward angle 
-    algaeIntakeSubsystem.setSpeed(-0.06);
+    //algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(0)); // todo: find upward angle 
+    //algaeIntakeSubsystem.setSpeed(-0.06);
   }
 
   @Override

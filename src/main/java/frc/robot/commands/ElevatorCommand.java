@@ -24,7 +24,7 @@ public class ElevatorCommand extends Command {
 
   @Override
   public void initialize() {
-    elevator.setPosition(targetPosition);
+    //elevator.setPosition(targetPosition);
   }
 
   @Override

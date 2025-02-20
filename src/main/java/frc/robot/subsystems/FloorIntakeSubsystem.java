@@ -108,7 +108,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @param targetSpeed sets the speed of the roller motors between 1 and -1
    */
   public void setSpeed(double targetSpeed) {
-    rollerMotor.set(targetSpeed);
+    //rollerMotor.set(targetSpeed);
   }
 
   /**
@@ -149,7 +149,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < 60){
       // DataLogManager.log("Elevator spooky in relation to floor intake");
-      setAngle(Rotation2d.fromDegrees(61));
+      //setAngle(Rotation2d.fromDegrees(61));
     }
     
     double power = pid.calculate(getAngle().getDegrees())
@@ -162,11 +162,11 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     Logger.recordOutput("FloorIntake/Intake Pose", intakePose);
 
     if (pivotWatchdog()) {
-      pivotMotor.set(0);
+      //pivotMotor.set(0);
       resetPID();
       return;
     }
 
-    pivotMotor.set(power);
+   // pivotMotor.set(power);
   }
 }
