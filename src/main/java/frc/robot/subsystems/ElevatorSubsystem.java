@@ -171,9 +171,9 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   private void climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
-      //leftMotor.set(-1);
+      //leftMotor.set(-1);  // TODO: Re-Enable
     } else {
-      //leftMotor.set(0);
+      //leftMotor.set(0);  // TODO: Re-Enable
     }
   }
 
@@ -190,6 +190,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     double power;
 
+    SmartDashboard.putData("PID/Elevator", pid); // TODO: Remove after tuning
+
     Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
     Pose3d carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
 
@@ -202,7 +204,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     Logger.recordOutput("Elevator/Carriage", carriagePose);
 
     if (watchingDog() || isLocked()) {
-      //leftMotor.set(0);
+      //leftMotor.set(0);  // TODO: Re-Enable
       return; 
     }
 
@@ -212,7 +214,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return;
       default:
         power = pid.calculate(getPosition(), targetPosition.getHeight()) + Constants.Elevator.kF;
-        //leftMotor.set(power);
+        //leftMotor.set(power);  // TODO: Re-Enable
         return;
     }
   }

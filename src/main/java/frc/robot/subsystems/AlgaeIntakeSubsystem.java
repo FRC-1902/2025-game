@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor;
@@ -40,7 +41,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
     pid = new PIDController(Constants.AlgaeIntake.kP, Constants.AlgaeIntake.kI, Constants.AlgaeIntake.kD);
-    pid.enableContinuousInput(0, 360);
+    pid.enableContinuousInput(0, 360); // TODO: Change to correct values
     pid.setTolerance(Constants.AlgaeIntake.TOLERANCE.getDegrees());
     configureMotors();
 
@@ -105,7 +106,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed) {
-    //rollerMotor.set(targetSpeed);
+    //rollerMotor.set(targetSpeed); // TODO: Re-Enable
   }
 
   /**
@@ -140,6 +141,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putData("PID/Algae", pid); // TODO: remove after tuning
+
     double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
       + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
 
@@ -150,10 +153,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     Logger.recordOutput("AlgaeIntake/Intake Pose", intakePose);
     
     if (pivotWatchdog()) {
-      //pivotMotor.set(0);
+      //pivotMotor.set(0); // TODO: Re-Enable
       resetPID();
       return;
     }
-    //pivotMotor.set(power);
+    //pivotMotor.set(power); // TODO: Re-Enable
   }
 }

@@ -63,7 +63,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed){
-    //rollerMotor.set(targetSpeed);
+    //rollerMotor.set(targetSpeed); // TODO: Re-Enable
   }
 
   @Override
