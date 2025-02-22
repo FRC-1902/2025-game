@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
 
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 
 import org.littletonrobotics.junction.Logger;
@@ -26,8 +27,8 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Servo;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  private SparkMax leftMotor;
-  private SparkMax rightMotor;
+  private SparkFlex leftMotor;
+  private SparkFlex rightMotor;
   private Servo servo;
   private DigitalInput limitSwitch;
   private PIDController pid;
@@ -39,8 +40,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
-    leftMotor = new SparkMax(Constants.Elevator.LEFT_MOTOR_ID, MotorType.kBrushless);
-    rightMotor = new SparkMax(Constants.Elevator.RIGHT_MOTOR_ID, MotorType.kBrushless);
+    leftMotor = new SparkFlex(Constants.Elevator.LEFT_MOTOR_ID, MotorType.kBrushless);
+    rightMotor = new SparkFlex(Constants.Elevator.RIGHT_MOTOR_ID, MotorType.kBrushless);
     servo = new Servo(Constants.Elevator.SERVO_ID);
     limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_ID);
 
