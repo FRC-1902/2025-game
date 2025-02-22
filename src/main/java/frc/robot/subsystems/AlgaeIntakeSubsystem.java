@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -29,7 +30,6 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor;
   private SparkMax pivotMotor;
   private PIDController pid;
-  private Rotation2d targetAngle;
   private Alert alert;
   private DigitalInput irSensor; 
   private Watchdog pivotWatchdog;
@@ -98,7 +98,11 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param targetAngle
    */
   public void setAngle(Rotation2d targetAngle) {
-    this.targetAngle = targetAngle;
+    if (!pivotWatchdog.checkWatchdog(targetAngle.getDegrees())) {
+      DataLogManager.log("Specified input out of bounds on AlgaeIntake");
+      return;
+    }
+    pid.setSetpoint(targetAngle.getDegrees());
   }
 
   /**
@@ -106,7 +110,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed) {
-    //rollerMotor.set(targetSpeed); // TODO: Re-Enable
+    rollerMotor.set(targetSpeed); // TODO: Re-Enable
   }
 
   /**
@@ -121,7 +125,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @returns if irSensor is triggered or not 
    */
   public boolean isAlgaeDetected(){
-    return irSensor.get(); 
+    return !irSensor.get(); 
   }
 
   /**
@@ -129,7 +133,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @returns whether or not pivot is out of bounds or not
    */
   private boolean pivotWatchdog() {
-    if (!pivotWatchdog.checkWatchingdog()) {
+    if (!pivotWatchdog.checkWatchdog()) {
       alert.set(true);
       return true;
     } else {
@@ -142,8 +146,9 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putData("PID/Algae", pid); // TODO: remove after tuning
+    SmartDashboard.putBoolean("FloorIntake/WatchingDog", pivotWatchdog());
 
-    double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
+    double power = pid.calculate(getAngle().getDegrees())
       + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
 
     Pose3d intakePose = new Pose3d(new Translation3d(0.312, 0 + elevatorSubsystem.getPosition(), 0.4), new Rotation3d(0,0,0)); // TODO: Offset and Math
@@ -157,6 +162,6 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
       resetPID();
       return;
     }
-    //pivotMotor.set(power); // TODO: Re-Enable
+    pivotMotor.set(power); // TODO: Re-Enable
   }
 }

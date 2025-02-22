@@ -60,20 +60,20 @@ public final class Constants {
   public static final class AlgaeIntake{
     private AlgaeIntake() {}
     // todo: find id's
-    public static final int ROLLER_MOTOR_ID = 11; 
-    public static final int PIVOT_MOTOR_ID = 5; 
-    public static final int IR_SENSOR_ID = 20; 
+    public static final int ROLLER_MOTOR_ID = 19; 
+    public static final int PIVOT_MOTOR_ID = 12; 
+    public static final int IR_SENSOR_ID = 5; 
     // todo: find p, i, d, g
-    public static final double kP = 0; 
+    public static final double kP = 0.0125; 
     public static final double kI = 0; 
     public static final double kD = 0; 
-    public static final double kG = 0;
+    public static final double kG = 0.01;
     // todo: find tolerances
-    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0); 
-    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(0); 
-    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0); 
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(3); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(100); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(20); 
     // todo: find rotations
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromRotations(0);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(54.3); 
 
     public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(90);
   }
@@ -81,24 +81,24 @@ public final class Constants {
   public static final class FloorIntake{
     private FloorIntake() {}
     //todo: set ports
-    public static final int ROLLER_MOTOR_ID = 6; 
-    public static final int PIVOT_MOTOR_ID = 7;
-    public static final int IR_SENSOR_ID = 19; 
-    public static final int PIVOT_ENCODER_ID = 0; 
+    public static final int ROLLER_MOTOR_ID = 20; 
+    public static final int PIVOT_MOTOR_ID = 3;
+    public static final int IR_SENSOR_ID = 8; 
+    public static final int PIVOT_ENCODER_ID = 20; 
 
     //todo: find p, i, d, g
-    public static final double PIVOT_P = 0; 
+    public static final double PIVOT_P = 0.012; 
     public static final double PIVOT_I = 0; 
     public static final double PIVOT_D = 0;
-    public static final double PIVOT_G = 0; 
+    public static final double PIVOT_G = 0.022; 
 
     //todo: set tolerance
-    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0); 
-    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(0); 
-    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(0); 
-    
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(2); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(190); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(350); 
+  
     //todo: set offset in range from 0 to 1
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(360-111.65);
 
     // TODO: Set real values
     public static final double HP_ANGLE = 120.0;
@@ -115,19 +115,19 @@ public final class Constants {
   public static final class Elevator{
     private Elevator() {}
     // todo: find id's
-    public static final int LEFT_MOTOR_ID = 20; 
-    public static final int RIGHT_MOTOR_ID = 14;  
+    public static final int LEFT_MOTOR_ID = 23; 
+    public static final int RIGHT_MOTOR_ID = 24;  
     // todo: find limit switch/servo ports 
-    public static final int LIMIT_SWITCH_ID = 18; 
-    public static final int SERVO_ID = 17;
+    public static final int LIMIT_SWITCH_ID = 1; 
+    public static final int SERVO_ID = 9;
     // todo: find p, i, d, f values 
     public static final double kP = 0; 
     public static final double kI = 0;
     public static final double kD = 0;
-    public static final double kF = 0.0; 
+    public static final double kF = 0.0125; 
 
-    public static final double TOLERANCE = 0; // todo: find tolerance
-    public static final double CONVERSION_FACTOR = 0.0095758; // todo; check number, converts to meters 
+    public static final double TOLERANCE = 0.02; // todo: find tolerance
+    public static final double CONVERSION_FACTOR = 0.0193145; // todo; check number, converts to meters 
     public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(0); // todo: find optimal lock angle
     public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(0); // todo: find optimal unlocked angle
 
@@ -149,10 +149,10 @@ public final class Constants {
   public static final class EndEffector{
     private EndEffector() {}
     // todo: set ids 
-    public static final int ROLLER_MOTOR_ID = 4;
+    public static final int ROLLER_MOTOR_ID = 13;
     // todo: set ids
-    public static final int FRONT_IR_SENSOR_ID = 16; 
-    public static final int BACK_IR_SENSOR_ID = 15; 
+    public static final int FRONT_IR_SENSOR_ID = 7; 
+    public static final int BACK_IR_SENSOR_ID = 4; 
   }
 
   public static final class Vision {

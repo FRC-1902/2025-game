@@ -85,6 +85,7 @@ public class RobotContainer {
 
   private void bindButtons() {
 
+    controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new InstantCommand(() -> floorIntake.setSpeed(0.1), floorIntake));
     // Driver Controls
     
     // Place Coral

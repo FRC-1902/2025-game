@@ -43,14 +43,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     leftMotor = new SparkFlex(Constants.Elevator.LEFT_MOTOR_ID, MotorType.kBrushless);
     rightMotor = new SparkFlex(Constants.Elevator.RIGHT_MOTOR_ID, MotorType.kBrushless);
     servo = new Servo(Constants.Elevator.SERVO_ID);
+
     limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_ID);
 
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
     pid.setTolerance(Constants.Elevator.TOLERANCE);
 
     badStart = new Alert(
-        "Elevator/Bad Starting Pos, Robot Knows not where you are, and why you've done this.",
-        AlertType.kError);
+      "Elevator/Bad Starting Pos, Robot Knows not where you are, and why you've done this.",
+      AlertType.kError
+    );
 
     if (!limitSwitchTriggered()) {
       badStart.set(true);
@@ -59,7 +61,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     boundsAlert = new Alert("Elevator/Elevator out of bounds", AlertType.kError);
     servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
 
-    elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight(), Constants.Elevator.Position.MIN.getHeight(), this::getPosition);
+    elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight() + 0.01, Constants.Elevator.Position.MIN.getHeight() - 0.01, this::getPosition);
 
     targetPosition = Constants.Elevator.Position.MIN;
 
@@ -69,23 +71,20 @@ public class ElevatorSubsystem extends SubsystemBase {
   private void configureMotors() {
     SparkBaseConfig configOne = new SparkMaxConfig();
     SparkBaseConfig configTwo = new SparkMaxConfig();
-    AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
 
-    configOne.idleMode(IdleMode.kBrake);
+    configOne.idleMode(IdleMode.kCoast);
     configOne.smartCurrentLimit(50);
     configOne.inverted(true); // todo: switch inverted
     configOne.voltageCompensation(12);
 
-    configTwo.idleMode(IdleMode.kBrake);
+    configTwo.idleMode(IdleMode.kCoast);
     configTwo.smartCurrentLimit(50);
     configTwo.inverted(false); // todo: switch inverted
     configTwo.voltageCompensation(12);
-    configTwo.follow(Constants.Elevator.LEFT_MOTOR_ID);
 
-    encoderConfig.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
+    configOne.encoder.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
+    configTwo.encoder.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
 
-    configOne.apply(encoderConfig); 
-    configTwo.apply(encoderConfig); 
     // ResetSafeParameters not well documented 
     leftMotor.configure(configOne, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
     rightMotor.configure(configTwo, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
@@ -96,7 +95,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns the current position of elevator in meters
    */
   public double getPosition() {
-    return (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition()) * 0.5;
+    return leftMotor.getEncoder().getPosition();
   }
 
   /**
@@ -109,6 +108,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
     else{
       this.targetPosition = targetPosition;
+      pid.setSetpoint(targetPosition.getHeight());
     }
   }
 
@@ -117,7 +117,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns whether the limit switch was triggered
    */
   public boolean limitSwitchTriggered() {
-    return limitSwitch.get();
+    return !limitSwitch.get();
   }
 
   /**
@@ -157,8 +157,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   /**
    * Alerts if elevator is out of bounds
    */
-  private boolean watchingDog() {
-    if (!elevatorWatchdog.checkWatchingdog()) {
+  private boolean watchDog() {
+    if (!elevatorWatchdog.checkWatchdog()) {
       boundsAlert.set(true);
       return true;
     } else {
@@ -173,8 +173,10 @@ public class ElevatorSubsystem extends SubsystemBase {
   private void climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
       //leftMotor.set(-1);  // TODO: Re-Enable
+      //rightMotor
     } else {
       //leftMotor.set(0);  // TODO: Re-Enable
+      //rightMotor
     }
   }
 
@@ -200,12 +202,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Elevator/Current Position", getPosition());
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
     SmartDashboard.putBoolean("Elevator/Elevator Locked", isLocked());
+    SmartDashboard.putBoolean("Elevator/isAtPos", isAtPosition(targetPosition));
 
     Logger.recordOutput("Elevator/Stage", elevatorPose);
     Logger.recordOutput("Elevator/Carriage", carriagePose);
 
-    if (watchingDog() || isLocked()) {
-      //leftMotor.set(0);  // TODO: Re-Enable
+    SmartDashboard.putNumber("Elevator/LeftPower", leftMotor.get());
+    SmartDashboard.putNumber("Elevator/RightPower", rightMotor.get());
+
+    if (watchDog() || isLocked()) {
+      leftMotor.set(0);  // TODO: Re-Enable
+      rightMotor.set(0);
       return; 
     }
 
@@ -214,8 +221,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         climb();
         return;
       default:
-        power = pid.calculate(getPosition(), targetPosition.getHeight()) + Constants.Elevator.kF;
-        //leftMotor.set(power);  // TODO: Re-Enable
+        power = pid.calculate(getPosition()) + Constants.Elevator.kF;
+        leftMotor.set(power);  // TODO: Re-Enable
+        rightMotor.set(power);
         return;
     }
   }

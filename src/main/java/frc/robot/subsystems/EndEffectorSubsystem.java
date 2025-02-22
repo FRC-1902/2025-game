@@ -47,7 +47,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @returns if front IRsensor is activated 
    */
   public boolean isFrontPieceSensorActive(){
-    return frontSensor.get(); 
+    return !frontSensor.get(); 
   }
 
   /**
@@ -55,7 +55,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @returns if back IRsensor is activated 
    */
   public boolean isBackPieceSensorActive(){
-    return backSensor.get(); 
+    return !backSensor.get(); 
   }
 
   /**
