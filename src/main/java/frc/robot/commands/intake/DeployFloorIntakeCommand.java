@@ -42,7 +42,7 @@ public class DeployFloorIntakeCommand extends Command {
       DataLogManager.log("Command shouldn't start");
       return;
     }
-    //floorIntakeSubsystem.setAngle(targetAngle);
+    floorIntakeSubsystem.setAngle(targetAngle);
   }
 
   @Override

@@ -109,7 +109,7 @@ public final class Constants {
     private LED() {}
     //todo: set ports and length
     public static final int LED_PORT = 0;
-    public static final int LED_LENGTH = 156; 
+    public static final int LED_LENGTH = 71; 
   }
 
   public static final class Elevator{
@@ -121,19 +121,19 @@ public final class Constants {
     public static final int LIMIT_SWITCH_ID = 1; 
     public static final int SERVO_ID = 9;
     // todo: find p, i, d, f values 
-    public static final double kP = 0; 
+    public static final double kP = 3.5; 
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kF = 0.0125; 
 
-    public static final double TOLERANCE = 0.02; // todo: find tolerance
+    public static final double TOLERANCE = 0.05; // todo: find tolerance
     public static final double CONVERSION_FACTOR = 0.0193145; // todo; check number, converts to meters 
     public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(0); // todo: find optimal lock angle
     public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(0); // todo: find optimal unlocked angle
 
     public enum Position{ 
       //todo: set height setpoints in meters
-      L1(0), L2(0), L3(0), CLIMB_UP(0), CLIMB_DOWN(0), MIN(0), MAX(0); 
+      L1(0.34), L2(0.58), L3(0.97145), CLIMB_UP(0), CLIMB_DOWN(0), MIN(0), MAX(0.98); // center carriage to floor 9.375 inches, 0.23825 meters
       private final double height;
 
       Position(double height){

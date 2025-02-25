@@ -15,7 +15,7 @@ public class IntakeFloorIntakeCommand extends Command {
 
   @Override
   public void initialize() {
-    //floorIntakeSubsystem.setSpeed(1);
+    floorIntakeSubsystem.setSpeed(1);
   }
 
   @Override
@@ -23,11 +23,11 @@ public class IntakeFloorIntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    //floorIntakeSubsystem.setSpeed(0);
+    floorIntakeSubsystem.setSpeed(0);
   }
 
   @Override
   public boolean isFinished() {
-    return floorIntakeSubsystem.pieceSensorActive();
+    return false; //floorIntakeSubsystem.pieceSensorActive();
   }
 }

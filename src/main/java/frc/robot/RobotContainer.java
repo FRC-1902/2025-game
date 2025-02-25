@@ -3,6 +3,7 @@ package frc.robot;
 import java.io.File;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -17,7 +18,10 @@ import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.commands.intake.AutoIntakeFactory;
+import frc.robot.commands.intake.DeployFloorIntakeCommand;
+import frc.robot.commands.intake.IntakeFloorIntakeCommand;
 import frc.robot.commands.intake.OuttakeFloorIntakeCommand;
+import frc.robot.commands.intake.IndexFloorIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.Axis;
@@ -85,8 +89,18 @@ public class RobotContainer {
 
   private void bindButtons() {
 
-    controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new InstantCommand(() -> floorIntake.setSpeed(0.1), floorIntake));
+    //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L3)).whileFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
+   // controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L2)).whileFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
     // Driver Controls
+
+    //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(0), elevator, floorIntake, endEffector)).whileFalse(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(180), elevator, floorIntake, endEffector));
+    //  controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new IntakeFloorIntakeCommand(floorIntake));
+    //  controllers.getTrigger(ControllerName.DRIVE, Button.B).whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
+    //  controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new IndexFloorIntakeCommand(floorIntake, endEffector));
+     
+     
+     //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(0), elevator, floorIntake, endEffector)).whileFalse(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(180), elevator, floorIntake, endEffector));
+    
     
     // Place Coral
     new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.RT) > 0.5)
@@ -101,16 +115,16 @@ public class RobotContainer {
     //       .whileTrue(new ObjectAlign());
 
     // Align to Processor
-    controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
+    //controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+      //.whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
 
     // Align to Reef
-    controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
+   // controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+     // .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
 
     // Zero Gyro
-    controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
-      .onTrue(new InstantCommand(swerve::zeroGyro));
+    //controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
+      //.onTrue(new InstantCommand(swerve::zeroGyro));
 
     // Align to Cage, Removed for now
     // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)

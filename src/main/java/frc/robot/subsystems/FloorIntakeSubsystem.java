@@ -79,7 +79,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     rollerConfig.inverted(true);
     rollerConfig.disableFollowerMode(); 
     // rollerConfig.secondaryCurrentLimit(30);
-    rollerConfig.smartCurrentLimit(30);
+    rollerConfig.smartCurrentLimit(45);
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Configs 
@@ -183,6 +183,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("FloorIntake/power", power);
 
-    //pivotMotor.set(power); // TODO: Re-Enable
+    pivotMotor.set(power); // TODO: Re-Enable
   }
 }

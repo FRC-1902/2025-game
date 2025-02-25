@@ -36,7 +36,7 @@ public class LEDSubsystem extends SubsystemBase {
 
     Color orange = new Color(255, 20, 0);
     LEDPattern orangePattern = LEDPattern.solid(orange).atBrightness(Percent.of(50));
-    orangePattern.applyTo(buffer);
+    scrollingRainbow.applyTo(buffer);
     led.setData(buffer);
     led.start();
   }
