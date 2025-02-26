@@ -46,7 +46,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_ID);
 
     pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
-    pid.enableContinuousInput(0, 360);
+    pid.disableContinuousInput();
     pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
 
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
@@ -106,9 +106,12 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @param targetAngle sets the pivot angle
    */
   public void setAngle(Rotation2d targetAngle) {
-    if (pivotWatchdog.checkWatchdog(targetAngle.getDegrees())) {
+    if (pivotWatchdog.checkWatchdog(targetAngle.getDegrees()) ) {
       DataLogManager.log("Specified input out of bounds on FloorIntake");
       return;
+    }
+    if(targetAngle.getDegrees() < 360 || targetAngle.getDegrees() > 350){
+      pid.setSetpoint(0);
     }
     pid.setSetpoint(targetAngle.getDegrees());
     SmartDashboard.putNumber("FloorIntake/targetAngle", targetAngle.getDegrees());

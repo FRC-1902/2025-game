@@ -98,7 +98,7 @@ public final class Constants {
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
     //todo: set offset in range from 0 to 1
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(360-109.65);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(360-110.65);
 
     // TODO: Set real values
     public static final double HP_ANGLE = 120.0;
