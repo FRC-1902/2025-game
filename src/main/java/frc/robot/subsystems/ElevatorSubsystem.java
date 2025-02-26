@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -103,6 +104,11 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param targetPosition
    */
   public void setPosition(Position targetPosition) {
+    if (elevatorWatchdog.checkWatchdog(targetPosition.getHeight())) {
+      DataLogManager.log("Specified input out of bounds on Elevator");
+      return;
+    }
+
     if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB_DOWN){
       servoAlert.set(true);
     }
@@ -158,7 +164,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * Alerts if elevator is out of bounds
    */
   private boolean watchDog() {
-    if (!elevatorWatchdog.checkWatchdog()) {
+    if (elevatorWatchdog.checkWatchdog()) {
       boundsAlert.set(true);
       return true;
     } else {
@@ -221,7 +227,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         climb();
         return;
       default:
-        power = pid.calculate(getPosition()) + Constants.Elevator.kF;
+        power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
         leftMotor.set(power);  // TODO: Re-Enable
         rightMotor.set(power);
         return;

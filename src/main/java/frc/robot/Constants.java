@@ -94,8 +94,8 @@ public final class Constants {
 
     //todo: set tolerance
     public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(2); 
-    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(190); 
-    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(350); 
+    public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(350); 
+    public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
     //todo: set offset in range from 0 to 1
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(360-111.65);
@@ -121,10 +121,11 @@ public final class Constants {
     public static final int LIMIT_SWITCH_ID = 1; 
     public static final int SERVO_ID = 9;
     // todo: find p, i, d, f values 
-    public static final double kP = 3.5; 
-    public static final double kI = 0;
+    public static final double kP = 4.8; // 3.5
+    public static final double kI = 0.0005;
     public static final double kD = 0;
     public static final double kF = 0.0125; 
+    public static final double kS = 0.0069;
 
     public static final double TOLERANCE = 0.05; // todo: find tolerance
     public static final double CONVERSION_FACTOR = 0.0193145; // todo; check number, converts to meters 

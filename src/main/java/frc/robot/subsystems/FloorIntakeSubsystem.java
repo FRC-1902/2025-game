@@ -79,7 +79,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     rollerConfig.inverted(true);
     rollerConfig.disableFollowerMode(); 
     // rollerConfig.secondaryCurrentLimit(30);
-    rollerConfig.smartCurrentLimit(45);
+    rollerConfig.smartCurrentLimit(40);
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Configs 
@@ -106,7 +106,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @param targetAngle sets the pivot angle
    */
   public void setAngle(Rotation2d targetAngle) {
-    if (!pivotWatchdog.checkWatchdog(targetAngle.getDegrees())) {
+    if (pivotWatchdog.checkWatchdog(targetAngle.getDegrees())) {
       DataLogManager.log("Specified input out of bounds on FloorIntake");
       return;
     }
@@ -145,7 +145,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   // checks that the pivot isn't going out of tolerance, will send an alert if it
   // does
   private boolean pivotWatchdog() {
-    if (!pivotWatchdog.checkWatchdog()) {
+    if (pivotWatchdog.checkWatchdog()) {
       pivotAlert.set(true);
       return true;
     } else {
@@ -183,6 +183,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("FloorIntake/power", power);
 
-    pivotMotor.set(power); // TODO: Re-Enable
+    //pivotMotor.set(power); // TODO: Re-Enable
   }
 }

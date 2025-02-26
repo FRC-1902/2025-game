@@ -49,7 +49,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
 
-    pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
+    pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), () -> getAngle().getDegrees());
 
     this.elevatorSubsystem = elevatorSubsystem;
 
@@ -98,7 +98,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param targetAngle
    */
   public void setAngle(Rotation2d targetAngle) {
-    if (!pivotWatchdog.checkWatchdog(targetAngle.getDegrees())) {
+    if (pivotWatchdog.checkWatchdog(targetAngle.getDegrees())) {
       DataLogManager.log("Specified input out of bounds on AlgaeIntake");
       return;
     }
@@ -133,7 +133,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @returns whether or not pivot is out of bounds or not
    */
   private boolean pivotWatchdog() {
-    if (!pivotWatchdog.checkWatchdog()) {
+    if (pivotWatchdog.checkWatchdog()) {
       alert.set(true);
       return true;
     } else {

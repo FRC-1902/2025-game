@@ -70,6 +70,6 @@ public class LEDSubsystem extends SubsystemBase {
     // // red.applyTo(buffer);
 
     // // setPattern(LEDPattern.solid(Color.kRed));
-    // led.setData(buffer);
+    led.setData(buffer);
   }
 }
