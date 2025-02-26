@@ -79,7 +79,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     rollerConfig.inverted(true);
     rollerConfig.disableFollowerMode(); 
     // rollerConfig.secondaryCurrentLimit(30);
-    rollerConfig.smartCurrentLimit(40);
+    rollerConfig.smartCurrentLimit(50);
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Configs 
@@ -111,6 +111,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
       return;
     }
     pid.setSetpoint(targetAngle.getDegrees());
+    SmartDashboard.putNumber("FloorIntake/targetAngle", targetAngle.getDegrees());
   }
 
   /**
@@ -161,6 +162,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
 
+
     if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < 60){
       // DataLogManager.log("Elevator spooky in relation to floor intake");
       //setAngle(Rotation2d.fromDegrees(61)); // TODO: Re-Enable
@@ -183,6 +185,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("FloorIntake/power", power);
 
-    //pivotMotor.set(power); // TODO: Re-Enable
+    pivotMotor.set(power); // TODO: Re-Enable
   }
 }

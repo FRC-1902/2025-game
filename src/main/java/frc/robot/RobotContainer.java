@@ -89,18 +89,20 @@ public class RobotContainer {
 
   private void bindButtons() {
 
-    controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L3)).whileFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
-    controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L2)).whileFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
+    // controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L3)).whileFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
+    // controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.L2)).whileFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
     
     // Driver Controls
 
     //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(0), elevator, floorIntake, endEffector)).whileFalse(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(180), elevator, floorIntake, endEffector));
-     // controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new IntakeFloorIntakeCommand(floorIntake));
-     // controllers.getTrigger(ControllerName.DRIVE, Button.B).whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
-     // controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new IndexFloorIntakeCommand(floorIntake, endEffector));
+     controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new IntakeFloorIntakeCommand(floorIntake));
+      controllers.getTrigger(ControllerName.DRIVE, Button.B).whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
+      
+    //  controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new IndexFloorIntakeCommand(floorIntake, endEffector));
+   // controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new IndexFloorIntakeCommand(floorIntake, endEffector));
      
      
-     //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(0), elevator, floorIntake, endEffector)).whileFalse(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(180), elevator, floorIntake, endEffector));
+     controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(1), elevator, floorIntake, endEffector)).whileFalse(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(180), elevator, floorIntake, endEffector));
     
     
     // Place Coral

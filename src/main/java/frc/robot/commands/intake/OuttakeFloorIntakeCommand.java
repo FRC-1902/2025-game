@@ -15,7 +15,7 @@ public class OuttakeFloorIntakeCommand extends Command {
 
   @Override
   public void initialize() {
-    floorIntakeSubsystem.setSpeed(-0.5); // todo: find outtake speed
+    floorIntakeSubsystem.setSpeed(-0.75); // todo: find outtake speed
   }
 
   @Override
@@ -28,6 +28,6 @@ public class OuttakeFloorIntakeCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    return floorIntakeSubsystem.pieceSensorActive();
+    return !floorIntakeSubsystem.pieceSensorActive();
   }
 }

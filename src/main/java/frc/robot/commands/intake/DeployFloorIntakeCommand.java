@@ -2,6 +2,7 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Elevator.Position;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -36,7 +37,7 @@ public class DeployFloorIntakeCommand extends Command {
   public void initialize() {
     if(
         endEffectorSubsystem.isFrontPieceSensorActive() ||
-        floorIntakeSubsystem.pieceSensorActive() ||
+        //floorIntakeSubsystem.pieceSensorActive() ||
         !elevatorSubsystem.isAtPosition(Position.MIN)
       ){
       DataLogManager.log("Command shouldn't start");
@@ -46,10 +47,14 @@ public class DeployFloorIntakeCommand extends Command {
   }
 
   @Override
-  public void execute() {}
+  public void execute() {
+    floorIntakeSubsystem.setSpeed(.9);
+  }
 
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    floorIntakeSubsystem.setSpeed(0);
+  }
 
   @Override
   public boolean isFinished() {
