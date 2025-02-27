@@ -48,7 +48,7 @@ public class DeployFloorIntakeCommand extends Command {
 
   @Override
   public void execute() {
-    floorIntakeSubsystem.setSpeed(.9);
+    floorIntakeSubsystem.setSpeed(1);
   }
 
   @Override

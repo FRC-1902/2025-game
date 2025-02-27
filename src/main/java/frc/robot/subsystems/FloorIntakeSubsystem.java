@@ -172,7 +172,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     }
     
     double power = pid.calculate(getAngle().getDegrees())
-        + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(5.2).getRadians());
+        + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(5).getRadians());
 
     intakePose = new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, getAngle().getDegrees(), 0)); // TODO: Math and offset
 

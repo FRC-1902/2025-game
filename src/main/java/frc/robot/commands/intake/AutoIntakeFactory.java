@@ -8,21 +8,23 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.Constants;
 import frc.robot.commands.ElevatorCommand;
-
+import frc.robot.commands.EndEffectorFactory;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class AutoIntakeFactory {
 	FloorIntakeSubsystem floorIntakeSubsystem;
 	ElevatorSubsystem elevatorSubsystem;
 	EndEffectorSubsystem endEffectorSubsystem;
-  Double angle;
+	EndEffectorFactory endEffectorFactory;
 
-	public AutoIntakeFactory(FloorIntakeSubsystem floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem) {
+	public AutoIntakeFactory(FloorIntakeSubsystem floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem, EndEffectorFactory endEffectorFactory) {
 		this.floorIntakeSubsystem = floorIntakeSubsystem;
 		this.elevatorSubsystem = elevatorSubsystem;
 		this.endEffectorSubsystem = endEffectorSubsystem;
+		this.endEffectorFactory = endEffectorFactory;
 	}
 
 	public Command getIntakeSequence(double angle) {
@@ -53,6 +55,10 @@ public class AutoIntakeFactory {
 					),
 					new IndexFloorIntakeCommand( 
 						floorIntakeSubsystem, 
+						endEffectorSubsystem
+					),
+					new InstantCommand(
+						() -> endEffectorFactory.getIndexSequence(), 
 						endEffectorSubsystem
 					)
 				),

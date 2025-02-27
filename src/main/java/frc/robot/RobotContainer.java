@@ -14,6 +14,7 @@ import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.AutoPlaceFactory;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
+import frc.robot.commands.EndEffectorFactory;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
@@ -52,6 +53,7 @@ public class RobotContainer {
   AutoIntakeFactory autoIntake;
   AutoPlaceFactory autoPlaceFactory;
   ElevatorFactory elevatorFactory;
+  EndEffectorFactory endEffectorFactory;
 
   public RobotContainer() {
     controllers = new ControllerSubsystem();
@@ -78,9 +80,10 @@ public class RobotContainer {
     );
 
     autoDrive = new AutoDriveFactory(swerve);
-    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector);
+    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory);
     autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
+    endEffectorFactory = new EndEffectorFactory(endEffector);
 
     swerve.setDefaultCommand(closedDrive);
 
@@ -96,22 +99,26 @@ public class RobotContainer {
 
     //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(0), elevator, floorIntake, endEffector)).whileFalse(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(180), elevator, floorIntake, endEffector));
      controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new IntakeFloorIntakeCommand(floorIntake));
-      controllers.getTrigger(ControllerName.DRIVE, Button.B).whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
+     controllers.getTrigger(ControllerName.DRIVE, Button.B).whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
       
     //  controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new IndexFloorIntakeCommand(floorIntake, endEffector));
    // controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new IndexFloorIntakeCommand(floorIntake, endEffector));
-     
-     
+     controllers.getTrigger(ControllerName.DRIVE, Button.X).whileTrue(new IndexFloorIntakeCommand(floorIntake, endEffector));
      controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(1), elevator, floorIntake, endEffector)).whileFalse(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(180), elevator, floorIntake, endEffector));
+     
+     //controllers.getTrigger(ControllerName.DRIVE, Button.X).whileTrue(new InstantCommand(() -> autoIntake.getIntakeSequence(180)));
     
     
     // Place Coral
-    new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.RT) > 0.5)
-      .whileTrue(new PlaceCommand(endEffector));
+   // new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.RT) > 0.5)
+     // .whileTrue(new PlaceCommand(endEffector));
 
     // Score/Outtake Algae
-    controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
-      .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
+   // controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
+     // .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
+    
+    //controllers.getTrigger(ControllerName.DRIVE, Button.LB).debounce(0.05)
+     // .whileTrue(new AlgaeIntakeCommand(algaeIntake));
 
     // Align with Coral TODO: Change when Align PR is merged
     // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)

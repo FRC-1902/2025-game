@@ -71,7 +71,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     // Roller Configs
     rollerConfig.idleMode(IdleMode.kBrake);
-    rollerConfig.inverted(false); // todo: finish inverted
+    rollerConfig.inverted(true); // todo: finish inverted
     rollerConfig.disableFollowerMode();
     // rollerConfig.secondaryCurrentLimit(30);
     rollerConfig.smartCurrentLimit(30);

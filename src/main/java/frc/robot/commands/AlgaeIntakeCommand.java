@@ -18,12 +18,12 @@ public class AlgaeIntakeCommand extends Command {
 
   @Override
   public void initialize() {
-    //earlyExit = algaeIntakeSubsystem.isAlgaeDetected(); // returns if algae is detected or not
+    earlyExit = algaeIntakeSubsystem.isAlgaeDetected(); // returns if algae is detected or not
     if(earlyExit) {
       return;
     }
-    algaeIntakeSubsystem.setSpeed(-0.84); // todo: find actual speed 
-    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(45)); // todo: find actual downward angle 
+    algaeIntakeSubsystem.setSpeed(0.84); // todo: find actual speed 
+    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(30)); // todo: find actual downward angle 
   }
 
   @Override
@@ -31,12 +31,18 @@ public class AlgaeIntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    algaeIntakeSubsystem.setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); // todo: find upward angle 
-    algaeIntakeSubsystem.setSpeed(-0.36);
+    if (isFinished()) {
+      algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(40));
+      algaeIntakeSubsystem.setSpeed(0.36);
+    }
+    else{
+      algaeIntakeSubsystem.setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); // todo: find upward angle 
+      algaeIntakeSubsystem.setSpeed(0);
+    }
   }
 
   @Override
   public boolean isFinished() {
-    return false;//earlyExit || algaeIntakeSubsystem.isAlgaeDetected(); 
+    return earlyExit || algaeIntakeSubsystem.isAlgaeDetected(); 
   }
 }

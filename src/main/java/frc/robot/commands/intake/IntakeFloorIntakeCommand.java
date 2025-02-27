@@ -28,6 +28,6 @@ public class IntakeFloorIntakeCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    return false; //floorIntakeSubsystem.pieceSensorActive();
+    return false;
   }
 }
