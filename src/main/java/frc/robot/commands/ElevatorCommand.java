@@ -3,6 +3,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Elevator.Position;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.ControllerSubsystem;
+import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 
 
 public class ElevatorCommand extends Command {
@@ -31,7 +33,11 @@ public class ElevatorCommand extends Command {
   public void execute() {}
 
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    if (!interrupted) {
+      ControllerSubsystem.getInstance().vibrate(ControllerName.MANIP, 100, 1);
+    }
+  }
 
   @Override
   public boolean isFinished() {
