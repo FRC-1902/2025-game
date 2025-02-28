@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
+import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
 import frc.robot.commands.intake.DeployFloorIntakeCommand;   
 
@@ -39,7 +40,7 @@ public class ElevatorFactory {
   public Command getElevatorCommand(Position targetPosition){
     return new SequentialCommandGroup(
       new ParallelCommandGroup(
-        new DeployFloorIntakeCommand(Rotation2d.fromDegrees(70), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem), // todo: figure out what resting angle should be at
+        new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
         endEffectorFactory.getIndexSequence()
       ),
       new ElevatorCommand(elevatorSubsystem, targetPosition)
@@ -54,7 +55,7 @@ public class ElevatorFactory {
     return new SequentialCommandGroup(
       endEffectorFactory.getIndexSequence(),
       new ElevatorCommand(elevatorSubsystem, Position.MIN),
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(5), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem)
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
     );
   }
 }

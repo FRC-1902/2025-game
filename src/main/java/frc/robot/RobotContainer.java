@@ -17,6 +17,7 @@ import frc.robot.FieldConstants.WaypointType;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.AutoPlaceFactory;
+import frc.robot.commands.ClimbFactory;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.EndEffectorFactory;
@@ -59,6 +60,7 @@ public class RobotContainer {
   AutoPlaceFactory autoPlaceFactory;
   ElevatorFactory elevatorFactory;
   EndEffectorFactory endEffectorFactory;
+  ClimbFactory climbFactory;
 
   public RobotContainer() {
     controllers = new ControllerSubsystem();
@@ -89,6 +91,7 @@ public class RobotContainer {
     autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory);
     autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
+    climbFactory = new ClimbFactory(elevator, floorIntake);
 
     swerve.setDefaultCommand(closedDrive);
 
@@ -113,6 +116,10 @@ public class RobotContainer {
     controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
       .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
 
+    // Zero Gyro
+    controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
+      .onTrue(new InstantCommand(swerve::zeroGyro));
+
     // Align with Coral TODO: Change when Align PR is merged
     // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
     //       .whileTrue(new ObjectAlign());
@@ -125,9 +132,7 @@ public class RobotContainer {
    // controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
      // .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
 
-    // Zero Gyro
-    //controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
-      //.onTrue(new InstantCommand(swerve::zeroGyro));
+
 
     // Align to Cage, Removed for now
     // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
@@ -166,11 +171,15 @@ public class RobotContainer {
       
     // Climber Up
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) > 180) // TODO: Get Correct angle
-      .onTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_UP));
+      .onTrue(climbFactory.getClimberUpSequence());
 
     // Climber Down
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) < 180) // TODO: Get Correct angle
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
+
+    // Climber Down
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) < 180) // TODO: Get Correct angle
+      .whileTrue(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(FloorIntake.FLOOR_ANGLE), elevator, floorIntake));
   }
 
   /**

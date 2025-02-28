@@ -30,8 +30,8 @@ public final class Constants {
   public static final class Controller{
     private Controller() {}
     // Controller Ports
-    public static final int DRIVE_CONTROLLER_PORT = 0; // TODO: Set port
-    public static final int MANIP_CONTROLLER_PORT = 1; // TODO: Set port
+    public static final int DRIVE_CONTROLLER_PORT = 0;
+    public static final int MANIP_CONTROLLER_PORT = 1;
 
     // Joystick Deadband
     public static final double RIGHT_Y_DEADBAND = 0.1;
@@ -59,20 +59,20 @@ public final class Constants {
 
   public static final class AlgaeIntake{
     private AlgaeIntake() {}
-    // todo: find id's
+
     public static final int ROLLER_MOTOR_ID = 19; 
     public static final int PIVOT_MOTOR_ID = 12; 
     public static final int IR_SENSOR_ID = 5; 
-    // todo: find p, i, d, g
+
     public static final double kP = 0.0125; 
     public static final double kI = 0; 
     public static final double kD = 0; 
     public static final double kG = 0.01;
-    // todo: find tolerances
+
     public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(3); 
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(100); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(20); 
-    // todo: find rotations
+
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(54.3); 
 
     public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(90);
@@ -80,61 +80,63 @@ public final class Constants {
 
   public static final class FloorIntake{
     private FloorIntake() {}
-    //todo: set ports
     public static final int ROLLER_MOTOR_ID = 20; 
     public static final int PIVOT_MOTOR_ID = 3;
     public static final int IR_SENSOR_ID = 8; 
     public static final int PIVOT_ENCODER_ID = 20; 
 
-    //todo: find p, i, d, g
     public static final double PIVOT_P = 0.011; 
     public static final double PIVOT_I = 0; 
     public static final double PIVOT_D = 0;
     public static final double PIVOT_G = 0.022; 
 
-    //todo: set tolerance
     public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(2); 
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(350); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
-    //todo: set offset in range from 0 to 1
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(342.53);
 
-    // TODO: Set real values
-    public static final double HP_ANGLE = 120.0;
+    public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
     public static final double FLOOR_ANGLE = 180.0;
+    public static final double ELEVATOR_ANGLE = 70.0;
+    public static final double DEFAULT_ANGLE = 5.0;
   } 
 
   public static final class LED{
     private LED() {}
-    //todo: set ports and length
     public static final int LED_PORT = 0;
     public static final int LED_LENGTH = 71; 
   }
 
   public static final class Elevator{
     private Elevator() {}
-    // todo: find id's
     public static final int LEFT_MOTOR_ID = 23; 
     public static final int RIGHT_MOTOR_ID = 24;  
-    // todo: find limit switch/servo ports 
+
     public static final int LIMIT_SWITCH_ID = 1; 
     public static final int SERVO_ID = 9;
-    // todo: find p, i, d, f values 
-    public static final double kP = 4.6; // 3.5
+
+    public static final double kP = 4.6;
     public static final double kI = 0.0005;
     public static final double kD = 0;
     public static final double kF = 0.0125; 
     public static final double kS = 0.0069;
 
-    public static final double TOLERANCE = 0.015; // todo: find tolerance
-    public static final double CONVERSION_FACTOR = 0.0193145; // todo; check number, converts to meters 
-    public static final double LOCK_ANGLE = 0.2; // todo: find optimal lock angle // Range from 0 to 1
-    public static final double UNLOCK_ANGLE = 0.0; // todo: find optimal unlocked angle //Range from 0 to 1
+    public static final double TOLERANCE = 0.015;
+    public static final double CONVERSION_FACTOR = 0.0193145; // converts to meters 
+    public static final double LOCK_ANGLE = 0.2; // Range from 0 to 1
+    public static final double UNLOCK_ANGLE = 0.0; //Range from 0 to 1
 
     public enum Position{ 
-      //todo: set height setpoints in meters
-      L1(0.34), L2(0.58), L3(0.96), CLIMB_UP(0), CLIMB_DOWN(0), MIN(0), MAX(0.96); // center carriage to floor 9.375 inches, 0.23825 meters
+      // center carriage to floor 9.375 inches, 0.23825 meters, in meters
+      L1(0.34), 
+      L2(0.58), 
+      L3(0.96), 
+      CLIMB_UP(.3), // TODO: Set height
+      CLIMB_DOWN(0), 
+      MIN(0), 
+      MAX(0.96);
+
       private final double height;
 
       Position(double height){
@@ -149,9 +151,8 @@ public final class Constants {
 
   public static final class EndEffector{
     private EndEffector() {}
-    // todo: set ids 
     public static final int ROLLER_MOTOR_ID = 13;
-    // todo: set ids
+
     public static final int FRONT_IR_SENSOR_ID = 7; 
     public static final int BACK_IR_SENSOR_ID = 4; 
   }

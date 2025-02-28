@@ -14,7 +14,6 @@ import frc.robot.commands.EndEffectorFactory;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class AutoIntakeFactory {
 	FloorIntakeSubsystem floorIntakeSubsystem;
@@ -40,8 +39,7 @@ public class AutoIntakeFactory {
 				new DeployFloorIntakeCommand(
 					Rotation2d.fromDegrees(angle),
 					elevatorSubsystem, 
-					floorIntakeSubsystem, 
-					endEffectorSubsystem
+					floorIntakeSubsystem 
 				)
 			),
 			new IntakeFloorIntakeCommand(floorIntakeSubsystem)
@@ -50,10 +48,9 @@ public class AutoIntakeFactory {
 				// index successful intake
 				new SequentialCommandGroup(
 					new DeployFloorIntakeCommand(
-						Rotation2d.fromDegrees(5), // todo: double check -> bring it in
+						Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), // todo: double check -> bring it in
 						elevatorSubsystem,
-						floorIntakeSubsystem,
-						endEffectorSubsystem
+						floorIntakeSubsystem
 					),
 					new IndexFloorIntakeCommand( 
 						floorIntakeSubsystem, 
@@ -75,10 +72,9 @@ public class AutoIntakeFactory {
             new OuttakeFloorIntakeCommand(floorIntakeSubsystem)
           ),					
 					new DeployFloorIntakeCommand(
-						Rotation2d.fromDegrees(5), // todo: check #
+						Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), // todo: check #
 						elevatorSubsystem,
-						floorIntakeSubsystem, 
-						endEffectorSubsystem
+						floorIntakeSubsystem
 					)
 				).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // XXX: verify behavior
 				() -> floorIntakeSubsystem.pieceSensorActive()

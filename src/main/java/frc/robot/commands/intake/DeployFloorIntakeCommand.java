@@ -12,7 +12,6 @@ import frc.robot.subsystems.FloorIntakeSubsystem;
 public class DeployFloorIntakeCommand extends Command {
   private final ElevatorSubsystem elevatorSubsystem;
   private final FloorIntakeSubsystem floorIntakeSubsystem;
-  private final EndEffectorSubsystem endEffectorSubsystem;
 
   private Rotation2d targetAngle;
 
@@ -20,14 +19,11 @@ public class DeployFloorIntakeCommand extends Command {
   public DeployFloorIntakeCommand(
       Rotation2d targetAngle,
       ElevatorSubsystem elevatorSubsystem, 
-      FloorIntakeSubsystem floorIntakeSubsystem, 
-      EndEffectorSubsystem endEffectorSubsystem
+      FloorIntakeSubsystem floorIntakeSubsystem
     ){
     
     this.elevatorSubsystem = elevatorSubsystem; 
     this.floorIntakeSubsystem = floorIntakeSubsystem;
-    this.endEffectorSubsystem = endEffectorSubsystem;
-
     this.targetAngle = targetAngle;
 
     addRequirements(floorIntakeSubsystem);

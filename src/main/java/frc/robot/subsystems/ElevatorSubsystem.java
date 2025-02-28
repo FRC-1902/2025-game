@@ -178,11 +178,12 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   private void climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
-      //leftMotor.set(-1);  // TODO: Re-Enable
-      //rightMotor
+      setLocked(true);
+      leftMotor.set(-1);
+      rightMotor.set(-1);
     } else {
-      //leftMotor.set(0);  // TODO: Re-Enable
-      //rightMotor
+      leftMotor.set(0);
+      rightMotor.set(0);
     }
   }
 
@@ -221,8 +222,8 @@ public class ElevatorSubsystem extends SubsystemBase {
       rightMotor.getEncoder().setPosition(0);
     }
 
-    if (watchDog() || isLocked()) {
-      leftMotor.set(0);  // TODO: Re-Enable
+    if (watchDog()) {
+      leftMotor.set(0);
       rightMotor.set(0);
       return; 
     }
@@ -231,10 +232,18 @@ public class ElevatorSubsystem extends SubsystemBase {
       case CLIMB_DOWN:
         climb();
         return;
-      default:
+      case CLIMB_UP:
+        setLocked(false);
         power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
-        leftMotor.set(power);  // TODO: Re-Enable
+        leftMotor.set(power);
         rightMotor.set(power);
+        return;
+      default:
+        if (!isLocked()) {
+          power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
+          leftMotor.set(power); 
+          rightMotor.set(power);
+        }
         return;
     }
   }

@@ -24,11 +24,11 @@ public class AutoPlaceFactory {
 
   public Command getAutoPlace(Position targetPosition){
     return new SequentialCommandGroup(
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(70), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem), // todo: figure out what resting angle should be at
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem), // todo: figure out what resting angle should be at
       new ElevatorCommand(elevatorSubsystem, targetPosition),
       new PlaceCommand(endEffectorSubsystem),
       new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(5), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem)
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
     );
   }
 }

@@ -55,7 +55,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     this.elevatorSubsystem = elevatorSubsystem;
 
-    setAngle(Rotation2d.fromDegrees(5));
+    setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE));
     
     // TODO: Check that motors aren't supposed to be inverted
     configureMotors();
@@ -166,9 +166,9 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
 
 
-    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < 60){
+    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < Constants.FloorIntake.ELEVATOR_ANGLE){
       // DataLogManager.log("Elevator spooky in relation to floor intake");
-      //setAngle(Rotation2d.fromDegrees(70)); // TODO: Re-Enable
+      //setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE)); // TODO: Re-Enable
     }
     
     double power = pid.calculate(getAngle().getDegrees())
@@ -181,13 +181,13 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     Logger.recordOutput("FloorIntake/Intake Pose", intakePose);
 
     if (pivotWatchdog()) {
-      pivotMotor.set(0); // TODO: Re-Enable
+      pivotMotor.set(0);
       resetPID();
       return;
     }
 
     SmartDashboard.putNumber("FloorIntake/power", power);
 
-    pivotMotor.set(power); // TODO: Re-Enable
+    pivotMotor.set(power);
   }
 }
