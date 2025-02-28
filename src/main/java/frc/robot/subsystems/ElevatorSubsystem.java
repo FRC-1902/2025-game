@@ -1,31 +1,29 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.Elevator.Position;
-
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkMax;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.Elevator.Position;
+import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private SparkFlex leftMotor;
@@ -65,6 +63,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight() + 0.01, Constants.Elevator.Position.MIN.getHeight() - 0.01, this::getPosition);
 
     targetPosition = Constants.Elevator.Position.MIN;
+
+    servo.set(Constants.Elevator.UNLOCK_ANGLE);
 
     configureMotors();
   }
@@ -146,9 +146,9 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public void setLocked(boolean lock) {
     if (lock) {
-      servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
+      servo.setAngle(Constants.Elevator.LOCK_ANGLE);
     } else {
-      servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
+      servo.setAngle(Constants.Elevator.UNLOCK_ANGLE);
     }
   }
 
@@ -157,7 +157,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns if the servo is at the locked angle or not
    */
   public boolean isLocked(){
-    return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
+    return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE);
   }
 
   /**
@@ -215,6 +215,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Elevator/LeftPower", leftMotor.get());
     SmartDashboard.putNumber("Elevator/RightPower", rightMotor.get());
+
+    if (limitSwitchTriggered()) {
+      leftMotor.getEncoder().setPosition(0);
+      rightMotor.getEncoder().setPosition(0);
+    }
 
     if (watchDog() || isLocked()) {
       leftMotor.set(0);  // TODO: Re-Enable

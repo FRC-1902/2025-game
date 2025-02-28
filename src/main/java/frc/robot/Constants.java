@@ -87,7 +87,7 @@ public final class Constants {
     public static final int PIVOT_ENCODER_ID = 20; 
 
     //todo: find p, i, d, g
-    public static final double PIVOT_P = 0.012; 
+    public static final double PIVOT_P = 0.011; 
     public static final double PIVOT_I = 0; 
     public static final double PIVOT_D = 0;
     public static final double PIVOT_G = 0.022; 
@@ -98,7 +98,7 @@ public final class Constants {
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
     //todo: set offset in range from 0 to 1
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(360-110.65);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(342.53);
 
     // TODO: Set real values
     public static final double HP_ANGLE = 120.0;
@@ -121,20 +121,20 @@ public final class Constants {
     public static final int LIMIT_SWITCH_ID = 1; 
     public static final int SERVO_ID = 9;
     // todo: find p, i, d, f values 
-    public static final double kP = 4.8; // 3.5
+    public static final double kP = 4.6; // 3.5
     public static final double kI = 0.0005;
     public static final double kD = 0;
     public static final double kF = 0.0125; 
     public static final double kS = 0.0069;
 
-    public static final double TOLERANCE = 0.05; // todo: find tolerance
+    public static final double TOLERANCE = 0.015; // todo: find tolerance
     public static final double CONVERSION_FACTOR = 0.0193145; // todo; check number, converts to meters 
-    public static final Rotation2d LOCK_ANGLE = Rotation2d.fromDegrees(0); // todo: find optimal lock angle
-    public static final Rotation2d UNLOCK_ANGLE = Rotation2d.fromDegrees(0); // todo: find optimal unlocked angle
+    public static final double LOCK_ANGLE = 0.2; // todo: find optimal lock angle // Range from 0 to 1
+    public static final double UNLOCK_ANGLE = 0.0; // todo: find optimal unlocked angle //Range from 0 to 1
 
     public enum Position{ 
       //todo: set height setpoints in meters
-      L1(0.34), L2(0.58), L3(0.97145), CLIMB_UP(0), CLIMB_DOWN(0), MIN(0), MAX(0.98); // center carriage to floor 9.375 inches, 0.23825 meters
+      L1(0.34), L2(0.58), L3(0.96), CLIMB_UP(0), CLIMB_DOWN(0), MIN(0), MAX(0.96); // center carriage to floor 9.375 inches, 0.23825 meters
       private final double height;
 
       Position(double height){

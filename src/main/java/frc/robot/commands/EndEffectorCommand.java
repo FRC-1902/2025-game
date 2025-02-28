@@ -20,7 +20,8 @@ public class EndEffectorCommand extends Command {
     this.endEffectorSubsystem = endEffectorSubsystem;
     this.speed = speed;
     this.conditional = conditional;
-    // Use addRequirements() here to declare subsystem dependencies.
+
+    addRequirements(endEffectorSubsystem);
   }
 
   // Called when the command is initially scheduled.

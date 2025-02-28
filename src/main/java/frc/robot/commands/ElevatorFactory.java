@@ -7,6 +7,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
@@ -18,11 +20,14 @@ public class ElevatorFactory {
   private final EndEffectorSubsystem endEffectorSubsystem;
   private final ElevatorSubsystem elevatorSubsystem; 
   private final FloorIntakeSubsystem floorIntakeSubsystem;
+  private final EndEffectorFactory endEffectorFactory;
 
   public ElevatorFactory(EndEffectorSubsystem endEffectorSubsystem, ElevatorSubsystem elevatorSubsystem, FloorIntakeSubsystem floorIntakeSubsystem){
     this.endEffectorSubsystem = endEffectorSubsystem; 
     this.elevatorSubsystem = elevatorSubsystem;
     this.floorIntakeSubsystem = floorIntakeSubsystem;
+
+    endEffectorFactory = new EndEffectorFactory(endEffectorSubsystem);
   }
 
 
@@ -33,7 +38,10 @@ public class ElevatorFactory {
    */
   public Command getElevatorCommand(Position targetPosition){
     return new SequentialCommandGroup(
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(61), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem), // todo: figure out what resting angle should be at
+      new ParallelCommandGroup(
+        new DeployFloorIntakeCommand(Rotation2d.fromDegrees(70), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem), // todo: figure out what resting angle should be at
+        endEffectorFactory.getIndexSequence()
+      ),
       new ElevatorCommand(elevatorSubsystem, targetPosition)
     );
   }
@@ -44,8 +52,9 @@ public class ElevatorFactory {
    */
   public Command getElevatorDownCommand(){
     return new SequentialCommandGroup(
-      getElevatorCommand(Position.MIN),
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(0), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem)
+      endEffectorFactory.getIndexSequence(),
+      new ElevatorCommand(elevatorSubsystem, Position.MIN),
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(5), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem)
     );
   }
 }

@@ -55,7 +55,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     this.elevatorSubsystem = elevatorSubsystem;
 
-    setAngle(Rotation2d.fromDegrees(1));
+    setAngle(Rotation2d.fromDegrees(5));
     
     // TODO: Check that motors aren't supposed to be inverted
     configureMotors();
@@ -168,7 +168,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < 60){
       // DataLogManager.log("Elevator spooky in relation to floor intake");
-      //setAngle(Rotation2d.fromDegrees(61)); // TODO: Re-Enable
+      //setAngle(Rotation2d.fromDegrees(70)); // TODO: Re-Enable
     }
     
     double power = pid.calculate(getAngle().getDegrees())

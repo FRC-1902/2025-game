@@ -1,7 +1,9 @@
 package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -36,7 +38,7 @@ public class AutoIntakeFactory {
 					Constants.Elevator.Position.MIN
 				),
 				new DeployFloorIntakeCommand(
-					Rotation2d.fromDegrees(angle), // todo: double check zero reference -> out deploy
+					Rotation2d.fromDegrees(angle),
 					elevatorSubsystem, 
 					floorIntakeSubsystem, 
 					endEffectorSubsystem
@@ -48,7 +50,7 @@ public class AutoIntakeFactory {
 				// index successful intake
 				new SequentialCommandGroup(
 					new DeployFloorIntakeCommand(
-						Rotation2d.fromDegrees(0), // todo: double check -> bring it in
+						Rotation2d.fromDegrees(5), // todo: double check -> bring it in
 						elevatorSubsystem,
 						floorIntakeSubsystem,
 						endEffectorSubsystem
@@ -57,23 +59,23 @@ public class AutoIntakeFactory {
 						floorIntakeSubsystem, 
 						endEffectorSubsystem
 					),
-					new InstantCommand(
-						() -> endEffectorFactory.getIndexSequence(), 
-						endEffectorSubsystem
-					)
+					endEffectorFactory.getIndexSequence()
 				),
 				// clean up failed intake
 				new SequentialCommandGroup(
 					// XXX: may not want this initial move out for cleanup
+					// new DeployFloorIntakeCommand(
+					// 	Rotation2d.fromDegrees(110), // todo: check # could be horrible
+					// 	elevatorSubsystem,
+					// 	floorIntakeSubsystem, 
+					// 	endEffectorSubsystem
+					// ),
+          new ParallelDeadlineGroup(
+            new WaitCommand(1), 
+            new OuttakeFloorIntakeCommand(floorIntakeSubsystem)
+          ),					
 					new DeployFloorIntakeCommand(
-						Rotation2d.fromDegrees(110), // todo: check # could be horrible
-						elevatorSubsystem,
-									floorIntakeSubsystem, 
-						endEffectorSubsystem
-					),
-					new OuttakeFloorIntakeCommand(floorIntakeSubsystem),
-					new DeployFloorIntakeCommand(
-						Rotation2d.fromDegrees(0), // todo: check #
+						Rotation2d.fromDegrees(5), // todo: check #
 						elevatorSubsystem,
 						floorIntakeSubsystem, 
 						endEffectorSubsystem

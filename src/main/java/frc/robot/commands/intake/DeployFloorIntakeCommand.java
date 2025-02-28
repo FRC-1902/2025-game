@@ -36,7 +36,7 @@ public class DeployFloorIntakeCommand extends Command {
   @Override
   public void initialize() {
     if(
-        endEffectorSubsystem.isFrontPieceSensorActive() ||
+        //endEffectorSubsystem.isFrontPieceSensorActive() ||
         //floorIntakeSubsystem.pieceSensorActive() ||
         !elevatorSubsystem.isAtPosition(Position.MIN)
       ){
@@ -48,7 +48,9 @@ public class DeployFloorIntakeCommand extends Command {
 
   @Override
   public void execute() {
-    floorIntakeSubsystem.setSpeed(1);
+    if (floorIntakeSubsystem.pieceSensorActive()) {
+      floorIntakeSubsystem.setSpeed(1);
+    }
   }
 
   @Override
