@@ -1,0 +1,83 @@
+{
+    "name": "WaterPig",
+    "sourceUrl": "http://your-file-link.com",
+    "disableSimplification": false,
+    "rotations": [
+      { "axis": "x", "degrees": 90 },
+      { "axis": "y", "degrees": 0 },
+      { "axis": "z", "degrees": 270 }
+    ],
+    "position": [0.0, 0.0, 0.0],
+    "components": [],
+    "cameras": [
+      {
+        "name": "Arducam1",
+        "rotations": [
+          { "axis": "x", "degrees": 0 },
+          { "axis": "y", "degrees": -22.75 },
+          { "axis": "z", "degrees": 40 }
+        ],
+        "position": [0.2461514, -0.2853182, 0.216253568],
+        "resolution": [1280, 800],
+        "fov": 70
+      },
+      {
+        "name": "Arducam2",
+        "rotations": [
+          { "axis": "x", "degrees": 0 },
+          { "axis": "y", "degrees": -22.75 },
+          { "axis": "z", "degrees": -40 }
+        ],
+        "position": [0.2461514, 0.2853182, 0.216253568],
+        "resolution": [1280, 800],
+        "fov": 70
+      },
+      {
+        "name": "Arducam3",
+        "rotations": [
+          { "axis": "x", "degrees": 0 },
+          { "axis": "y", "degrees": 180 },
+          { "axis": "z", "degrees": 0 }
+        ],
+        "position": [-0.2, 0.0, 0.5],
+        "resolution": [640, 480],
+        "fov": 90
+      }
+    ],
+    "components": [
+      {
+        "name": "Elevator",
+        "zeroedRotations": [ 
+          { "axis": "x", "degrees": 90 }, 
+          { "axis": "y", "degrees": 0 }, 
+          { "axis": "z", "degrees": 270 } ],
+        "zeroedPosition": [-0.0, 0.0, -0.0]
+      },
+      {
+        "name": "EndEffector",
+        "zeroedRotations": [ 
+          { "axis": "x", "degrees": 90 }, 
+          { "axis": "y", "degrees": 0 }, 
+          { "axis": "z", "degrees": 270 } ],
+        "zeroedPosition": [0.0, 0.0, 0.0]
+      },
+      {
+        "name": "AlgaeIntake",
+        "zeroedRotations": [ 
+          { "axis": "x", "degrees": -2.5 }, 
+          { "axis": "y", "degrees": 0}, 
+          { "axis": "z", "degrees": 270 } 
+        ],
+        "zeroedPosition": [-0.385, 0, 0.3250]
+      },
+      {
+        "name": "FloorIntake",
+        "zeroedRotations": [ 
+          { "axis": "x", "degrees": 90 }, 
+          { "axis": "y", "degrees": 0 }, 
+          { "axis": "z", "degrees": 270 } ],
+        "zeroedPosition": [0.3, 0.0, -0.15]
+      }
+    ]
+}
+  

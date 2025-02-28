@@ -2,6 +2,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import java.util.TimerTask;
+
+import java.util.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -12,6 +15,23 @@ public class ControllerSubsystem extends SubsystemBase {
   private CommandXboxController commandManipController;
   private XboxController driveController;
   private XboxController manipController;
+
+  private static ControllerSubsystem controllerInstance;
+
+  public static ControllerSubsystem getInstance() {
+    if (controllerInstance == null) {
+      controllerInstance = new ControllerSubsystem();
+    }
+    return controllerInstance;
+  }
+
+  /** Creates a new Controllers. */
+  public ControllerSubsystem() {
+    commandDriveController = new CommandXboxController(Constants.Controller.DRIVE_CONTROLLER_PORT);
+    commandManipController = new CommandXboxController(Constants.Controller.MANIP_CONTROLLER_PORT);
+    driveController = commandDriveController.getHID();
+    manipController = commandManipController.getHID();
+  }
 
   /**
    * Enumeration of buttons on the Xbox controller.
@@ -39,14 +59,6 @@ public class ControllerSubsystem extends SubsystemBase {
 
   public enum ControllerName{
     DRIVE, MANIP
-  }
-
-  /** Creates a new Controllers. */
-  public ControllerSubsystem() {
-    commandDriveController = new CommandXboxController(Constants.Controller.DRIVE_CONTROLLER_PORT);
-    commandManipController = new CommandXboxController(Constants.Controller.MANIP_CONTROLLER_PORT);
-    driveController = commandDriveController.getHID();
-    manipController = commandManipController.getHID();
   }
 
   /**
@@ -117,6 +129,31 @@ public class ControllerSubsystem extends SubsystemBase {
         return manipController.getPOV();
       default:
         return 0;
+    }
+  }
+
+  public void vibrate(ControllerName name, long msDuration, double intensity) {
+    switch(name) {
+      case DRIVE:
+        driveController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, intensity);
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+          @Override
+          public void run() {
+            driveController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, 0);
+          }
+        }, msDuration);
+        break;
+      case MANIP:
+        manipController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, intensity);
+        Timer timerManip = new Timer();
+        timerManip.schedule(new TimerTask() {
+          @Override
+          public void run() {
+            manipController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, 0);
+          }
+        }, msDuration);
+        break;
     }
   }
 

@@ -16,15 +16,15 @@ import frc.robot.Constants;
 public class EndEffectorSubsystem extends SubsystemBase {
 
   private SparkMax rollerMotor; 
-  private DigitalInput frontSensor, backSensor;
-  private double targetSpeed; 
+  private DigitalInput frontSensor;
+  private DigitalInput backSensor;
 
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem() {
     rollerMotor = new SparkMax(Constants.EndEffector.ROLLER_MOTOR_ID, MotorType.kBrushless);
 
-    frontSensor = new DigitalInput(Constants.EndEffector.FRONT_SENSOR_CHANNEL);
-    backSensor = new DigitalInput(Constants.EndEffector.BACK_SENSOR_CHANNEL);
+    frontSensor = new DigitalInput(Constants.EndEffector.FRONT_IR_SENSOR_ID);
+    backSensor = new DigitalInput(Constants.EndEffector.BACK_IR_SENSOR_ID);
 
     configureMotors();
   }
@@ -35,7 +35,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     rollerConfig.idleMode(IdleMode.kCoast);
     rollerConfig.inverted(false);
     rollerConfig.disableFollowerMode(); 
-    rollerConfig.secondaryCurrentLimit(30);
+    // rollerConfig.secondaryCurrentLimit(30);
     rollerConfig.smartCurrentLimit(30);
     rollerConfig.voltageCompensation(12.00);
     // ResetSafeParameters subject to change; not well documented 
@@ -47,7 +47,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @returns if front IRsensor is activated 
    */
   public boolean isFrontPieceSensorActive(){
-    return frontSensor.get(); 
+    return !frontSensor.get(); 
   }
 
   /**
@@ -55,7 +55,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @returns if back IRsensor is activated 
    */
   public boolean isBackPieceSensorActive(){
-    return backSensor.get(); 
+    return !backSensor.get(); 
   }
 
   /**
@@ -63,7 +63,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed){
-    rollerMotor.set(targetSpeed);
+    rollerMotor.set(targetSpeed); // TODO: Re-Enable
   }
 
   @Override

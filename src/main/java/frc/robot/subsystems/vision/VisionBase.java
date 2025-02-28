@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.littletonrobotics.junction.AutoLog;
 import org.photonvision.EstimatedRobotPose;
 
-// TODO: Change to actaull cameras
 public interface VisionBase {
   @AutoLog
   public static class VisionInputs {

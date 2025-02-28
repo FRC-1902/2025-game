@@ -21,25 +21,27 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
-  private SparkMax rollerMotor, pivotMotor;
+  private SparkMax rollerMotor;
+  private SparkMax pivotMotor;
   private PIDController pid;
-  private Rotation2d targetAngle;
   private Alert alert;
   private DigitalInput irSensor; 
-  private Watchdog pivotWatchdog; 
-  private Pose3d intakePose;
+  private Watchdog pivotWatchdog;
+  private final ElevatorSubsystem elevatorSubsystem;
 
   /** Creates a new AlgaeIntakeSubsystem. */
-  public AlgaeIntakeSubsystem() {
-    rollerMotor = new SparkMax(Constants.AlgaeIntake.ROLLER_ID, MotorType.kBrushless);
-    pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_ID, MotorType.kBrushless);
+  public AlgaeIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
+    rollerMotor = new SparkMax(Constants.AlgaeIntake.ROLLER_MOTOR_ID, MotorType.kBrushless);
+    pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
     pid = new PIDController(Constants.AlgaeIntake.kP, Constants.AlgaeIntake.kI, Constants.AlgaeIntake.kD);
-    pid.enableContinuousInput(0, 360);
+    pid.enableContinuousInput(0, 360); // TODO: Change to correct values
     pid.setTolerance(Constants.AlgaeIntake.TOLERANCE.getDegrees());
     configureMotors();
 
@@ -47,7 +49,9 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     irSensor = new DigitalInput(Constants.AlgaeIntake.IR_SENSOR_ID);
 
-    pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
+    pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), () -> getAngle().getDegrees());
+
+    this.elevatorSubsystem = elevatorSubsystem;
 
     setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); // TODO: set default angle when turn on
   }
@@ -61,16 +65,16 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     pivotConfig.idleMode(IdleMode.kBrake);
     pivotConfig.inverted(false); // todo: finish inverted
     pivotConfig.disableFollowerMode();
-    pivotConfig.secondaryCurrentLimit(30);
-    pivotConfig.smartCurrentLimit(30);
+    // pivotConfig.secondaryCurrentLimit(40);
+    pivotConfig.smartCurrentLimit(40);
     pivotConfig.voltageCompensation(12.00);
 
     // Roller Configs
     rollerConfig.idleMode(IdleMode.kBrake);
-    rollerConfig.inverted(false); // todo: finish inverted
+    rollerConfig.inverted(true); // todo: finish inverted
     rollerConfig.disableFollowerMode();
-    rollerConfig.secondaryCurrentLimit(40);
-    rollerConfig.smartCurrentLimit(40);
+    // rollerConfig.secondaryCurrentLimit(30);
+    rollerConfig.smartCurrentLimit(30);
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Config 
@@ -94,7 +98,11 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param targetAngle
    */
   public void setAngle(Rotation2d targetAngle) {
-    this.targetAngle = targetAngle;
+    if (pivotWatchdog.checkWatchdog(targetAngle.getDegrees())) {
+      DataLogManager.log("Specified input out of bounds on AlgaeIntake");
+      return;
+    }
+    pid.setSetpoint(targetAngle.getDegrees());
   }
 
   /**
@@ -102,7 +110,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed) {
-    rollerMotor.set(targetSpeed);
+    rollerMotor.set(targetSpeed); // TODO: Re-Enable
   }
 
   /**
@@ -117,7 +125,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @returns if irSensor is triggered or not 
    */
   public boolean isAlgaeDetected(){
-    return irSensor.get(); 
+    return !irSensor.get(); 
   }
 
   /**
@@ -125,7 +133,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @returns whether or not pivot is out of bounds or not
    */
   private boolean pivotWatchdog() {
-    if (!pivotWatchdog.checkWatchingdog()) {
+    if (pivotWatchdog.checkWatchdog()) {
       alert.set(true);
       return true;
     } else {
@@ -137,20 +145,23 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    double power = pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
-        + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
+    SmartDashboard.putData("PID/Algae", pid); // TODO: remove after tuning
+    SmartDashboard.putBoolean("FloorIntake/WatchingDog", pivotWatchdog());
 
-    Pose3d intakePose = new Pose3d(new Translation3d(0.312, 0, 0.4), new Rotation3d(0,0,0)); // TODO: Offset and Math
+    double power = pid.calculate(getAngle().getDegrees())
+      + Constants.AlgaeIntake.kG * Math.cos(getAngle().getRadians());
+
+    Pose3d intakePose = new Pose3d(new Translation3d(0.312, 0 + elevatorSubsystem.getPosition(), 0.4), new Rotation3d(0,0,0)); // TODO: Offset and Math
 
     SmartDashboard.putNumber("AlgaeIntake/Pivot Angle ", getAngle().getDegrees());
     SmartDashboard.putBoolean("AlgaeIntake/Algae Detected ", isAlgaeDetected());
     Logger.recordOutput("AlgaeIntake/Intake Pose", intakePose);
     
     if (pivotWatchdog()) {
-      pivotMotor.set(0);
+      //pivotMotor.set(0); // TODO: Re-Enable
       resetPID();
       return;
     }
-    pivotMotor.set(power);
+    pivotMotor.set(power); // TODO: Re-Enable
   }
 }

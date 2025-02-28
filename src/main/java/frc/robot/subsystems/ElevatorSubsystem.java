@@ -1,54 +1,57 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.Elevator.Position;
-
-import com.revrobotics.spark.SparkMax;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.Elevator.Position;
+import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  private SparkMax leftMotor, rightMotor;
+  private SparkFlex leftMotor;
+  private SparkFlex rightMotor;
   private Servo servo;
   private DigitalInput limitSwitch;
   private PIDController pid;
   private Position targetPosition;
-  private Alert badStart, boundsAlert, servoAlert;
-  private Watchdog elevatorWatchdog; 
-  private Pose3d elevatorPose;
-  private Pose3d carriagePose;
+  private Alert badStart;
+  private Alert boundsAlert;
+  private Alert servoAlert;
+  private Watchdog elevatorWatchdog;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
-    leftMotor = new SparkMax(Constants.Elevator.LEFT_MOTOR_ID, MotorType.kBrushless);
-    rightMotor = new SparkMax(Constants.Elevator.RIGHT_MOTOR_ID, MotorType.kBrushless);
-    servo = new Servo(Constants.Elevator.SERVO_PORT);
-    limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_PORT);
+    leftMotor = new SparkFlex(Constants.Elevator.LEFT_MOTOR_ID, MotorType.kBrushless);
+    rightMotor = new SparkFlex(Constants.Elevator.RIGHT_MOTOR_ID, MotorType.kBrushless);
+    servo = new Servo(Constants.Elevator.SERVO_ID);
+
+    limitSwitch = new DigitalInput(Constants.Elevator.LIMIT_SWITCH_ID);
 
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
     pid.setTolerance(Constants.Elevator.TOLERANCE);
 
     badStart = new Alert(
-        "Elevator/Bad Starting Pos, Robot Knows not where you are, and why you've done this.",
-        AlertType.kError);
+      "Elevator/Bad Starting Pos, Robot Knows not where you are, and why you've done this.",
+      AlertType.kError
+    );
 
     if (!limitSwitchTriggered()) {
       badStart.set(true);
@@ -57,9 +60,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     boundsAlert = new Alert("Elevator/Elevator out of bounds", AlertType.kError);
     servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
 
-    elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight(), Constants.Elevator.Position.MIN.getHeight(), this::getPosition);
+    elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight() + 0.01, Constants.Elevator.Position.MIN.getHeight() - 0.01, this::getPosition);
 
     targetPosition = Constants.Elevator.Position.MIN;
+
+    servo.set(Constants.Elevator.UNLOCK_ANGLE);
 
     configureMotors();
   }
@@ -67,23 +72,20 @@ public class ElevatorSubsystem extends SubsystemBase {
   private void configureMotors() {
     SparkBaseConfig configOne = new SparkMaxConfig();
     SparkBaseConfig configTwo = new SparkMaxConfig();
-    AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
 
-    configOne.idleMode(IdleMode.kBrake);
+    configOne.idleMode(IdleMode.kCoast);
     configOne.smartCurrentLimit(50);
     configOne.inverted(true); // todo: switch inverted
     configOne.voltageCompensation(12);
 
-    configTwo.idleMode(IdleMode.kBrake);
+    configTwo.idleMode(IdleMode.kCoast);
     configTwo.smartCurrentLimit(50);
     configTwo.inverted(false); // todo: switch inverted
     configTwo.voltageCompensation(12);
-    configTwo.follow(Constants.Elevator.LEFT_MOTOR_ID);
 
-    encoderConfig.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
+    configOne.encoder.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
+    configTwo.encoder.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
 
-    configOne.apply(encoderConfig); 
-    configTwo.apply(encoderConfig); 
     // ResetSafeParameters not well documented 
     leftMotor.configure(configOne, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
     rightMotor.configure(configTwo, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
@@ -94,7 +96,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns the current position of elevator in meters
    */
   public double getPosition() {
-    return (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition()) * 0.5;
+    return leftMotor.getEncoder().getPosition();
   }
 
   /**
@@ -102,11 +104,17 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param targetPosition
    */
   public void setPosition(Position targetPosition) {
+    if (elevatorWatchdog.checkWatchdog(targetPosition.getHeight())) {
+      DataLogManager.log("Specified input out of bounds on Elevator");
+      return;
+    }
+
     if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB_DOWN){
       servoAlert.set(true);
     }
     else{
       this.targetPosition = targetPosition;
+      pid.setSetpoint(targetPosition.getHeight());
     }
   }
 
@@ -115,7 +123,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns whether the limit switch was triggered
    */
   public boolean limitSwitchTriggered() {
-    return limitSwitch.get();
+    return !limitSwitch.get();
   }
 
   /**
@@ -138,9 +146,9 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public void setLocked(boolean lock) {
     if (lock) {
-      servo.setAngle(Constants.Elevator.LOCK_ANGLE.getDegrees());
+      servo.setAngle(Constants.Elevator.LOCK_ANGLE);
     } else {
-      servo.setAngle(Constants.Elevator.UNLOCK_ANGLE.getDegrees());
+      servo.setAngle(Constants.Elevator.UNLOCK_ANGLE);
     }
   }
 
@@ -149,14 +157,14 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns if the servo is at the locked angle or not
    */
   public boolean isLocked(){
-    return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE.getDegrees());
+    return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE);
   }
 
   /**
    * Alerts if elevator is out of bounds
    */
-  private boolean watchingDog() {
-    if (!elevatorWatchdog.checkWatchingdog()) {
+  private boolean watchDog() {
+    if (elevatorWatchdog.checkWatchdog()) {
       boundsAlert.set(true);
       return true;
     } else {
@@ -170,9 +178,12 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   private void climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
+      setLocked(true);
       leftMotor.set(-1);
+      rightMotor.set(-1);
     } else {
       leftMotor.set(0);
+      rightMotor.set(0);
     }
   }
 
@@ -189,19 +200,31 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     double power;
 
-    elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
-    carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
+    SmartDashboard.putData("PID/Elevator", pid); // TODO: Remove after tuning
+
+    Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
+    Pose3d carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
 
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
-    SmartDashboard.putNumber("ELevator/Current Position", getPosition());
+    SmartDashboard.putNumber("Elevator/Current Position", getPosition());
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
     SmartDashboard.putBoolean("Elevator/Elevator Locked", isLocked());
+    SmartDashboard.putBoolean("Elevator/isAtPos", isAtPosition(targetPosition));
 
     Logger.recordOutput("Elevator/Stage", elevatorPose);
     Logger.recordOutput("Elevator/Carriage", carriagePose);
 
-    if (watchingDog() || isLocked()) {
+    SmartDashboard.putNumber("Elevator/LeftPower", leftMotor.get());
+    SmartDashboard.putNumber("Elevator/RightPower", rightMotor.get());
+
+    if (limitSwitchTriggered()) {
+      leftMotor.getEncoder().setPosition(0);
+      rightMotor.getEncoder().setPosition(0);
+    }
+
+    if (watchDog()) {
       leftMotor.set(0);
+      rightMotor.set(0);
       return; 
     }
 
@@ -209,9 +232,18 @@ public class ElevatorSubsystem extends SubsystemBase {
       case CLIMB_DOWN:
         climb();
         return;
-      default:
-        power = pid.calculate(getPosition(), targetPosition.getHeight()) + Constants.Elevator.kF;
+      case CLIMB_UP:
+        setLocked(false);
+        power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
         leftMotor.set(power);
+        rightMotor.set(power);
+        return;
+      default:
+        if (!isLocked()) {
+          power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
+          leftMotor.set(power); 
+          rightMotor.set(power);
+        }
         return;
     }
   }

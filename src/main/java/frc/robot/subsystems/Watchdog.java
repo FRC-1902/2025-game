@@ -26,11 +26,22 @@ public class Watchdog {
    *          fixes wrapping issue with many pivoting systems (ex. if Pivot
    *          wrapped around from 360 -> 0, basic watchdog code would break)
    */
-  public boolean checkWatchingdog() {
+  public boolean checkWatchdog() {
+    return checkWatchdog(current.getAsDouble());
+  }
+
+  /**
+   * 
+   * @returns whether or not bounds were crossed (ex. will return true if
+   *          everything is good)
+   *          fixes wrapping issue with many pivoting systems (ex. if Pivot
+   *          wrapped around from 360 -> 0, basic watchdog code would break)
+   */
+  public boolean checkWatchdog(double in) {
     if (end > start) {
-      return current.getAsDouble() < end && current.getAsDouble() > start;
+      return in < end && in > start;
     } else {
-      return current.getAsDouble() > end || current.getAsDouble() < start;
+      return in < end || in > start;
     }
   }
 }

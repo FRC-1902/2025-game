@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -36,7 +37,7 @@ public class Robot extends LoggedRobot {
 
     switch (Constants.currentMode) {
       case REAL:
-        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs") TODO: Set USB Path
+        Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs")); // Log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
         new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
         break;
@@ -56,7 +57,7 @@ public class Robot extends LoggedRobot {
     }
 
     // Initialize URCL 
-    // Logger.registerURCL(URCL.startExternal()); // TODO: Remove if issues with over logging occurs
+    // Logger.registerURCL(URCL.startExternal());
     
     // Set up alerts
     lowBatteryAlert = new Alert("Low Battery", AlertType.kWarning);
@@ -67,6 +68,7 @@ public class Robot extends LoggedRobot {
     
     robotContainer = new RobotContainer();
     PathfindingCommand.warmupCommand().schedule();
+    SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
   @Override
@@ -94,7 +96,7 @@ public class Robot extends LoggedRobot {
           autonomousCommand.schedule();
       }
 
-      Elastic.selectTab("Auto"); // TODO: Enable during comp
+      Elastic.selectTab("Auto");
 
       // Check battery voltage at autonomous start
       checkBatteryVoltage();
@@ -112,7 +114,7 @@ public class Robot extends LoggedRobot {
           autonomousCommand.cancel();
       }
 
-      Elastic.selectTab("Telly"); // TODO: Enable during comp
+      Elastic.selectTab("TeleOp");
 
       // Check battery voltage at teleop start
       checkBatteryVoltage();
@@ -126,7 +128,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void testInit() {
-        CommandScheduler.getInstance().cancelAll();
+      CommandScheduler.getInstance().cancelAll();
     }
 
     @Override
@@ -139,14 +141,16 @@ public class Robot extends LoggedRobot {
      * Check the battery voltage and set alerts if it is low or critical.
      */
     private void checkBatteryVoltage() {
-      Elastic.Notification lowBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Battery Level Low", "");
-      Elastic.Notification criticalBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "Battery Level Critical", "");
 
       double voltage = RobotController.getBatteryVoltage();
+
       if (voltage <= Constants.BATTERY_VOLTAGE_CRITICAL) {
+        Elastic.Notification criticalBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "Battery Level Critical", "");
         criticalBatteryAlert.set(true);
         Elastic.sendNotification(criticalBatteryElastic);
+      
       } else if (voltage <= Constants.BATTERY_VOLTAGE_WARNING) {
+        Elastic.Notification lowBatteryElastic = new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Battery Level Low", "");
         lowBatteryAlert.set(true);
         Elastic.sendNotification(lowBatteryElastic);
       }

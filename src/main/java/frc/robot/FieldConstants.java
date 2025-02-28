@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 
 /**
  * Constants for points on the field
@@ -14,6 +15,10 @@ public final class FieldConstants {
     PROCESSOR,
     CAGE
   }
+
+  // TODO: Adjust for each field type
+  public static final double WIDTH = Units.inchesToMeters(317); // TODO: Confirm size 
+  public static final double LENGTH = Units.inchesToMeters(690.875); // TODO: Confirm size 
 
   public static final class BLUE {
     private BLUE() {}; 
