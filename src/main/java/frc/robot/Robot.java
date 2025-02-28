@@ -12,6 +12,7 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -65,7 +66,8 @@ public class Robot extends LoggedRobot {
 
     // Start AdvantageKit logger
     Logger.start();
-    
+    DataLogManager.start();
+
     robotContainer = new RobotContainer();
     PathfindingCommand.warmupCommand().schedule();
     SmartDashboard.putData(CommandScheduler.getInstance());

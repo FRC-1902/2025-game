@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.013762920658143,
-        "y": 5.179180228360335
+        "x": 3.685,
+        "y": 2.96
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7446610248300267,
-        "y": 6.353828199439791
+        "x": 3.233373455417298,
+        "y": 2.52663964586305
       },
       "isLocked": false,
-      "linkedName": "K"
+      "linkedName": "C"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 0.9681352459016375
       },
       "prevControl": {
-        "x": 2.5075504711053327,
-        "y": 0.3071136217022461
+        "x": 2.05918655985359,
+        "y": 1.1743348655853838
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,10 +45,10 @@
     "rotation": 55.0
   },
   "reversed": false,
-  "folder": "DropAndGo",
+  "folder": "3 L3 Piece",
   "idealStartingState": {
-    "velocity": 1000,
-    "rotation": -60.188456976868046
+    "velocity": 0,
+    "rotation": 59.99999999999999
   },
   "useDefaultConstraints": true
 }

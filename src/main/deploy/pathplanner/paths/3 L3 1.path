@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.013762920658143,
-        "y": 5.179180228360335
+        "x": 7.17,
+        "y": 2.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7446610248300267,
-        "y": 6.353828199439791
+        "x": 6.040307731705844,
+        "y": 2.2
       },
       "isLocked": false,
-      "linkedName": "K"
+      "linkedName": "Start1"
     },
     {
       "anchor": {
-        "x": 1.8197336065573773,
-        "y": 0.9681352459016375
+        "x": 3.9701254469982796,
+        "y": 2.8028093735490405
       },
       "prevControl": {
-        "x": 2.5075504711053327,
-        "y": 0.3071136217022461
+        "x": 4.655625446995348,
+        "y": 2.2825593735475085
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "HP"
+      "linkedName": "D"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 55.0
+    "rotation": 59.99999999999999
   },
   "reversed": false,
-  "folder": "DropAndGo",
+  "folder": "3 L3 Piece",
   "idealStartingState": {
-    "velocity": 1000,
-    "rotation": -60.188456976868046
+    "velocity": 0,
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

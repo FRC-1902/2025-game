@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.8244696301476473,
-        "y": 7.218900513382831
+        "x": 1.8197336065573773,
+        "y": 0.9681352459016375
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0767970290285884,
-        "y": 6.042368294201655
+        "x": 3.072061005438319,
+        "y": -0.20839697327953854
       },
       "isLocked": false,
       "linkedName": "HP"
@@ -48,7 +48,7 @@
   "folder": "DropAndGo",
   "idealStartingState": {
     "velocity": 1000,
-    "rotation": -52.187215362644146
+    "rotation": 55.0
   },
   "useDefaultConstraints": true
 }
