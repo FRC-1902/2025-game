@@ -8,7 +8,6 @@ import java.util.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants;
 
 public class ControllerSubsystem extends SubsystemBase {
   private CommandXboxController commandDriveController;
@@ -23,14 +22,6 @@ public class ControllerSubsystem extends SubsystemBase {
       controllerInstance = new ControllerSubsystem();
     }
     return controllerInstance;
-  }
-
-  /** Creates a new Controllers. */
-  public ControllerSubsystem() {
-    commandDriveController = new CommandXboxController(Constants.Controller.DRIVE_CONTROLLER_PORT);
-    commandManipController = new CommandXboxController(Constants.Controller.MANIP_CONTROLLER_PORT);
-    driveController = commandDriveController.getHID();
-    manipController = commandManipController.getHID();
   }
 
   /**
@@ -132,29 +123,28 @@ public class ControllerSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * 
+   * @param name specifies controller name
+   * @param msDuration specifies the length of the vibration in ms
+   * @param intensity specifies how much of a seizure the controller has
+   */
   public void vibrate(ControllerName name, long msDuration, double intensity) {
-    switch(name) {
-      case DRIVE:
-        driveController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, intensity);
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-          @Override
-          public void run() {
-            driveController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, 0);
-          }
-        }, msDuration);
-        break;
-      case MANIP:
-        manipController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, intensity);
-        Timer timerManip = new Timer();
-        timerManip.schedule(new TimerTask() {
-          @Override
-          public void run() {
-            manipController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, 0);
-          }
-        }, msDuration);
-        break;
+    XboxController targetController;
+    if (name == ControllerName.DRIVE) {
+      targetController = driveController;
+    } else {
+      targetController = manipController;
     }
+
+    targetController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, intensity);
+    Timer timer = new Timer();
+    timer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+        targetController.setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, 0);
+      }
+    }, msDuration);
   }
 
   public CommandXboxController getCommandController(ControllerName name) {

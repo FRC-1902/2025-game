@@ -31,17 +31,16 @@ public class DeployFloorIntakeCommand extends Command {
 
   @Override
   public void initialize() {
-    if(
-        //endEffectorSubsystem.isFrontPieceSensorActive() ||
-        //floorIntakeSubsystem.pieceSensorActive() ||
-        !elevatorSubsystem.isAtPosition(Position.MIN)
-      ){
+    if(!elevatorSubsystem.isAtPosition(Position.MIN)){
       DataLogManager.log("Command shouldn't start");
       return;
     }
     floorIntakeSubsystem.setAngle(targetAngle);
   }
-
+  
+  /**
+   * Actively sucks coral in while moving to make sure it doesn't fly out
+   */
   @Override
   public void execute() {
     if (floorIntakeSubsystem.pieceSensorActive()) {

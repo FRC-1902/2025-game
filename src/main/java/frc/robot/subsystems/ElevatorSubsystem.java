@@ -150,7 +150,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   /**
    * 
-   * @returns if the servo is at the locked angle or not
+   * @returns if the targetAngle is at the locked position or not
    */
   public boolean isLocked(){
     return 0.001 > Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE);
@@ -192,14 +192,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     return Math.abs(getPosition() - targetPosition.getHeight()) <= Constants.Elevator.TOLERANCE;
   }
 
-  @Override
-  public void periodic() {
-    double power;
-
+  private void smartConfigs(){
     SmartDashboard.putData("PID/Elevator", pid); // TODO: Remove after tuning
-
-    Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
-    Pose3d carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
 
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
     SmartDashboard.putNumber("Elevator/Current Position", getPosition());
@@ -207,11 +201,21 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Elevator/Elevator Locked", isLocked());
     SmartDashboard.putBoolean("Elevator/isAtPos", isAtPosition(targetPosition));
 
+    SmartDashboard.putNumber("Elevator/LeftPower", leftMotor.get());
+    SmartDashboard.putNumber("Elevator/RightPower", rightMotor.get());
+  }
+
+  @Override
+  public void periodic() {
+    double power;
+
+    Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
+    Pose3d carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
+
     Logger.recordOutput("Elevator/Stage", elevatorPose);
     Logger.recordOutput("Elevator/Carriage", carriagePose);
 
-    SmartDashboard.putNumber("Elevator/LeftPower", leftMotor.get());
-    SmartDashboard.putNumber("Elevator/RightPower", rightMotor.get());
+    smartConfigs();
 
     if (limitSwitchTriggered()) {
       leftMotor.getEncoder().setPosition(0);

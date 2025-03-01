@@ -46,6 +46,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_ID);
 
     pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
+    // makes sure that intake doesn't try to gas it through the floor
     pid.disableContinuousInput();
     pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
 

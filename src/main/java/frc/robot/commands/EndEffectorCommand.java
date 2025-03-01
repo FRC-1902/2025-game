@@ -14,7 +14,14 @@ public class EndEffectorCommand extends Command {
   private final EndEffectorSubsystem endEffectorSubsystem;
   private double speed;
   private BooleanSupplier conditional;
-
+  
+  /**
+   * 
+   * @param endEffectorSubsystem
+   * @param speed
+   * @param conditional
+   * sets EE to a speed based on some condition. Used mainly to adjust indexing when piece is sent from floor intake.
+   */
   /** Creates a new EndEffectorCommand. */
   public EndEffectorCommand(EndEffectorSubsystem endEffectorSubsystem, double speed, BooleanSupplier conditional) {
     this.endEffectorSubsystem = endEffectorSubsystem;

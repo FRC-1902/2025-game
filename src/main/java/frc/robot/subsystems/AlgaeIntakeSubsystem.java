@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor;
@@ -41,7 +40,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     pivotMotor = new SparkMax(Constants.AlgaeIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
     pid = new PIDController(Constants.AlgaeIntake.kP, Constants.AlgaeIntake.kI, Constants.AlgaeIntake.kD);
-    pid.enableContinuousInput(0, 360); // TODO: Change to correct values
+    pid.enableContinuousInput(0, 360); 
     pid.setTolerance(Constants.AlgaeIntake.TOLERANCE.getDegrees());
     configureMotors();
 
@@ -53,7 +52,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     this.elevatorSubsystem = elevatorSubsystem;
 
-    setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); // TODO: set default angle when turn on
+    setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); 
   }
 
   private void configureMotors() {
@@ -110,7 +109,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed) {
-    rollerMotor.set(targetSpeed); // TODO: Re-Enable
+    rollerMotor.set(targetSpeed);
   }
 
   /**
@@ -145,7 +144,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putData("PID/Algae", pid); // TODO: remove after tuning
+    SmartDashboard.putData("PID/Algae", pid); 
     SmartDashboard.putBoolean("FloorIntake/WatchingDog", pivotWatchdog());
 
     double power = pid.calculate(getAngle().getDegrees())
@@ -158,10 +157,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     Logger.recordOutput("AlgaeIntake/Intake Pose", intakePose);
     
     if (pivotWatchdog()) {
-      //pivotMotor.set(0); // TODO: Re-Enable
+      pivotMotor.set(0); 
       resetPID();
       return;
     }
-    pivotMotor.set(power); // TODO: Re-Enable
+    pivotMotor.set(power); 
   }
 }

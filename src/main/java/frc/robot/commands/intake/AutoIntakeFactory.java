@@ -76,7 +76,7 @@ public class AutoIntakeFactory {
 						elevatorSubsystem,
 						floorIntakeSubsystem
 					)
-				).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // XXX: verify behavior
+				).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), 
 				() -> floorIntakeSubsystem.pieceSensorActive()
 			).schedule();
 		});
