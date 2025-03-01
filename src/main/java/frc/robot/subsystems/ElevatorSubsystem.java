@@ -19,11 +19,11 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
-import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private SparkFlex leftMotor;
@@ -36,6 +36,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private Alert boundsAlert;
   private Alert servoAlert;
   private Watchdog elevatorWatchdog;
+  private double unlockTime;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -64,7 +65,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     targetPosition = Constants.Elevator.Position.MIN;
 
-    servo.set(Constants.Elevator.UNLOCK_ANGLE);
+    servo.setAngle(Constants.Elevator.UNLOCK_ANGLE);
 
     configureMotors();
   }
@@ -109,13 +110,8 @@ public class ElevatorSubsystem extends SubsystemBase {
       return;
     }
 
-    if(isLocked() && targetPosition != Constants.Elevator.Position.CLIMB_DOWN){
-      servoAlert.set(true);
-    }
-    else{
-      this.targetPosition = targetPosition;
-      pid.setSetpoint(targetPosition.getHeight());
-    }
+    this.targetPosition = targetPosition;
+    pid.setSetpoint(targetPosition.getHeight());
   }
 
   /**
@@ -157,7 +153,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns if the servo is at the locked angle or not
    */
   public boolean isLocked(){
-    return 0.001 < Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE);
+    return 0.001 > Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE);
   }
 
   /**
@@ -178,10 +174,10 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   private void climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
-      setLocked(true);
-      leftMotor.set(-1);
-      rightMotor.set(-1);
+      leftMotor.set(-0.3); // TODO: change speed
+      rightMotor.set(-0.3);
     } else {
+      setLocked(true);
       leftMotor.set(0);
       rightMotor.set(0);
     }
@@ -207,7 +203,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
     SmartDashboard.putNumber("Elevator/Current Position", getPosition());
-    SmartDashboard.putNumber("Elevator/Servo Position", servo.getPosition());
+    SmartDashboard.putNumber("Elevator/Servo Position", servo.getAngle());
     SmartDashboard.putBoolean("Elevator/Elevator Locked", isLocked());
     SmartDashboard.putBoolean("Elevator/isAtPos", isAtPosition(targetPosition));
 
@@ -233,18 +229,26 @@ public class ElevatorSubsystem extends SubsystemBase {
         climb();
         return;
       case CLIMB_UP:
-        setLocked(false);
-        power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
-        leftMotor.set(power);
-        rightMotor.set(power);
-        return;
-      default:
-        if (!isLocked()) {
-          power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
-          leftMotor.set(power); 
-          rightMotor.set(power);
+        if (isLocked() == true) {
+          unlockTime = Timer.getFPGATimestamp();
+          setLocked(false);
         }
-        return;
+        break;
+      default:
+        break;
+    }
+
+    if (!isLocked() && Timer.getFPGATimestamp() - unlockTime > 0.1) {
+      power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
+      leftMotor.set(power);
+      rightMotor.set(power);
+    } else if (isLocked()) { // XXX: might slip too fast on climb weight
+      servoAlert.set(true);
+      leftMotor.set(0);
+      rightMotor.set(0);
+    } else {
+      leftMotor.set(0);
+      rightMotor.set(0);
     }
   }
 }

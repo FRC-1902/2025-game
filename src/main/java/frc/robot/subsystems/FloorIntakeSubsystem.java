@@ -55,7 +55,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     this.elevatorSubsystem = elevatorSubsystem;
 
-    setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE));
+    setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE));
     
     // TODO: Check that motors aren't supposed to be inverted
     configureMotors();

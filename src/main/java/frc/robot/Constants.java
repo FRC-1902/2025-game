@@ -42,14 +42,12 @@ public final class Constants {
 
   public static final class Swerve {
     private Swerve() {}
-    public static final double ROBOT_MASS = Units.lbsToKilograms(100.000); // kg Adjusted value
-    public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS); // TODO: Adjust later
     public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
 
     // Speeds
-    public static final double MAX_SPEED = Units.feetToMeters(16.6); // m/s TODO: Adjust later
-    public static final double MAX_ACCELERATION = Units.feetToMeters(34.44882); // m/s^2 TODO: Adjust later
-    public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10); // m/s TODO: Adjust later
+    public static final double MAX_SPEED = Units.feetToMeters(16.6); // 16.6 m/s
+    public static final double MAX_ACCELERATION = Units.feetToMeters(12.0); // m/s^2
+    public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
     // Auto Speeds
     public static final double AUTO_MAX_SPEED = Units.feetToMeters(.5); // m/s TODO: Adjust later
@@ -99,6 +97,7 @@ public final class Constants {
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
     public static final double FLOOR_ANGLE = 180.0;
     public static final double ELEVATOR_ANGLE = 70.0;
+    public static final double CLIMB_ANGLE = 90.0;
     public static final double DEFAULT_ANGLE = 5.0;
   } 
 
@@ -124,8 +123,8 @@ public final class Constants {
 
     public static final double TOLERANCE = 0.015;
     public static final double CONVERSION_FACTOR = 0.0193145; // converts to meters 
-    public static final double LOCK_ANGLE = 0.2; // Range from 0 to 1
-    public static final double UNLOCK_ANGLE = 0.0; //Range from 0 to 1
+    public static final double LOCK_ANGLE = 166; // Range from 0 to 1
+    public static final double UNLOCK_ANGLE = 150.0; //Range from 0 to 1
 
     public enum Position{ 
       // center carriage to floor 9.375 inches, 0.23825 meters, in meters

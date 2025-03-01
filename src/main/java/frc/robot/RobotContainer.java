@@ -170,16 +170,16 @@ public class RobotContainer {
       .whileTrue(new AlgaeIntakeCommand(algaeIntake));
       
     // Climber Up
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) > 180) // TODO: Get Correct angle
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 0) // TODO: Get Correct angle
       .onTrue(climbFactory.getClimberUpSequence());
 
     // Climber Down
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) < 180) // TODO: Get Correct angle
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 180) // TODO: Get Correct angle
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
 
-    // Climber Down
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) < 180) // TODO: Get Correct angle
-      .whileTrue(new DeployFloorIntakeCommand(Rotation2d.fromDegrees(FloorIntake.FLOOR_ANGLE), elevator, floorIntake));
+    // Climber Intake Out
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90) // TODO: Get Correct angle
+      .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(90)), floorIntake));
   }
 
   /**

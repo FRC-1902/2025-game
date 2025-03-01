@@ -20,6 +20,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -102,6 +103,9 @@ public class SwerveSubsystem extends SubsystemBase {
     swerve.updateInputs(inputs);
 
     Logger.processInputs("Swerve", inputs);
+    
+    // TODO: this is temp
+    SmartDashboard.putNumber("Swerve/Velocity", Math.sqrt(Math.pow(swerve.getRobotVelocity().vxMetersPerSecond, 2) + Math.pow(swerve.getRobotVelocity().vyMetersPerSecond, 2)));
   }
 
   // /**
@@ -296,7 +300,8 @@ public class SwerveSubsystem extends SubsystemBase {
       headingX, // TODO: look at me more
       headingY,
       getHeading().getRadians(),
-      Constants.Swerve.MAX_SPEED);
+      Constants.Swerve.MAX_SPEED
+    );
   }
 
   public SwerveDrive getSwerveDrive()
