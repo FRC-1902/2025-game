@@ -2,9 +2,11 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FloorIntakeSubsystem;
+import edu.wpi.first.wpilibj.Timer;
 
 public class IntakeFloorIntakeCommand extends Command {
   private final FloorIntakeSubsystem floorIntakeSubsystem; 
+  private double start;
 
   /** Creates a new IntakeFloorIntakeCommand. */
   public IntakeFloorIntakeCommand(FloorIntakeSubsystem floorIntakeSubsystem) {
@@ -15,6 +17,7 @@ public class IntakeFloorIntakeCommand extends Command {
 
   @Override
   public void initialize() {
+    
     floorIntakeSubsystem.setSpeed(1);
   }
 
@@ -23,11 +26,11 @@ public class IntakeFloorIntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    floorIntakeSubsystem.setSpeed(0);
+  floorIntakeSubsystem.setSpeed(0);
   }
 
   @Override
   public boolean isFinished() {
-    return false;
+    return floorIntakeSubsystem.pieceSensorActive();
   }
 }

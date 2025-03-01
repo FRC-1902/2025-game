@@ -323,9 +323,9 @@ public class SwerveSubsystem extends SubsystemBase {
   public void zeroGyroWithAlliance() {
     if (isRedAlliance()) {
       zeroGyro();
-      resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
     } else {
       zeroGyro();
+      resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
     }
   }
 

@@ -48,7 +48,7 @@ public class AutoIntakeFactory {
 				// index successful intake
 				new SequentialCommandGroup(
 					new DeployFloorIntakeCommand(
-						Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), // todo: double check -> bring it in
+						Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: double check -> bring it in
 						elevatorSubsystem,
 						floorIntakeSubsystem
 					),
@@ -72,7 +72,7 @@ public class AutoIntakeFactory {
             new OuttakeFloorIntakeCommand(floorIntakeSubsystem)
           ),					
 					new DeployFloorIntakeCommand(
-						Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), // todo: check #
+						Rotation2d.fromDegrees(Constants.FloorIntake.HP_ANGLE), // todo: check #
 						elevatorSubsystem,
 						floorIntakeSubsystem
 					)

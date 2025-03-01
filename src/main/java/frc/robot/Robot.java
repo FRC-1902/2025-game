@@ -22,9 +22,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.Elastic;
 
 public class Robot extends LoggedRobot {
-  private Command autonomousCommand;
+  private AutoSelector autoSelector;
   private Alert lowBatteryAlert;
   private Alert criticalBatteryAlert;
+  private Command autonomousCommand;
 
   private final RobotContainer robotContainer;
 
@@ -69,6 +70,7 @@ public class Robot extends LoggedRobot {
     DataLogManager.start();
 
     robotContainer = new RobotContainer();
+    autoSelector = new AutoSelector(robotContainer);
     PathfindingCommand.warmupCommand().schedule();
     SmartDashboard.putData(CommandScheduler.getInstance());
   }
@@ -92,16 +94,15 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-      autonomousCommand = robotContainer.getAutonomousCommand();
-
-      if (autonomousCommand != null) {
-          autonomousCommand.schedule();
-      }
-
-      Elastic.selectTab("Auto");
+      Elastic.selectTab("Autonomous");
 
       // Check battery voltage at autonomous start
       checkBatteryVoltage();
+
+      autonomousCommand = autoSelector.getSelectedCommand();
+      if (autonomousCommand != null) {
+        autonomousCommand.schedule();
+      }
     }
 
     @Override

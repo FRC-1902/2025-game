@@ -129,8 +129,8 @@ public class RobotContainer {
       //.whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
 
     // Align to Reef
-   // controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-     // .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
+    controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
 
 
 
@@ -161,6 +161,9 @@ public class RobotContainer {
     new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.5)
       .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
 
+    controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)
+      .whileTrue(new InstantCommand(() -> autoIntake.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)));
+
     // HP Intake
     controllers.getTrigger(ControllerName.MANIP, Button.X).debounce(0.05)
         .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.HP_ANGLE));
@@ -180,16 +183,5 @@ public class RobotContainer {
     // Climber Intake Out
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90) // TODO: Get Correct angle
       .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(90)), floorIntake));
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand()
-  {
-    // An example command will be run in autonomous
-    return swerve.getAutonomousCommand("Test");
   }
 }

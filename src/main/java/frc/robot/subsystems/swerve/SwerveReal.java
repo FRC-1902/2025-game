@@ -39,7 +39,7 @@ public class SwerveReal implements SwerveBase {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(
         Constants.Swerve.MAX_SPEED,
           new Pose2d(
-          new Translation2d(Meter.of(3.2), Meter.of(4)),
+          new Translation2d(Meter.of(2.850), Meter.of(4)),
           Rotation2d.fromDegrees(0)
         )
       );
@@ -175,8 +175,8 @@ public class SwerveReal implements SwerveBase {
           }
         },
         new PPHolonomicDriveController(
-          new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-          new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+          new PIDConstants(3.7, 0.2, 0), // Translation PID constants
+          new PIDConstants(4.0, 0.0, 0.0) // Rotation PID constants
         ),
         config,
         () -> {

@@ -45,7 +45,7 @@ public final class Constants {
     public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
 
     // Speeds
-    public static final double MAX_SPEED = Units.feetToMeters(16.6); // 16.6 m/s
+    public static final double MAX_SPEED = Units.feetToMeters(16.6); // m/s
     public static final double MAX_ACCELERATION = Units.feetToMeters(12.0); // m/s^2
     public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
@@ -96,7 +96,7 @@ public final class Constants {
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
     public static final double FLOOR_ANGLE = 180.0;
-    public static final double ELEVATOR_ANGLE = 70.0;
+    public static final double ELEVATOR_ANGLE = 90.0;
     public static final double CLIMB_ANGLE = 90.0;
     public static final double DEFAULT_ANGLE = 5.0;
   } 
