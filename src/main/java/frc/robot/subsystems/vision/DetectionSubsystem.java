@@ -41,6 +41,7 @@ public class DetectionSubsystem extends SubsystemBase {
     return Rotation2d.fromDegrees(targetYaw);
   }
 
+
   @Override
   public void periodic() {
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
