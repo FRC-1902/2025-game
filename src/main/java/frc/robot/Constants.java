@@ -53,6 +53,9 @@ public final class Constants {
     public static final double AUTO_MAX_SPEED = Units.feetToMeters(.5); // m/s TODO: Adjust later
     public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(.7); // m/s^2 TODO: Adjust later
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(1); // m/s TODO: Adjust later
+
+    // todo: figure out magic ##
+    public static final double OBJECT_TURN_KP = 4; // describes how much gas to give the robot to turn
   }
 
   public static final class AlgaeIntake{
