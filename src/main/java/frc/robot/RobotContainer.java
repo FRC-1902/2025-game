@@ -1,6 +1,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Percent;
+import static edu.wpi.first.units.Units.Second;
 
 import java.io.File;
 
@@ -9,7 +10,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FloorIntake;
@@ -63,7 +63,7 @@ public class RobotContainer {
   ClimbFactory climbFactory;
 
   public RobotContainer() {
-    controllers = new ControllerSubsystem();
+    controllers = ControllerSubsystem.getInstance();
     vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
     swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
@@ -97,9 +97,11 @@ public class RobotContainer {
 
     LEDPattern greenPattern = LEDPattern.solid(new Color(0, 255, 0)).atBrightness(Percent.of(50));
     LEDPattern redPattern = LEDPattern.solid(new Color(255, 0, 0)).atBrightness(Percent.of(50));
-    
-    led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern);
-    led.registerPattern(elevator::isLocked, redPattern);
+    LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(50));
+
+    led.registerPattern(elevator::isLocked, redPattern, null);
+    led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern, 2.0);
+    led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern, 2.0);
 
     bindButtons();
   }
@@ -142,16 +144,13 @@ public class RobotContainer {
 
     // L3
     new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.RT) > 0.5)
-        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3))
-        .onFalse(elevatorFactory.getElevatorDownCommand());
+        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3));
     // L2
     controllers.getTrigger(ControllerName.MANIP, Button.RB).debounce(0.05)
-        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2))
-        .onFalse(elevatorFactory.getElevatorDownCommand());
+        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2));
     // L1
     controllers.getTrigger(ControllerName.MANIP, Button.Y).debounce(0.05)
-        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L1))
-        .onFalse(elevatorFactory.getElevatorDownCommand());
+        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L1));
 
     // Spit Floor Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LS).debounce(0.05)

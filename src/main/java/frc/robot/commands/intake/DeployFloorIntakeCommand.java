@@ -44,7 +44,7 @@ public class DeployFloorIntakeCommand extends Command {
   @Override
   public void execute() {
     if (floorIntakeSubsystem.pieceSensorActive()) {
-      floorIntakeSubsystem.setSpeed(1);
+      floorIntakeSubsystem.setSpeed(1); // Runs intake to keep coral in the intake while rotating intake.
     }
   }
 

@@ -46,8 +46,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_ID);
 
     pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
-    // makes sure that intake doesn't try to gas it through the floor
-    pid.disableContinuousInput();
+    pid.disableContinuousInput(); // Makes sure that intake doesn't try to gas it through the floor
     pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
 
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
@@ -58,7 +57,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE));
     
-    // TODO: Check that motors aren't supposed to be inverted
     configureMotors();
   }
 
@@ -99,7 +97,11 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @returns current angle in Rotation2d
    */
   public Rotation2d getAngle() {
-    return Rotation2d.fromRotations(1 - rollerMotor.getAbsoluteEncoder().getPosition());
+    double angle = 1 - rollerMotor.getAbsoluteEncoder().getPosition();
+    if (angle > 0.97) {  
+      angle = 0;
+    }
+    return Rotation2d.fromRotations(angle);
   }
 
   /**
@@ -110,9 +112,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     if (pivotWatchdog.checkWatchdog(targetAngle.getDegrees()) ) {
       DataLogManager.log("Specified input out of bounds on FloorIntake");
       return;
-    }
-    if(targetAngle.getDegrees() < 360 || targetAngle.getDegrees() > 350){
-      pid.setSetpoint(0);
     }
     pid.setSetpoint(targetAngle.getDegrees());
     SmartDashboard.putNumber("FloorIntake/targetAngle", targetAngle.getDegrees());
@@ -147,8 +146,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     return !irSensor.get();
   }
 
-  // checks that the pivot isn't going out of tolerance, will send an alert if it
-  // does
+  // checks that the pivot isn't going out of tolerance, will send an alert if it does
   private boolean pivotWatchdog() {
     if (pivotWatchdog.checkWatchdog()) {
       pivotAlert.set(true);

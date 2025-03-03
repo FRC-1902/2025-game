@@ -56,7 +56,9 @@ public class ElevatorFactory {
       endEffectorFactory.getIndexSequence(),
       new ElevatorCommand(elevatorSubsystem, Position.MIN),
       new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
-    );
+    ).finallyDo(() -> {
+      elevatorSubsystem.setPosition(Constants.Elevator.Position.MIN);
+    });
   }
 }
     

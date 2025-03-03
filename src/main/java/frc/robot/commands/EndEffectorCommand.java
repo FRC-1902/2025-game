@@ -1,14 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import java.util.function.BooleanSupplier;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class EndEffectorCommand extends Command {
   
   private final EndEffectorSubsystem endEffectorSubsystem;
@@ -16,13 +11,11 @@ public class EndEffectorCommand extends Command {
   private BooleanSupplier conditional;
   
   /**
-   * 
+   * Runs the end effector at a given speed until a condition is met.
    * @param endEffectorSubsystem
    * @param speed
    * @param conditional
-   * sets EE to a speed based on some condition. Used mainly to adjust indexing when piece is sent from floor intake.
    */
-  /** Creates a new EndEffectorCommand. */
   public EndEffectorCommand(EndEffectorSubsystem endEffectorSubsystem, double speed, BooleanSupplier conditional) {
     this.endEffectorSubsystem = endEffectorSubsystem;
     this.speed = speed;

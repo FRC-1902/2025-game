@@ -2,6 +2,8 @@ package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Meter;
 
+import java.io.File;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -18,8 +20,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
-
-import java.io.File;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveDriveConfiguration;
@@ -54,6 +54,8 @@ public class SwerveReal implements SwerveBase {
     swerveDrive.setCosineCompensator(false);
     swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
     swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
+    swerveDrive.setChassisDiscretization(true, 0.02);
+
     //swerveDrive.pushOffsetsToEncoders(); // Removed because absolute encoders have build in zeroing
   }
 
