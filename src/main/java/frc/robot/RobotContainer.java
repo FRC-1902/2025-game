@@ -88,7 +88,7 @@ public class RobotContainer {
 
     autoDrive = new AutoDriveFactory(swerve);
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory);
+    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
     autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
     climbFactory = new ClimbFactory(elevator, floorIntake);
@@ -99,9 +99,9 @@ public class RobotContainer {
     LEDPattern redPattern = LEDPattern.solid(new Color(255, 0, 0)).atBrightness(Percent.of(50));
     LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(50));
 
-    led.registerPattern(elevator::isLocked, redPattern, null);
-    led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern, 2.0);
-    led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern, 2.0);
+    led.registerPattern(elevator::isLocked, redPattern);
+    led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
+    led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern);
 
     bindButtons();
   }

@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants.LED;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.AutoPlaceFactory;
@@ -31,6 +32,7 @@ import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 /*
@@ -50,6 +52,7 @@ public class AutoSelector {
   ElevatorFactory elevatorFactory;
   AutoIntakeFactory autoIntakeFactory;
   EndEffectorFactory endEffectorFactory;
+  LEDSubsystem led;
   
   public AutoSelector(RobotContainer robotContainer) {
     // this.robotContainer = robotContainer;
@@ -60,7 +63,7 @@ public class AutoSelector {
     elevator = robotContainer.elevator;
 
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory);
+    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
     autoChooser = new LoggedDashboardChooser<>("Auto Chooser");

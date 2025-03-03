@@ -7,13 +7,11 @@ import static edu.wpi.first.units.Units.Percent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -53,41 +51,6 @@ public class LEDSubsystem extends SubsystemBase {
    */
   public void registerPattern(BooleanSupplier condition, LEDPattern pattern) {
     ledRegistry.add(new KeyValue<>(condition, pattern));
-  }
-
-  /**
-   * Register a pattern based on time difference
-   * @param endTimeSupplier Supplier for the end timestamp (can be updated by commands)
-   * @param durationSeconds How long the pattern should show after endTime is updated
-   * @param pattern The pattern to display
-   */
-  public void registerPattern(DoubleSupplier endTimeSupplier, double durationSeconds, LEDPattern pattern) {
-    BooleanSupplier timedCondition = () -> {
-      return (Timer.getFPGATimestamp() - endTimeSupplier.getAsDouble()) < durationSeconds;
-    };
-    ledRegistry.add(new KeyValue<>(timedCondition, pattern));
-  }
-
-  /**
-   * Register a pattern for conditional timed activation
-   * @param condition Base condition that must be true
-   * @param pattern The pattern to display
-   * @param time Duration in seconds
-   */
-  public void registerPattern(BooleanSupplier condition, LEDPattern pattern, Double time) {
-    if (time == null) {
-      ledRegistry.add(new KeyValue<>(condition, pattern));
-    } else {
-      final double startTime = Timer.getFPGATimestamp();
-      BooleanSupplier timedCondition = () -> {
-        if (condition.getAsBoolean()) {
-          double currentTime = Timer.getFPGATimestamp();
-          return (currentTime - startTime) <= time;
-        }
-        return false;
-      };
-      ledRegistry.add(new KeyValue<>(timedCondition, pattern));
-    }
   }
 
   /**
