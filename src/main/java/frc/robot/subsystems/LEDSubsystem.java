@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Percent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -49,6 +50,29 @@ public class LEDSubsystem extends SubsystemBase {
    * The first registered boolean to become true sets as the pattern on the subsystem
    * @param condition
    * @param pattern
+   */
+  public void registerPattern(BooleanSupplier condition, LEDPattern pattern) {
+    ledRegistry.add(new KeyValue<>(condition, pattern));
+  }
+
+  /**
+   * Register a pattern based on time difference
+   * @param endTimeSupplier Supplier for the end timestamp (can be updated by commands)
+   * @param durationSeconds How long the pattern should show after endTime is updated
+   * @param pattern The pattern to display
+   */
+  public void registerPattern(DoubleSupplier endTimeSupplier, double durationSeconds, LEDPattern pattern) {
+    BooleanSupplier timedCondition = () -> {
+      return (Timer.getFPGATimestamp() - endTimeSupplier.getAsDouble()) < durationSeconds;
+    };
+    ledRegistry.add(new KeyValue<>(timedCondition, pattern));
+  }
+
+  /**
+   * Register a pattern for conditional timed activation
+   * @param condition Base condition that must be true
+   * @param pattern The pattern to display
+   * @param time Duration in seconds
    */
   public void registerPattern(BooleanSupplier condition, LEDPattern pattern, Double time) {
     if (time == null) {
