@@ -50,7 +50,7 @@ public class SwerveSubsystem extends SubsystemBase {
     this.vision = vision;
 
     try {
-      this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+      this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
     } catch (Exception e) {
       throw new RuntimeException("Failed to load AprilTag field layout", e);
     }

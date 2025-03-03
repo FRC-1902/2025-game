@@ -38,7 +38,7 @@ public class VisionReal implements VisionBase {
 
   /** Constructor initializes all cameras and their pose estimators */
   public VisionReal() {
-    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
     for (Constants.Vision.Camera cam : Constants.Vision.Camera.values()) {
       cameras.put(cam, new PhotonCamera(cam.camName));
