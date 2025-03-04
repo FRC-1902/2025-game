@@ -50,9 +50,9 @@ public final class Constants {
     public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
     // Auto Speeds
-    public static final double AUTO_MAX_SPEED = Units.feetToMeters(.5); // m/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(.7); // m/s^2 TODO: Adjust later
-    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(1); // m/s TODO: Adjust later
+    public static final double AUTO_MAX_SPEED = Units.feetToMeters(5); // m/s TODO: Adjust later
+    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(5); // m/s^2 TODO: Adjust later
+    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(10); // m/s TODO: Adjust later
   }
 
   public static final class AlgaeIntake{

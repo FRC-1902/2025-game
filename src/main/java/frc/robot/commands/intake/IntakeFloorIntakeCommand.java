@@ -10,17 +10,13 @@ import static edu.wpi.first.units.Units.Percent;
 
 public class IntakeFloorIntakeCommand extends Command {
   private final FloorIntakeSubsystem floorIntakeSubsystem; 
-  private final LEDSubsystem led;
 
   private double endTime = 0;
-  private final LEDPattern color = LEDPattern.solid(new Color(0, 255, 0)).atBrightness(Percent.of(50)); // Green color
 
   /** Creates a new IntakeFloorIntakeCommand. */
-  public IntakeFloorIntakeCommand(FloorIntakeSubsystem floorIntakeSubsystem, LEDSubsystem led) {
+  public IntakeFloorIntakeCommand(FloorIntakeSubsystem floorIntakeSubsystem) {
     this.floorIntakeSubsystem = floorIntakeSubsystem; 
-    this.led = led;
 
-    led.registerPattern(() -> (Timer.getFPGATimestamp() - endTime) < 0.25, color);
 
     addRequirements(floorIntakeSubsystem);
   }

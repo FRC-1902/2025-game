@@ -34,8 +34,8 @@ public class SnapToWaypoint extends Command {
     Pose2d currentPose = swerve.getPose();
 
     // Simple P-controllers for translation and rotation
-    double velocitykP = 0.003; // TODOL Tune these values
-    double rotationkP = 0.003; // TODO: Tune these values
+    double velocitykP = 1; // TODOL Tune these values
+    double rotationkP = 1; // TODO: Tune these values
 
     Translation2d velocity = targetPose.getTranslation().minus(currentPose.getTranslation()).times(velocitykP);
     Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
@@ -58,8 +58,8 @@ public class SnapToWaypoint extends Command {
   @Override
   public boolean isFinished() {
     // Finish when position and orientation are close enough
-    double distanceThreshold = 0.01;        // meters
-    double rotationThreshold = Math.toRadians(1); // 1 degree in radians
+    double distanceThreshold = 0.005;        // meters
+    double rotationThreshold = Math.toRadians(.1); // 1 degree in radians
 
     double currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
     double currentRotError = Math.abs(swerve.getPose().getRotation().getRadians() - targetPose.getRotation().getRadians());

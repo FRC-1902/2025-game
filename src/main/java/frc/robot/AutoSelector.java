@@ -52,7 +52,6 @@ public class AutoSelector {
   ElevatorFactory elevatorFactory;
   AutoIntakeFactory autoIntakeFactory;
   EndEffectorFactory endEffectorFactory;
-  LEDSubsystem led;
   
   public AutoSelector(RobotContainer robotContainer) {
     // this.robotContainer = robotContainer;
@@ -63,18 +62,16 @@ public class AutoSelector {
     elevator = robotContainer.elevator;
 
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
+    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
-    autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
+    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
     autoChooser.addOption("Test 5 Piece", sqaure222());
     autoChooser.addOption("3 L3", get3L3());
     autoChooser.addOption("Sqaure", sqaure());
     autoChooser.addOption("3 L3 Test", get3L3Test());
-
-    SmartDashboard.putData("Auto/Auto Choices", autoChooser.getSendableChooser());
   }
 
   /**

@@ -14,13 +14,12 @@ public class AutoDriveFactory {
 
   /**
    * Drives to the waypoint and snaps to it.
-   * 
    * @return the command
    */
   public Command pathAndSnapCommand(WaypointType waypoint) {
     return new SequentialCommandGroup(
       new PathToWaypoint(() -> swerve.getWaypoint(waypoint), swerve),
-      new SnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint))
+      new ContinuallySnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint))
     );
   }
 }

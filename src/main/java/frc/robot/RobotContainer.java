@@ -5,10 +5,14 @@ import static edu.wpi.first.units.Units.Second;
 
 import java.io.File;
 
+import com.pathplanner.lib.util.PathPlannerLogging;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -52,7 +56,7 @@ public class RobotContainer {
   ElevatorSubsystem elevator;
   EndEffectorSubsystem endEffector;
   FloorIntakeSubsystem floorIntake;
-  LEDSubsystem led;
+  // LEDSubsystem led;
   ControllerSubsystem controllers;
 
   AutoDriveFactory autoDrive;
@@ -61,6 +65,7 @@ public class RobotContainer {
   ElevatorFactory elevatorFactory;
   EndEffectorFactory endEffectorFactory;
   ClimbFactory climbFactory;
+  private final Field2d field;
 
   public RobotContainer() {
     controllers = ControllerSubsystem.getInstance();
@@ -70,9 +75,28 @@ public class RobotContainer {
     endEffector = new EndEffectorSubsystem();
     elevator = new ElevatorSubsystem();
     floorIntake = new FloorIntakeSubsystem(elevator);
-    led = new LEDSubsystem();
+    // led = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
+    field = new Field2d();
+        SmartDashboard.putData("Field", field);
 
+            // Logging callback for current robot pose
+        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+            // Do whatever you want with the pose here
+            field.setRobotPose(pose);
+        });
+
+        // Logging callback for target robot pose
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+            // Do whatever you want with the pose here
+            field.getObject("target pose").setPose(pose);
+        });
+
+        // Logging callback for the active path, this is sent as a list of poses
+        PathPlannerLogging.setLogActivePathCallback((poses) -> {
+            // Do whatever you want with the poses here
+            field.getObject("path").setPoses(poses);
+        });
 
     DriveCommand closedDrive = new DriveCommand(
       swerve,
@@ -84,11 +108,13 @@ public class RobotContainer {
       //     double leftTrigger = controllers.getCommandController(ControllerName.DRIVE).getLeftTriggerAxis();
       //     return MathUtil.applyDeadband(rightTrigger - leftTrigger, Constants.Controller.RIGHT_X_DEADBAND);
       // }
+
+      
     );
 
     autoDrive = new AutoDriveFactory(swerve);
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
+    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory);
     autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
     climbFactory = new ClimbFactory(elevator, floorIntake);
@@ -99,9 +125,9 @@ public class RobotContainer {
     LEDPattern redPattern = LEDPattern.solid(new Color(255, 0, 0)).atBrightness(Percent.of(50));
     LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(50));
 
-    led.registerPattern(elevator::isLocked, redPattern);
-    led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
-    led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern);
+    // led.registerPattern(elevator::isLocked, redPattern);
+    // led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
+    // led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern);
 
     bindButtons();
   }

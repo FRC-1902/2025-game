@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -187,16 +188,6 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Get the path follower with events.
-   *
-   * @param pathName PathPlanner path name.
-   * @return {@link AutoBuilder#followPath(PathPlannerPath)} path command.
-   */
-  public Command getAutonomousCommand(String pathName) {
-    return new PathPlannerAuto(pathName);
-  }
-
-  /**
    * Use PathPlanner Path finding to go to a point on the field.
    *
    * @param pose Target {@link Pose2d} to go to.
@@ -227,6 +218,28 @@ public class SwerveSubsystem extends SubsystemBase {
     return AutoBuilder.followPath(path);
   }
 
+  public Pose2d allianceFlip(Pose2d pose) {
+    if (!isRedAlliance()) return pose;
+    
+    return new Pose2d(
+      new Translation2d(
+        FieldConstants.LENGTH - pose.getX(),
+        FieldConstants.WIDTH - pose.getY()
+      ),
+      pose.getRotation().plus(new Rotation2d(Math.PI))
+    );
+  }
+
+  public Pose2d[] allianceFlip(Pose2d[] poses) {
+    if (!isRedAlliance()) return poses;
+    
+    Pose2d[] flippedPoses = new Pose2d[poses.length];
+    for (int i = 0; i < poses.length; i++) {
+        flippedPoses[i] = allianceFlip(poses[i]);
+    }
+    return flippedPoses;
+  }
+
   /**
    * Finds the closest waypoint of the specified type.
    *
@@ -239,13 +252,10 @@ public class SwerveSubsystem extends SubsystemBase {
   
     switch (type) {
       case REEF:
-        waypoints = isRedAlliance() ? FieldConstants.RED.REEF : FieldConstants.BLUE.REEF;
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.REEF);
         break;
       case PROCESSOR:
-        return isRedAlliance() ? FieldConstants.RED.PROCESSOR[0] : FieldConstants.BLUE.PROCESSOR[0];
-      case CAGE:
-        waypoints = isRedAlliance() ? FieldConstants.RED.CAGE : FieldConstants.BLUE.CAGE;
-        break;
+        return allianceFlip(FieldConstants.WAYPOINTS.PROCESSOR);
       default:
         return null; // No waypoint specified
     }
@@ -264,7 +274,7 @@ public class SwerveSubsystem extends SubsystemBase {
         targetWaypoint = waypoint;
       }
     }
-  
+
     return targetWaypoint;
   }
 
