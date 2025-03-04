@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -26,6 +27,7 @@ public class SnapToWaypoint extends Command {
   @Override
   public void initialize() {
     targetPose = targetPoseSupplier.get();
+    DataLogManager.log("Snap");
   }
 
   @Override
@@ -34,8 +36,8 @@ public class SnapToWaypoint extends Command {
     Pose2d currentPose = swerve.getPose();
 
     // Simple P-controllers for translation and rotation
-    double velocitykP = 0.003; // TODOL Tune these values
-    double rotationkP = 0.003; // TODO: Tune these values
+    double velocitykP = 0.001; // TODOL Tune these values
+    double rotationkP = 0.001; // TODO: Tune these values
 
     Translation2d velocity = targetPose.getTranslation().minus(currentPose.getTranslation()).times(velocitykP);
     Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);

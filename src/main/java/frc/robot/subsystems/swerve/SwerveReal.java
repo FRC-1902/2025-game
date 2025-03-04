@@ -54,6 +54,8 @@ public class SwerveReal implements SwerveBase {
     swerveDrive.setCosineCompensator(false);
     swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
     swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
+    swerveDrive.setChassisDiscretization(true, 0.02);
+    
     //swerveDrive.pushOffsetsToEncoders(); // Removed because absolute encoders have build in zeroing
   }
 

@@ -20,10 +20,8 @@ public class AlgaeOuttakeCommand extends Command {
 
   @Override
   public void initialize() {
-    new SequentialCommandGroup(
-      new InstantCommand(() -> algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(50))),
-      new InstantCommand(() -> algaeIntakeSubsystem.setSpeed(-0.4)) // todo: find actual speed 
-    );
+      algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(50));
+      algaeIntakeSubsystem.setSpeed(-0.4); // todo: find actual speed 
   }
 
   @Override

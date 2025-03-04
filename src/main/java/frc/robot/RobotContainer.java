@@ -129,8 +129,8 @@ public class RobotContainer {
       //.whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
 
     // Align to Reef
-   // controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-     // .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
+    controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
 
 
 
@@ -141,7 +141,7 @@ public class RobotContainer {
     /* Manipulator Controls */
 
     // L3
-    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.RT) > 0.5)
+    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.RT) > 0.2)
         .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3))
         .onFalse(elevatorFactory.getElevatorDownCommand());
     // L2
@@ -158,7 +158,7 @@ public class RobotContainer {
       .whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
 
     // Floor Intake
-    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.5)
+    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.2)
       .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
 
     // HP Intake

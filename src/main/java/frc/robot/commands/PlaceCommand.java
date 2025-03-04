@@ -22,7 +22,7 @@ public class PlaceCommand extends Command {
 
   @Override
   public void initialize() {
-    endEffectorSubsystem.setSpeed(0.35); // todo: find indexing speed
+    endEffectorSubsystem.setSpeed(0.50); // todo: find indexing speed
   }
 
   @Override
