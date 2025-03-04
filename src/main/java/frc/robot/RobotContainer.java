@@ -163,6 +163,12 @@ public class RobotContainer {
     //controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       //.whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
 
+    // Align to Reef
+   // controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+     // .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
+
+
+
     // Align to Cage, Removed for now
     // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
     //     .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.CAGE));
@@ -184,7 +190,7 @@ public class RobotContainer {
       .whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
 
     // Floor Intake
-    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.5)
+    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.2)
       .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
 
     controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)

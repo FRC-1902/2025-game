@@ -50,9 +50,9 @@ public final class Constants {
     public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
     // Auto Speeds
-    public static final double AUTO_MAX_SPEED = Units.feetToMeters(5); // m/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(5); // m/s^2 TODO: Adjust later
-    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(10); // m/s TODO: Adjust later
+    public static final double AUTO_MAX_SPEED = Units.feetToMeters(.8); // m/s TODO: Adjust later
+    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(.8); // m/s^2 TODO: Adjust later
+    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(1); // m/s TODO: Adjust later
   }
 
   public static final class AlgaeIntake{
@@ -71,7 +71,7 @@ public final class Constants {
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(100); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(20); 
 
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(54.3); 
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(57.3); 
 
     public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(90);
   }
@@ -95,8 +95,8 @@ public final class Constants {
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(342.53);
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
-    public static final double FLOOR_ANGLE = 180.0;
-    public static final double ELEVATOR_ANGLE = 90.0;
+    public static final double FLOOR_ANGLE = 178.0;
+    public static final double ELEVATOR_ANGLE = 70.0;
     public static final double CLIMB_ANGLE = 90.0;
     public static final double DEFAULT_ANGLE = 5.0;
   } 

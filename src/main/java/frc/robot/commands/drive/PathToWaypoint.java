@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -29,6 +30,7 @@ public class PathToWaypoint extends Command {
 
   @Override
   public void initialize() {
+    DataLogManager.log("Path");
     pathCommand = AutoBuilder.pathfindToPose(targetPose.get(), constraints, 0);
     pathCommand.initialize();
   }
@@ -37,7 +39,7 @@ public class PathToWaypoint extends Command {
   public void execute() {
     pathCommand.execute();
   }
-
+  
   @Override
   public void end(boolean interrupted) {
     pathCommand.end(interrupted);

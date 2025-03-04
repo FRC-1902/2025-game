@@ -32,7 +32,7 @@ public class AlgaeIntakeCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     if (!interrupted) {
-      algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(85));
+      algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(75));
       algaeIntakeSubsystem.setSpeed(0.9);
     }
     else{
