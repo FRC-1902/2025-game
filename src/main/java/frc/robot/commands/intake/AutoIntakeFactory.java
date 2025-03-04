@@ -22,12 +22,14 @@ public class AutoIntakeFactory {
   ElevatorSubsystem elevatorSubsystem;
   EndEffectorSubsystem endEffectorSubsystem;
   EndEffectorFactory endEffectorFactory;
+  LEDSubsystem led;
 
-  public AutoIntakeFactory(FloorIntakeSubsystem floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem, EndEffectorFactory endEffectorFactory) {
+  public AutoIntakeFactory(FloorIntakeSubsystem floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem, EndEffectorFactory endEffectorFactory, LEDSubsystem led) {
     this.floorIntakeSubsystem = floorIntakeSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
     this.endEffectorSubsystem = endEffectorSubsystem;
     this.endEffectorFactory = endEffectorFactory;
+    this.led = led;
   }
 
   public Command getIntakeSequence(double angle) {
@@ -44,7 +46,7 @@ public class AutoIntakeFactory {
           floorIntakeSubsystem 
         )
       ),
-      new IntakeFloorIntakeCommand(floorIntakeSubsystem)
+      new IntakeFloorIntakeCommand(floorIntakeSubsystem, led)
     ).finallyDo((wasCancelled) -> {
       new ConditionalCommand(
         // index successful intake

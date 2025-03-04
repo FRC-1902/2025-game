@@ -54,7 +54,7 @@ public class DriveCommand extends Command {
 
     // take away cubic scaling!!!!!
     // Apply cubic scaling to x and y velocities
-    Translation2d trans = new Translation2d(scaleInputsOne(vX.getAsDouble()), scaleInputsOne(vY.getAsDouble())).times(Constants.Swerve.MAX_SPEED).times(1); // TODO: remove the speed cap
+    Translation2d trans = new Translation2d(scaleInputsOne(vX.getAsDouble()), scaleInputsOne(vY.getAsDouble())).times(Constants.Swerve.MAX_SPEED).times(1);
     double xVelocity = trans.getX(); 
     double yVelocity = trans.getY();
 
@@ -67,7 +67,7 @@ public class DriveCommand extends Command {
 
     double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
 
-    SmartDashboard.putNumber("Swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
+    SmartDashboard.putNumber("swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
 
     // Create field-relative ChassisSpeeds
     ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(

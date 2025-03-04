@@ -89,11 +89,10 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
     rollerMotor.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-
   }
 
   /**
-   * 
+   * Changes angle is over threshold
    * @returns current angle in Rotation2d
    */
   public Rotation2d getAngle() {
@@ -122,7 +121,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @param targetSpeed sets the speed of the roller motors between 1 and -1
    */
   public void setSpeed(double targetSpeed) {
-    rollerMotor.set(targetSpeed); // TODO: Re-Enable
+    rollerMotor.set(targetSpeed);
   }
 
   /**
@@ -164,10 +163,9 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
 
-
     if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < Constants.FloorIntake.ELEVATOR_ANGLE){
-      // DataLogManager.log("Elevator spooky in relation to floor intake");
-      //setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE)); // TODO: Re-Enable
+      DataLogManager.log("FloorIntake cannot deploy while elevator is not at MIN");
+      setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE)); // TODO: Re-Enable
     }
     
     double power = pid.calculate(getAngle().getDegrees())

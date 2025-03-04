@@ -56,7 +56,7 @@ public class RobotContainer {
   ElevatorSubsystem elevator;
   EndEffectorSubsystem endEffector;
   FloorIntakeSubsystem floorIntake;
-  // LEDSubsystem led;
+  LEDSubsystem led;
   ControllerSubsystem controllers;
 
   AutoDriveFactory autoDrive;
@@ -74,28 +74,26 @@ public class RobotContainer {
     endEffector = new EndEffectorSubsystem();
     elevator = new ElevatorSubsystem();
     floorIntake = new FloorIntakeSubsystem(elevator);
-    // led = new LEDSubsystem();
+    led = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
+
+    // Path Planner logging
     field = new Field2d();
-        SmartDashboard.putData("Field", field);
+    SmartDashboard.putData("Field", field);
+    // Logging callback for current robot pose
+    PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+      field.setRobotPose(pose);
+    });
 
-            // Logging callback for current robot pose
-        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
-            // Do whatever you want with the pose here
-            field.setRobotPose(pose);
-        });
+    // Logging callback for target robot pose
+    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+      field.getObject("target pose").setPose(pose);
+    });
 
-        // Logging callback for target robot pose
-        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-            // Do whatever you want with the pose here
-            field.getObject("target pose").setPose(pose);
-        });
-
-        // Logging callback for the active path, this is sent as a list of poses
-        PathPlannerLogging.setLogActivePathCallback((poses) -> {
-            // Do whatever you want with the poses here
-            field.getObject("path").setPoses(poses);
-        });
+    // Logging callback for the active path, this is sent as a list of poses
+    PathPlannerLogging.setLogActivePathCallback((poses) -> {
+      field.getObject("path").setPoses(poses);
+    });
 
     DriveCommand closedDrive = new DriveCommand(
       swerve,
@@ -110,12 +108,12 @@ public class RobotContainer {
     );
 
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 90)
-    .onTrue(new InstantCommand(() -> closedDrive.setSpinToWin(true)))
-    .onFalse(new InstantCommand(() -> closedDrive.setSpinToWin(false)));
+      .onTrue(new InstantCommand(() -> closedDrive.setSpinToWin(true)))
+      .onFalse(new InstantCommand(() -> closedDrive.setSpinToWin(false)));
 
     autoDrive = new AutoDriveFactory(swerve);
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory);
+    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
     autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
@@ -125,9 +123,9 @@ public class RobotContainer {
     LEDPattern redPattern = LEDPattern.solid(new Color(255, 0, 0)).atBrightness(Percent.of(50));
     LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(50));
 
-    // led.registerPattern(elevator::isLocked, redPattern);
-    // led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
-    // led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern);
+    led.registerPattern(elevator::isLocked, redPattern);
+    led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
+    led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern);
 
     bindButtons();
   }

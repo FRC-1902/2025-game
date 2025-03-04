@@ -51,6 +51,7 @@ public class AutoSelector {
   ElevatorFactory elevatorFactory;
   AutoIntakeFactory autoIntakeFactory;
   EndEffectorFactory endEffectorFactory;
+  LEDSubsystem led;
   
   public AutoSelector(RobotContainer robotContainer) {
     // this.robotContainer = robotContainer;
@@ -59,9 +60,10 @@ public class AutoSelector {
     floorIntake = robotContainer.floorIntake;
     endEffector = robotContainer.endEffector;
     elevator = robotContainer.elevator;
+    led = robotContainer.led;
 
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory);
+    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");

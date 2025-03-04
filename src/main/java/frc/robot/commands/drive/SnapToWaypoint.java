@@ -27,7 +27,6 @@ public class SnapToWaypoint extends Command {
   @Override
   public void initialize() {
     targetPose = targetPoseSupplier.get();
-    DataLogManager.log("Snap");
   }
 
   @Override
@@ -60,8 +59,8 @@ public class SnapToWaypoint extends Command {
   @Override
   public boolean isFinished() {
     // Finish when position and orientation are close enough
-    double distanceThreshold = 0.005;        // meters
-    double rotationThreshold = Math.toRadians(.1); // 1 degree in radians
+    double distanceThreshold = 0.03;        // meters
+    double rotationThreshold = Math.toRadians(1); // radians
 
     double currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
     double currentRotError = Math.abs(swerve.getPose().getRotation().getRadians() - targetPose.getRotation().getRadians());

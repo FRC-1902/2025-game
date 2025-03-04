@@ -50,7 +50,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     pid.setTolerance(Constants.Elevator.TOLERANCE);
 
     badStart = new Alert(
-      "Elevator/Bad Starting Pos, Robot Knows not where you are, and why you've done this.",
+      "Elevator start position wrong, limit switch not triggered",
       AlertType.kError
     );
 

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -38,15 +39,15 @@ public class ElevatorFactory {
    */
   public Command getElevatorCommand(Position targetPosition){
     return new SequentialCommandGroup(
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
       new ConditionalCommand(
-        new ParallelCommandGroup(
-          new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
-          endEffectorFactory.getIndexSequence()
-        ), 
-        new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+        endEffectorFactory.getIndexSequence(),
+        new InstantCommand(),
         () -> floorIntakeSubsystem.pieceSensorActive()),
       new ElevatorCommand(elevatorSubsystem, targetPosition)
-    );
+    ).finallyDo(() -> {
+      elevatorSubsystem.setPosition(Position.MIN);
+    });
   }
 
   /**

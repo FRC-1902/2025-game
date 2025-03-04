@@ -45,14 +45,14 @@ public final class Constants {
     public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
 
     // Speeds
-    public static final double MAX_SPEED = Units.feetToMeters(16.6); // m/s
-    public static final double MAX_ACCELERATION = Units.feetToMeters(12.0); // m/s^2
+    public static final double MAX_SPEED = Units.feetToMeters(16.6); // ft/s
+    public static final double MAX_ACCELERATION = Units.feetToMeters(12.0); // ft/s^2
     public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
     // Auto Speeds
-    public static final double AUTO_MAX_SPEED = Units.feetToMeters(5); // m/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(5); // m/s^2 TODO: Adjust later
-    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(5); // m/s TODO: Adjust later
+    public static final double AUTO_MAX_SPEED = Units.feetToMeters(5); // ft/s TODO: Adjust later
+    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(5); // ft/s^2 TODO: Adjust later
+    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(5); // TODO: Adjust later
   }
 
   public static final class AlgaeIntake{
