@@ -52,7 +52,7 @@ public class DriveCommand extends Command {
       yVelocity *= -1;
     }
 
-    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * 0.1; // TODO: change speed cap
+    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * 0.35; // TODO: change speed cap
 
     SmartDashboard.putNumber("Swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
 
