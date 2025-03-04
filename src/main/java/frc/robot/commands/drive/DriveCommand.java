@@ -2,6 +2,7 @@ package frc.robot.commands.drive;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,6 +15,8 @@ public class DriveCommand extends Command {
 
   private final SwerveSubsystem swerve;
   private final DoubleSupplier vX, vY, heading;
+  private double rotationMultiplier;
+
 
   /**
    * Creates a DriveCommand
@@ -28,11 +31,21 @@ public class DriveCommand extends Command {
     this.vY = vY;
     this.heading = heading;
 
+    rotationMultiplier = 0.35;
+
     addRequirements(swerve);
   }
 
   @Override
   public void initialize() {}
+
+  public void setSpinToWin(Boolean spinToWin) {
+    if (spinToWin) {
+      rotationMultiplier = 1.0;
+    } else {
+      rotationMultiplier = 0.35;
+    }
+  }
 
   @Override
   public void execute() {
@@ -52,7 +65,7 @@ public class DriveCommand extends Command {
       yVelocity *= -1;
     }
 
-    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * 0.1; // TODO: change speed cap
+    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
 
     SmartDashboard.putNumber("Swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
 

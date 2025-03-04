@@ -20,7 +20,6 @@ import frc.robot.Constants.LED;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.AutoPlaceFactory;
-import frc.robot.commands.ClimbFactory;
 import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.EndEffectorFactory;
 import frc.robot.commands.PlaceCommand;

@@ -31,7 +31,6 @@ public class ElevatorFactory {
     endEffectorFactory = new EndEffectorFactory(endEffectorSubsystem);
   }
 
-
   /**
    * Returns a command that sets the elevator to the target position while deploying the intake out of the way of the elevator
    * @param targetPosition
@@ -39,10 +38,13 @@ public class ElevatorFactory {
    */
   public Command getElevatorCommand(Position targetPosition){
     return new SequentialCommandGroup(
-      new ParallelCommandGroup(
+      new ConditionalCommand(
+        new ParallelCommandGroup(
+          new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+          endEffectorFactory.getIndexSequence()
+        ), 
         new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
-        endEffectorFactory.getIndexSequence()
-      ),
+        () -> floorIntakeSubsystem.pieceSensorActive()),
       new ElevatorCommand(elevatorSubsystem, targetPosition)
     );
   }
@@ -59,6 +61,13 @@ public class ElevatorFactory {
     ).finallyDo(() -> {
       elevatorSubsystem.setPosition(Constants.Elevator.Position.MIN);
     });
+  }
+
+  public SequentialCommandGroup getClimberUpSequence(){
+    return new SequentialCommandGroup(
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+      new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.CLIMB_UP)
+    );
   }
 }
     

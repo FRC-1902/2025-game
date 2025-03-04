@@ -9,6 +9,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -21,7 +22,6 @@ import frc.robot.FieldConstants.WaypointType;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.AutoPlaceFactory;
-import frc.robot.commands.ClimbFactory;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.EndEffectorFactory;
@@ -64,7 +64,6 @@ public class RobotContainer {
   AutoPlaceFactory autoPlaceFactory;
   ElevatorFactory elevatorFactory;
   EndEffectorFactory endEffectorFactory;
-  ClimbFactory climbFactory;
   private final Field2d field;
 
   public RobotContainer() {
@@ -107,17 +106,18 @@ public class RobotContainer {
       //     double rightTrigger = controllers.getCommandController(ControllerName.DRIVE).getRightTriggerAxis();
       //     double leftTrigger = controllers.getCommandController(ControllerName.DRIVE).getLeftTriggerAxis();
       //     return MathUtil.applyDeadband(rightTrigger - leftTrigger, Constants.Controller.RIGHT_X_DEADBAND);
-      // }
-
-      
+      // }      
     );
+
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 90)
+    .onTrue(new InstantCommand(() -> closedDrive.setSpinToWin(true)))
+    .onFalse(new InstantCommand(() -> closedDrive.setSpinToWin(false)));
 
     autoDrive = new AutoDriveFactory(swerve);
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory);
     autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
-    climbFactory = new ClimbFactory(elevator, floorIntake);
 
     swerve.setDefaultCommand(closedDrive);
 
@@ -148,6 +148,13 @@ public class RobotContainer {
     controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
       .onTrue(new InstantCommand(swerve::zeroGyro));
 
+    // Spin to win
+
+
+    // Align to Reef
+    controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
+
     // Align with Coral TODO: Change when Align PR is merged
     // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
     //       .whileTrue(new ObjectAlign());
@@ -155,12 +162,6 @@ public class RobotContainer {
     // Align to Processor
     //controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       //.whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
-
-    // Align to Reef
-    controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
-
-
 
     // Align to Cage, Removed for now
     // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
@@ -199,7 +200,7 @@ public class RobotContainer {
       
     // Climber Up
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 0) // TODO: Get Correct angle
-      .onTrue(climbFactory.getClimberUpSequence());
+      .onTrue(elevatorFactory.getClimberUpSequence());
 
     // Climber Down
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 180) // TODO: Get Correct angle
@@ -208,5 +209,9 @@ public class RobotContainer {
     // Climber Intake Out
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90) // TODO: Get Correct angle
       .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(90)), floorIntake));
+
+    // Home
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 90)
+      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
   }
 }

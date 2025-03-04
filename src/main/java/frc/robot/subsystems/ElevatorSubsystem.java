@@ -184,6 +184,19 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   /**
+   * go to the bottom of the elevator to re-home
+   */
+  private void home() {
+    if (!limitSwitchTriggered() && !isLocked()) {
+      leftMotor.set(-0.3); // TODO: change speed
+      rightMotor.set(-0.3);
+    } else {
+      leftMotor.set(0);
+      rightMotor.set(0);
+    }
+  }
+
+  /**
    * 
    * @param targetPosition
    * @returns whether the elevator is at a tolerance to the specified position or not
@@ -229,6 +242,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     switch (targetPosition) {
+      case MIN:
+        home();
+        return;
       case CLIMB_DOWN:
         climb();
         return;
