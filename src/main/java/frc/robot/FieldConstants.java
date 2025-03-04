@@ -24,10 +24,13 @@ public final class FieldConstants {
     private WAYPOINTS() {}; 
     // Reef Waypoints, Lettering goes counterclockwise blue, clockwise red
     // TODO: Set real values
-    public static final double offset = .3;
-    public static final double pathOffset = 1.0;
+    public static final Pose2d PROCESSOR = new Pose2d(3.165, 4.195, Rotation2d.fromDegrees(0));
 
-    public static final Pose2d[] REEF = {
+    public static final double offset = 0;
+    public static final double pathOffset = 2.0;
+
+    public static final Pose2d[] POLES = {
+      // Temp welded
       new Pose2d(3.165, 4.195, Rotation2d.fromDegrees(0)), // A
       new Pose2d(3.165, 3.860, Rotation2d.fromDegrees(0)), // B
       new Pose2d(3.685, 2.960, Rotation2d.fromDegrees(60)), // C
@@ -40,8 +43,28 @@ public final class FieldConstants {
       new Pose2d(5.000, 5.250, Rotation2d.fromDegrees(240)), // J
       new Pose2d(3.970, 5.250, Rotation2d.fromDegrees(300)), // K
       new Pose2d(3.685, 5.090, Rotation2d.fromDegrees(300)) // L
+
     };
 
-    public static final Pose2d PROCESSOR = new Pose2d(6.000, 0.450, Rotation2d.fromDegrees(270));
+    private static Pose2d getOffsetPose(Pose2d pose, double offsetDistance) {
+      double offsetX = pose.getX() - offsetDistance * Math.cos(pose.getRotation().getRadians());
+      double offsetY = pose.getY() - offsetDistance * Math.sin(pose.getRotation().getRadians());
+      return new Pose2d(offsetX, offsetY, pose.getRotation());
+    }
+
+    public static final Pose2d[] REEF = {
+      getOffsetPose(POLES[0], offset),  // A
+      getOffsetPose(POLES[1], offset),  // B
+      getOffsetPose(POLES[2], offset),  // C
+      getOffsetPose(POLES[3], offset),  // D
+      getOffsetPose(POLES[4], offset),  // E
+      getOffsetPose(POLES[5], offset),  // F
+      getOffsetPose(POLES[6], offset),  // G
+      getOffsetPose(POLES[7], offset),  // H
+      getOffsetPose(POLES[8], offset),  // I
+      getOffsetPose(POLES[9], offset),  // J
+      getOffsetPose(POLES[10], offset), // K
+      getOffsetPose(POLES[11], offset)  // L
+    };
   }
 }
