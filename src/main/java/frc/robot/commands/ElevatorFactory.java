@@ -41,13 +41,11 @@ public class ElevatorFactory {
     return new SequentialCommandGroup(
       new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
       new ConditionalCommand(
-        endEffectorFactory.getIndexSequence(),
+        endEffectorFactory.getIndexSequence(),  
         new InstantCommand(),
         () -> floorIntakeSubsystem.pieceSensorActive()),
       new ElevatorCommand(elevatorSubsystem, targetPosition)
-    ).finallyDo(() -> {
-      elevatorSubsystem.setPosition(Position.MIN);
-    });
+    );
   }
 
   /**

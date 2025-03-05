@@ -72,7 +72,7 @@ public class AutoIntakeFactory {
           //   endEffectorSubsystem
           // ),
           new ParallelDeadlineGroup(
-            new WaitCommand(1), 
+            new WaitCommand(.5), 
             new OuttakeFloorIntakeCommand(floorIntakeSubsystem)
           ),          
           new DeployFloorIntakeCommand(

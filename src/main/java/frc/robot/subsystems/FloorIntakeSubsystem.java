@@ -48,6 +48,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
     pid.disableContinuousInput(); // Makes sure that intake doesn't try to gas it through the floor
     pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
+    pid.setIZone(10);
 
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
 
@@ -92,7 +93,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   }
 
   /**
-   * Changes angle is over threshold
+   * Sets angle to zero is over threshold
    * @returns current angle in Rotation2d
    */
   public Rotation2d getAngle() {
@@ -169,7 +170,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     }
     
     double power = pid.calculate(getAngle().getDegrees())
-        + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(5).getRadians());
+        + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(4).getRadians());
 
     intakePose = new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, getAngle().getDegrees(), 0)); // TODO: Math and offset
 

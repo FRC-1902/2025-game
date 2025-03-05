@@ -99,17 +99,9 @@ public class RobotContainer {
       swerve,
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
-      () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND) // Right Stick Turning
-      // () -> {
-      //     double rightTrigger = controllers.getCommandController(ControllerName.DRIVE).getRightTriggerAxis();
-      //     double leftTrigger = controllers.getCommandController(ControllerName.DRIVE).getLeftTriggerAxis();
-      //     return MathUtil.applyDeadband(rightTrigger - leftTrigger, Constants.Controller.RIGHT_X_DEADBAND);
-      // }      
+      () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND), // Right Stick Turning   
+      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE)
     );
-
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 90)
-      .onTrue(new InstantCommand(() -> closedDrive.setSpinToWin(true)))
-      .onFalse(new InstantCommand(() -> closedDrive.setSpinToWin(false)));
 
     autoDrive = new AutoDriveFactory(swerve);
     endEffectorFactory = new EndEffectorFactory(endEffector);
@@ -175,13 +167,16 @@ public class RobotContainer {
 
     // L3
     new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.RT) > 0.5)
-        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3));
+        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3))
+        .onFalse(elevatorFactory.getElevatorDownCommand());
     // L2
     controllers.getTrigger(ControllerName.MANIP, Button.RB).debounce(0.05)
-        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2));
+        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2))
+        .onFalse(elevatorFactory.getElevatorDownCommand());
     // L1
     controllers.getTrigger(ControllerName.MANIP, Button.Y).debounce(0.05)
-        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L1));
+        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L1))
+        .onFalse(elevatorFactory.getElevatorDownCommand());
 
     // Spit Floor Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LS).debounce(0.05)

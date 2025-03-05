@@ -3,6 +3,7 @@ package frc.robot.commands.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -26,7 +27,6 @@ public class IntakeFloorIntakeCommand extends Command {
 
   @Override
   public void initialize() {
-    
     floorIntakeSubsystem.setSpeed(1);
   }
 

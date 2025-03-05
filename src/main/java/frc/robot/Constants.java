@@ -52,7 +52,7 @@ public final class Constants {
     // Auto Speeds
     public static final double AUTO_MAX_SPEED = Units.feetToMeters(5); // ft/s TODO: Adjust later
     public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(5); // ft/s^2 TODO: Adjust later
-    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(5); // TODO: Adjust later
+    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
   }
 
   public static final class AlgaeIntake{
@@ -83,22 +83,22 @@ public final class Constants {
     public static final int IR_SENSOR_ID = 8; 
     public static final int PIVOT_ENCODER_ID = 20; 
 
-    public static final double PIVOT_P = 0.011; 
-    public static final double PIVOT_I = 0; 
-    public static final double PIVOT_D = 0;
-    public static final double PIVOT_G = 0.022; 
+    public static final double PIVOT_P = 0.0125; 
+    public static final double PIVOT_I = 0.0035; 
+    public static final double PIVOT_D = 0.00005; 
+    public static final double PIVOT_G = 0.022; //.022 
 
-    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(2); 
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(3); 
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(350); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(342.53);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(349.53);
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
     public static final double FLOOR_ANGLE = 178.0;
-    public static final double ELEVATOR_ANGLE = 70.0;
+    public static final double ELEVATOR_ANGLE = 80.0;
     public static final double CLIMB_ANGLE = 90.0;
-    public static final double DEFAULT_ANGLE = 5.0;
+    public static final double DEFAULT_ANGLE = 5;
   } 
 
   public static final class LED{
@@ -118,13 +118,13 @@ public final class Constants {
     public static final double kP = 4.6;
     public static final double kI = 0.0005;
     public static final double kD = 0;
-    public static final double kF = 0.0125; 
+    public static final double kF = 0.0125;  //0.0.125
     public static final double kS = 0.0069;
 
-    public static final double TOLERANCE = 0.015;
+    public static final double TOLERANCE = 0.015; // In meters
     public static final double CONVERSION_FACTOR = 0.0193145; // converts to meters 
-    public static final double LOCK_ANGLE = 166; // Range from 0 to 1
-    public static final double UNLOCK_ANGLE = 150.0; //Range from 0 to 1
+    public static final double LOCK_ANGLE = 166; // In degrees
+    public static final double UNLOCK_ANGLE = 150.0;  
 
     public enum Position{ 
       // center carriage to floor 9.375 inches, 0.23825 meters, in meters

@@ -21,7 +21,7 @@ public class AutoDriveFactory {
   public Command pathAndSnapCommand(WaypointType waypoint) {
     DataLogManager.log("Auto Driving");
     return new SequentialCommandGroup(
-      new PathToWaypoint(() -> swerve.getWaypoint(waypoint), swerve),
+      // new PathToWaypoint(() -> swerve.getWaypoint(waypoint), swerve),
       new ContinuallySnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint))
     );
   }
