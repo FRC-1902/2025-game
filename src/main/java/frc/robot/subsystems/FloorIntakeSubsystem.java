@@ -7,6 +7,8 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 
 import com.revrobotics.spark.SparkMax;
 
+import javax.sound.sampled.DataLine;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -44,16 +46,18 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_ID);
 
     pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
-    pid.enableContinuousInput(0, 360);
+    pid.disableContinuousInput(); // Makes sure that intake doesn't try to gas it through the floor
     pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
+    pid.setIZone(10);
 
     pivotAlert = new Alert("Pivot out of bounds", AlertType.kWarning);
 
     pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
 
     this.elevatorSubsystem = elevatorSubsystem;
+
+    setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE));
     
-    // TODO: Check that motors aren't supposed to be inverted
     configureMotors();
   }
 
@@ -64,23 +68,23 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     // Pivot configs
     pivotConfig.idleMode(IdleMode.kBrake);
-    pivotConfig.inverted(false);
+    pivotConfig.inverted(true);
     pivotConfig.disableFollowerMode();
-    pivotConfig.secondaryCurrentLimit(30);
-    pivotConfig.smartCurrentLimit(30);
+    // pivotConfig.secondaryCurrentLimit(40);
+    pivotConfig.smartCurrentLimit(40);
     pivotConfig.voltageCompensation(12.00);
 
     // Roller configs
     rollerConfig.idleMode(IdleMode.kCoast);
-    rollerConfig.inverted(false);
+    rollerConfig.inverted(true);
     rollerConfig.disableFollowerMode(); 
-    rollerConfig.secondaryCurrentLimit(30);
-    rollerConfig.smartCurrentLimit(30);
+    // rollerConfig.secondaryCurrentLimit(30);
+    rollerConfig.smartCurrentLimit(50);
     rollerConfig.voltageCompensation(12.00);
 
     // Encoder Configs 
     encoderConfig.zeroOffset(Constants.FloorIntake.ENCODER_OFFSET.getRotations());
-    pivotConfig.apply(encoderConfig);
+    rollerConfig.apply(encoderConfig);
 
     // resetSafeParameters might be an issue
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -89,11 +93,15 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   }
 
   /**
-   * 
+   * Sets angle to zero is over threshold
    * @returns current angle in Rotation2d
    */
   public Rotation2d getAngle() {
-    return Rotation2d.fromRotations(pivotMotor.getAbsoluteEncoder().getPosition());
+    double angle = 1 - rollerMotor.getAbsoluteEncoder().getPosition();
+    if (angle > 0.97) {  
+      angle = 0;
+    }
+    return Rotation2d.fromRotations(angle);
   }
 
   /**
@@ -101,7 +109,12 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @param targetAngle sets the pivot angle
    */
   public void setAngle(Rotation2d targetAngle) {
+    if (pivotWatchdog.checkWatchdog(targetAngle.getDegrees()) ) {
+      DataLogManager.log("Specified input out of bounds on FloorIntake");
+      return;
+    }
     pid.setSetpoint(targetAngle.getDegrees());
+    SmartDashboard.putNumber("FloorIntake/targetAngle", targetAngle.getDegrees());
   }
 
   /**
@@ -130,13 +143,12 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @returns whether or not a piece is detected
    */
   public boolean pieceSensorActive() {
-    return irSensor.get();
+    return !irSensor.get();
   }
 
-  // checks that the pivot isn't going out of tolerance, will send an alert if it
-  // does
+  // checks that the pivot isn't going out of tolerance, will send an alert if it does
   private boolean pivotWatchdog() {
-    if (!pivotWatchdog.checkWatchingdog()) {
+    if (pivotWatchdog.checkWatchdog()) {
       pivotAlert.set(true);
       return true;
     } else {
@@ -148,13 +160,17 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < 60){
-      // DataLogManager.log("Elevator spooky in relation to floor intake");
-      setAngle(Rotation2d.fromDegrees(61));
+    SmartDashboard.putData("PID/FloorIntake", pid); // TODO: Remove after tuning
+
+    SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
+
+    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < Constants.FloorIntake.ELEVATOR_ANGLE){
+      DataLogManager.log("FloorIntake cannot deploy while elevator is not at MIN");
+      setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE)); // TODO: Re-Enable
     }
     
     double power = pid.calculate(getAngle().getDegrees())
-        + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians());
+        + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(4).getRadians());
 
     intakePose = new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, getAngle().getDegrees(), 0)); // TODO: Math and offset
 
@@ -167,6 +183,8 @@ public class FloorIntakeSubsystem extends SubsystemBase {
       resetPID();
       return;
     }
+
+    SmartDashboard.putNumber("FloorIntake/power", power);
 
     pivotMotor.set(power);
   }

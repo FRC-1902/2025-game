@@ -1,18 +1,28 @@
 package frc.robot.commands.drive;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class DriveCommand extends Command {
 
   private final SwerveSubsystem swerve;
   private final DoubleSupplier vX, vY, heading;
+  private double rotationMultiplier;
+  private IntSupplier dpad;
+
 
   /**
    * Creates a DriveCommand
@@ -21,11 +31,14 @@ public class DriveCommand extends Command {
    * @param vY
    * @param heading
    */
-  public DriveCommand(SwerveSubsystem swerve, DoubleSupplier vX, DoubleSupplier vY, DoubleSupplier heading) {
+  public DriveCommand(SwerveSubsystem swerve, DoubleSupplier vX, DoubleSupplier vY, DoubleSupplier heading, IntSupplier dpad) {
     this.swerve = swerve;
     this.vX = vX;
     this.vY = vY;
     this.heading = heading;
+    this.dpad = dpad;
+
+    rotationMultiplier = 0.35;
 
     addRequirements(swerve);
   }
@@ -35,14 +48,14 @@ public class DriveCommand extends Command {
 
   @Override
   public void execute() {
-    // Apply alliance-based inversions
-    var alliance = DriverStation.getAlliance();
-
     // take away cubic scaling!!!!!
     // Apply cubic scaling to x and y velocities
-    Translation2d trans = new Translation2d(scaleInputsOne(vX.getAsDouble()), scaleInputsOne(vY.getAsDouble())).times(Constants.Swerve.MAX_SPEED).times(0.3); // TODO: remove the speed cap
+    Translation2d trans = new Translation2d(scaleInputsOne(vX.getAsDouble()), scaleInputsOne(vY.getAsDouble())).times(Constants.Swerve.MAX_SPEED).times(1);
     double xVelocity = trans.getX(); 
     double yVelocity = trans.getY();
+
+    // Apply alliance-based inversions
+    var alliance = DriverStation.getAlliance();
 
     // Additional alliance-based inversions
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
@@ -51,7 +64,14 @@ public class DriveCommand extends Command {
       yVelocity *= -1;
     }
 
-    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * 0.05; // TODO: change speed cap
+    if (dpad.getAsInt() == 90) {
+      rotationMultiplier = 1.0;
+    } else {
+      rotationMultiplier = 0.35;
+    }
+    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
+
+    SmartDashboard.putNumber("swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
 
     // Create field-relative ChassisSpeeds
     ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -71,15 +91,6 @@ public class DriveCommand extends Command {
   @Override
   public boolean isFinished() {
     return false;
-  }
-
-  public DriveCommand autoInput(Supplier<Translation2d> externalInput) {
-    return new DriveCommand(
-      swerve,
-      () -> vX.getAsDouble() + externalInput.get().getX(),
-      () -> vY.getAsDouble() + externalInput.get().getY(),
-      heading
-    );
   }
 
   // y = .8 * x + .2 * x^3

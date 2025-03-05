@@ -2,8 +2,9 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
+import frc.robot.Constants.Elevator.Position;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
@@ -11,7 +12,6 @@ import frc.robot.subsystems.FloorIntakeSubsystem;
 public class DeployFloorIntakeCommand extends Command {
   private final ElevatorSubsystem elevatorSubsystem;
   private final FloorIntakeSubsystem floorIntakeSubsystem;
-  private final EndEffectorSubsystem endEffectorSubsystem;
 
   private Rotation2d targetAngle;
 
@@ -19,14 +19,11 @@ public class DeployFloorIntakeCommand extends Command {
   public DeployFloorIntakeCommand(
       Rotation2d targetAngle,
       ElevatorSubsystem elevatorSubsystem, 
-      FloorIntakeSubsystem floorIntakeSubsystem, 
-      EndEffectorSubsystem endEffectorSubsystem
+      FloorIntakeSubsystem floorIntakeSubsystem
     ){
     
     this.elevatorSubsystem = elevatorSubsystem; 
     this.floorIntakeSubsystem = floorIntakeSubsystem;
-    this.endEffectorSubsystem = endEffectorSubsystem;
-
     this.targetAngle = targetAngle;
 
     addRequirements(floorIntakeSubsystem);
@@ -34,22 +31,27 @@ public class DeployFloorIntakeCommand extends Command {
 
   @Override
   public void initialize() {
-    if(
-        endEffectorSubsystem.isFrontPieceSensorActive() || 
-        floorIntakeSubsystem.pieceSensorActive() ||
-        elevatorSubsystem.getPosition() != Constants.Elevator.Position.MIN.getHeight()
-      ){
+    if(!elevatorSubsystem.isAtPosition(Position.MIN)){
       DataLogManager.log("Command shouldn't start");
       return;
     }
-    floorIntakeSubsystem.setAngle(targetAngle); // todo: get target down position
+    floorIntakeSubsystem.setAngle(targetAngle);
+  }
+  
+  /**
+   * Actively sucks coral in while moving to make sure it doesn't fly out
+   */
+  @Override
+  public void execute() {
+    if (floorIntakeSubsystem.pieceSensorActive()) {
+      floorIntakeSubsystem.setSpeed(1); // Runs intake to keep coral in the intake while rotating intake.
+    }
   }
 
   @Override
-  public void execute() {}
-
-  @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    floorIntakeSubsystem.setSpeed(0);
+  }
 
   @Override
   public boolean isFinished() {

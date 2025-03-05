@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.8244696301476473,
-        "y": 7.218900513382831
+        "x": 3.202218017578125,
+        "y": 2.372117919921875
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0767970290285884,
-        "y": 6.042368294201655
+        "x": 4.454545416459066,
+        "y": 1.195585700740699
       },
       "isLocked": false,
       "linkedName": "HP"
     },
     {
       "anchor": {
-        "x": 4.013762920658143,
-        "y": 5.179180228360335
+        "x": 3.965,
+        "y": 5.25
       },
       "prevControl": {
-        "x": 3.492961294786769,
-        "y": 5.638559087081934
+        "x": 3.444198374128626,
+        "y": 5.7093788587216
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,10 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularVelocity": 200.0,
+    "maxAngularAcceleration": 300.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -48,7 +48,7 @@
   "folder": "DropAndGo",
   "idealStartingState": {
     "velocity": 1000,
-    "rotation": -52.187215362644146
+    "rotation": 55.0
   },
   "useDefaultConstraints": true
 }

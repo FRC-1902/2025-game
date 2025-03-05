@@ -1,7 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import java.io.IOException;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -20,9 +18,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.util.struct.parser.ParseException;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -52,7 +51,7 @@ public class SwerveSubsystem extends SubsystemBase {
     this.vision = vision;
 
     try {
-      this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+      this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
     } catch (Exception e) {
       throw new RuntimeException("Failed to load AprilTag field layout", e);
     }
@@ -105,6 +104,9 @@ public class SwerveSubsystem extends SubsystemBase {
     swerve.updateInputs(inputs);
 
     Logger.processInputs("Swerve", inputs);
+    
+    // TODO: this is temp
+    SmartDashboard.putNumber("Swerve/Velocity", Math.sqrt(Math.pow(swerve.getRobotVelocity().vxMetersPerSecond, 2) + Math.pow(swerve.getRobotVelocity().vyMetersPerSecond, 2)));
   }
 
   // /**
@@ -186,16 +188,6 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Get the path follower with events.
-   *
-   * @param pathName PathPlanner path name.
-   * @return {@link AutoBuilder#followPath(PathPlannerPath)} path command.
-   */
-  public Command getAutonomousCommand(String pathName) {
-    return new PathPlannerAuto(pathName);
-  }
-
-  /**
    * Use PathPlanner Path finding to go to a point on the field.
    *
    * @param pose Target {@link Pose2d} to go to.
@@ -226,6 +218,28 @@ public class SwerveSubsystem extends SubsystemBase {
     return AutoBuilder.followPath(path);
   }
 
+  public Pose2d allianceFlip(Pose2d pose) {
+    if (!isRedAlliance()) return pose;
+    
+    return new Pose2d(
+      new Translation2d(
+        FieldConstants.LENGTH - pose.getX(),
+        FieldConstants.WIDTH - pose.getY()
+      ),
+      pose.getRotation().plus(new Rotation2d(Math.PI))
+    );
+  }
+
+  public Pose2d[] allianceFlip(Pose2d[] poses) {
+    if (!isRedAlliance()) return poses;
+    
+    Pose2d[] flippedPoses = new Pose2d[poses.length];
+    for (int i = 0; i < poses.length; i++) {
+        flippedPoses[i] = allianceFlip(poses[i]);
+    }
+    return flippedPoses;
+  }
+
   /**
    * Finds the closest waypoint of the specified type.
    *
@@ -238,13 +252,10 @@ public class SwerveSubsystem extends SubsystemBase {
   
     switch (type) {
       case REEF:
-        waypoints = isRedAlliance() ? FieldConstants.RED.REEF : FieldConstants.BLUE.REEF;
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.REEF);
         break;
       case PROCESSOR:
-        return isRedAlliance() ? FieldConstants.RED.PROCESSOR[0] : FieldConstants.BLUE.PROCESSOR[0];
-      case CAGE:
-        waypoints = isRedAlliance() ? FieldConstants.RED.CAGE : FieldConstants.BLUE.CAGE;
-        break;
+        return allianceFlip(FieldConstants.WAYPOINTS.PROCESSOR);
       default:
         return null; // No waypoint specified
     }
@@ -263,7 +274,7 @@ public class SwerveSubsystem extends SubsystemBase {
         targetWaypoint = waypoint;
       }
     }
-  
+
     return targetWaypoint;
   }
 
@@ -299,7 +310,8 @@ public class SwerveSubsystem extends SubsystemBase {
       headingX, // TODO: look at me more
       headingY,
       getHeading().getRadians(),
-      Constants.Swerve.MAX_SPEED);
+      Constants.Swerve.MAX_SPEED
+    );
   }
 
   public SwerveDrive getSwerveDrive()
@@ -321,9 +333,9 @@ public class SwerveSubsystem extends SubsystemBase {
   public void zeroGyroWithAlliance() {
     if (isRedAlliance()) {
       zeroGyro();
-      resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
     } else {
       zeroGyro();
+      resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
     }
   }
 

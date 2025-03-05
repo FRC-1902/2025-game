@@ -7,6 +7,9 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
@@ -19,13 +22,15 @@ public class ElevatorFactory {
   private final EndEffectorSubsystem endEffectorSubsystem;
   private final ElevatorSubsystem elevatorSubsystem; 
   private final FloorIntakeSubsystem floorIntakeSubsystem;
+  private final EndEffectorFactory endEffectorFactory;
 
   public ElevatorFactory(EndEffectorSubsystem endEffectorSubsystem, ElevatorSubsystem elevatorSubsystem, FloorIntakeSubsystem floorIntakeSubsystem){
     this.endEffectorSubsystem = endEffectorSubsystem; 
     this.elevatorSubsystem = elevatorSubsystem;
     this.floorIntakeSubsystem = floorIntakeSubsystem;
-  }
 
+    endEffectorFactory = new EndEffectorFactory(endEffectorSubsystem);
+  }
 
   /**
    * Returns a command that sets the elevator to the target position while deploying the intake out of the way of the elevator
@@ -34,7 +39,11 @@ public class ElevatorFactory {
    */
   public Command getElevatorCommand(Position targetPosition){
     return new SequentialCommandGroup(
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(61), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem), // todo: figure out what resting angle should be at
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+      new ConditionalCommand(
+        endEffectorFactory.getIndexSequence(),  
+        new InstantCommand(),
+        () -> floorIntakeSubsystem.pieceSensorActive()),
       new ElevatorCommand(elevatorSubsystem, targetPosition)
     );
   }
@@ -45,8 +54,18 @@ public class ElevatorFactory {
    */
   public Command getElevatorDownCommand(){
     return new SequentialCommandGroup(
-      getElevatorCommand(Position.MIN),
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(0), elevatorSubsystem, floorIntakeSubsystem, endEffectorSubsystem)
+      endEffectorFactory.getIndexSequence(),
+      new ElevatorCommand(elevatorSubsystem, Position.MIN),
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
+    ).finallyDo(() -> {
+      elevatorSubsystem.setPosition(Constants.Elevator.Position.MIN);
+    });
+  }
+
+  public SequentialCommandGroup getClimberUpSequence(){
+    return new SequentialCommandGroup(
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+      new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.CLIMB_UP)
     );
   }
 }

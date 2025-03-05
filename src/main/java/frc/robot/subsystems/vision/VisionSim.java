@@ -33,7 +33,7 @@ public class VisionSim implements VisionBase {
   private final AprilTagFieldLayout fieldLayout;
 
   public VisionSim() {
-    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
     visionSim = new VisionSystemSim("Vision");
     visionSim.addAprilTags(fieldLayout);
 
@@ -47,7 +47,7 @@ public class VisionSim implements VisionBase {
 
     // Add cameras
     for (Constants.Vision.Camera cam : Constants.Vision.Camera.values()) {
-      PhotonCamera camera = new PhotonCamera(cam.name);
+      PhotonCamera camera = new PhotonCamera(cam.camName);
       PhotonCameraSim cameraSim = new PhotonCameraSim(camera, properties);
       cameraSim.enableDrawWireframe(true);
       cameraSims.put(cam, cameraSim);

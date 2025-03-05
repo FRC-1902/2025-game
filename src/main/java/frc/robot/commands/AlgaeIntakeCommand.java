@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 
 public class AlgaeIntakeCommand extends Command {
@@ -21,8 +22,8 @@ public class AlgaeIntakeCommand extends Command {
     if(earlyExit) {
       return;
     }
-    algaeIntakeSubsystem.setSpeed(-0.44); // todo: find actual speed 
-    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(90)); // todo: find actual downward angle 
+    algaeIntakeSubsystem.setSpeed(.9);
+    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(20)); 
   }
 
   @Override
@@ -30,8 +31,14 @@ public class AlgaeIntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(0)); // todo: find upward angle 
-    algaeIntakeSubsystem.setSpeed(-0.06);
+    if (!interrupted) {
+      algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(75));
+      algaeIntakeSubsystem.setSpeed(0.9);
+    }
+    else{
+      algaeIntakeSubsystem.setAngle(Constants.AlgaeIntake.DEFAULT_ANGLE); 
+      algaeIntakeSubsystem.setSpeed(0);
+    }
   }
 
   @Override
