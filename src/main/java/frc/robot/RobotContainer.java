@@ -113,11 +113,11 @@ public class RobotContainer {
 
     LEDPattern greenPattern = LEDPattern.solid(new Color(0, 255, 0)).atBrightness(Percent.of(50));
     LEDPattern redPattern = LEDPattern.solid(new Color(255, 0, 0)).atBrightness(Percent.of(50));
-    LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(50));
+    LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(30));
 
     led.registerPattern(elevator::isLocked, redPattern);
     led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
-    led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern);
+    led.registerPattern(algaeIntake::isAlgaeDetected, greenPattern);
 
     bindButtons();
   }
@@ -138,9 +138,6 @@ public class RobotContainer {
     controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
       .onTrue(new InstantCommand(swerve::zeroGyro));
 
-    // Spin to win
-
-
     // Align to Reef
     controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
       .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
@@ -153,15 +150,6 @@ public class RobotContainer {
     //controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       //.whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
 
-    // Align to Reef
-   // controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-     // .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
-
-
-
-    // Align to Cage, Removed for now
-    // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-    //     .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.CAGE));
 
     /* Manipulator Controls */
 
@@ -210,7 +198,7 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(90)), floorIntake));
 
     // Home
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 90)
-      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 270)
+      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.HOME));
   }
 }
