@@ -159,10 +159,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    SmartDashboard.putData("PID/FloorIntake", pid); // TODO: Remove after tuning
-
-    SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
 
     if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < Constants.FloorIntake.ELEVATOR_ANGLE){
       DataLogManager.log("FloorIntake cannot deploy while elevator is not at MIN");
@@ -174,8 +170,11 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     intakePose = new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, getAngle().getDegrees(), 0)); // TODO: Math and offset
 
+    SmartDashboard.putData("PID/FloorIntake", pid); // TODO: Remove after tuning
     SmartDashboard.putNumber("FloorIntake/Current Angle", getAngle().getDegrees());
     SmartDashboard.putBoolean("FloorIntake/Piece Sensor", pieceSensorActive());
+    SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
+    SmartDashboard.putNumber("FloorIntake/power", power);
     Logger.recordOutput("FloorIntake/Intake Pose", intakePose);
 
     if (pivotWatchdog()) {
@@ -183,8 +182,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
       resetPID();
       return;
     }
-
-    SmartDashboard.putNumber("FloorIntake/power", power);
 
     pivotMotor.set(power);
   }
