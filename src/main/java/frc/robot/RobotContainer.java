@@ -25,14 +25,14 @@ import frc.robot.commands.AutoPlaceFactory;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.EndEffectorFactory;
+import frc.robot.commands.IndexCommand;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
-import frc.robot.commands.intake.AutoIntakeFactory;
-import frc.robot.commands.intake.DeployFloorIntakeCommand;
-import frc.robot.commands.intake.IntakeFloorIntakeCommand;
-import frc.robot.commands.intake.OuttakeFloorIntakeCommand;
-import frc.robot.commands.intake.IndexFloorIntakeCommand;
+import frc.robot.commands.floorIntake.AutoIntakeFactory;
+import frc.robot.commands.floorIntake.OuttakeCommand;
+import frc.robot.commands.floorIntake.IntakeCommand;
+import frc.robot.commands.floorIntake.PositionIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.Axis;
@@ -60,7 +60,7 @@ public class RobotContainer {
   ControllerSubsystem controllers;
 
   AutoDriveFactory autoDrive;
-  AutoIntakeFactory autoIntake;
+  AutoIntakeFactory autoIntakeFactory;
   AutoPlaceFactory autoPlaceFactory;
   ElevatorFactory elevatorFactory;
   EndEffectorFactory endEffectorFactory;
@@ -105,7 +105,7 @@ public class RobotContainer {
 
     autoDrive = new AutoDriveFactory(swerve);
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
+    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
     autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
@@ -168,18 +168,18 @@ public class RobotContainer {
 
     // Spit Floor Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LS).debounce(0.05)
-      .whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
+      .whileTrue(new OuttakeCommand(floorIntake));
 
     // Floor Intake
     new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.2)
-      .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
+      .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
 
     controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)
-      .whileTrue(new InstantCommand(() -> autoIntake.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)));
+      .whileTrue(new InstantCommand(() -> autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)));
 
     // HP Intake
     controllers.getTrigger(ControllerName.MANIP, Button.X).debounce(0.05)
-        .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.HP_ANGLE));
+        .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.HP_ANGLE));
 
     // Algae Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)
