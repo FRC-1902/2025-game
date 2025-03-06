@@ -43,7 +43,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     rollerMotor = new SparkMax(Constants.FloorIntake.ROLLER_MOTOR_ID, MotorType.kBrushless);
     pivotMotor = new SparkMax(Constants.FloorIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
-    irSensor = new DigitalInput(Constants.FloorIntake.IR_SENSOR_ID);
+    irSensor = new DigitalInput(Constants.FloorIntake.PIECE_SENSOR_ID);
 
     pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
     pid.disableContinuousInput(); // Makes sure that intake doesn't try to gas it through the floor
@@ -142,7 +142,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * 
    * @returns whether or not a piece is detected
    */
-  public boolean pieceSensorActive() {
+  public boolean irSensorActive() {
     return !irSensor.get();
   }
 
@@ -172,7 +172,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     SmartDashboard.putData("PID/FloorIntake", pid); // TODO: Remove after tuning
     SmartDashboard.putNumber("FloorIntake/Current Angle", getAngle().getDegrees());
-    SmartDashboard.putBoolean("FloorIntake/Piece Sensor", pieceSensorActive());
+    SmartDashboard.putBoolean("FloorIntake/Piece Sensor", irSensorActive());
     SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
     SmartDashboard.putNumber("FloorIntake/power", power);
     Logger.recordOutput("FloorIntake/Intake Pose", intakePose);

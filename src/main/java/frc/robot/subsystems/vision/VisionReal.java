@@ -93,15 +93,15 @@ public class VisionReal implements VisionBase {
 
           // TODO: Add/Change Cameras
         switch (cam) {
-          case ArducamOne:
+          case CAMERA_ONE:
             inputs.arducamOne = true;
             inputs.arducamOneBestTargetID = bestTarget.getFiducialId();
             break;
-          case ArducamTwo:
+          case CAMERA_TWO:
             inputs.arducamTwo = true;
             inputs.arducamTwoBestTargetID = bestTarget.getFiducialId();
             break;
-          case ArducamThree:
+          case CAMERA_THREE:
             inputs.arducamThree = true;
             inputs.arducamThreeBestTargetID = bestTarget.getFiducialId();
             break;
