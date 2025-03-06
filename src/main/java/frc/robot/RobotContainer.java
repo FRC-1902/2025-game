@@ -21,14 +21,13 @@ import frc.robot.Constants.FloorIntake;
 import frc.robot.FieldConstants.WaypointType;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
-import frc.robot.commands.AutoPlaceFactory;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
-import frc.robot.commands.EndEffectorFactory;
 import frc.robot.commands.IndexCommand;
-import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
+import frc.robot.commands.endEffector.EndEffectorFactory;
+import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
 import frc.robot.commands.floorIntake.OuttakeCommand;
 import frc.robot.commands.floorIntake.IntakeCommand;
@@ -61,7 +60,6 @@ public class RobotContainer {
 
   AutoDriveFactory autoDrive;
   AutoIntakeFactory autoIntakeFactory;
-  AutoPlaceFactory autoPlaceFactory;
   ElevatorFactory elevatorFactory;
   EndEffectorFactory endEffectorFactory;
   private final Field2d field;
@@ -106,7 +104,6 @@ public class RobotContainer {
     autoDrive = new AutoDriveFactory(swerve);
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
-    autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
     swerve.setDefaultCommand(closedDrive);
@@ -128,7 +125,7 @@ public class RobotContainer {
 
     // Place Coral
     new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.RT) > 0.5)
-      .whileTrue(new PlaceCommand(endEffector));
+      .whileTrue(new ScoreCommand(endEffector));
 
     // Score/Outtake Algae
     controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
