@@ -21,7 +21,11 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
 
@@ -74,12 +78,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     SparkBaseConfig configOne = new SparkMaxConfig();
     SparkBaseConfig configTwo = new SparkMaxConfig();
 
-    configOne.idleMode(IdleMode.kCoast);
+    configOne.idleMode(IdleMode.kBrake);
     configOne.smartCurrentLimit(50);
     configOne.inverted(true); // todo: switch inverted
     configOne.voltageCompensation(12);
 
-    configTwo.idleMode(IdleMode.kCoast);
+    configTwo.idleMode(IdleMode.kBrake);
     configTwo.smartCurrentLimit(50);
     configTwo.inverted(false); // todo: switch inverted
     configTwo.voltageCompensation(12);
@@ -174,8 +178,8 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   private void climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
-      leftMotor.set(-0.3); // TODO: change speed
-      rightMotor.set(-0.3);
+      leftMotor.set(-0.6); // TODO: change speed
+      rightMotor.set(-0.6);
     } else {
       setLocked(true);
       leftMotor.set(0);
@@ -235,6 +239,11 @@ public class ElevatorSubsystem extends SubsystemBase {
       rightMotor.getEncoder().setPosition(0);
     }
 
+    if (targetPosition == Constants.Elevator.Position.CLIMB_DOWN) {
+      climb();
+      return;
+    }
+
     if (watchDog()) {
       leftMotor.set(0);
       rightMotor.set(0);
@@ -242,12 +251,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     switch (targetPosition) {
+      case HOLD:
+        leftMotor.set(0);
+        rightMotor.set(0);
+        return;
       case HOME:
         home();
         return;
-      case CLIMB_DOWN:
-        climb();
-        return;
+      // case CLIMB_DOWN:
+        // climb();
+        // return;
       case CLIMB_UP:
         if (isLocked() == true) {
           unlockTime = Timer.getFPGATimestamp();
