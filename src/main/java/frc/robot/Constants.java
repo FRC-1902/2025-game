@@ -164,8 +164,15 @@ public final class Constants {
     // Maximum allowed ambiguity for the cameras
     public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
 
+    public static final class ObjectDetection {
+      public static final String CAMERA_NAME = "colorArducamOne";
+      public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
+      public static final Rotation2d ANGLE = Rotation2d.fromDegrees(40); // TODO: Change to real value
+      public static final double HEIGHT = Units.inchesToMeters(24); // TODO: Change to real value
+      public static final double VERTICAL_FOV = Units.inchesToMeters(24); // TODO: Change to real value
+    }
+
     // Camera Configs
-    // TODO: Set real values
     public enum Camera {
       CAMERA_ONE(
         "arducamOne",
@@ -208,7 +215,6 @@ public final class Constants {
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)
       );
-
 
       public final String camName;
       public final Rotation3d rotation;

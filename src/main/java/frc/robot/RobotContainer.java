@@ -143,15 +143,10 @@ public class RobotContainer {
     // Align to Reef
     controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
       .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));
-    
-    // Align with Coral TODO: Change when Align PR is merged
+        
     // Align to Processor
     controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR)); 
-    // Align to Processor
-    //controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-      //.whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
-
 
     /* Manipulator Controls */
 

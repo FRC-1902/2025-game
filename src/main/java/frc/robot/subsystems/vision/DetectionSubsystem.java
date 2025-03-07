@@ -6,47 +6,56 @@ package frc.robot.subsystems.vision;
 
 import java.util.List;
 
+import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import org.photonvision.PhotonCamera;
+import frc.robot.Constants.Vision.ObjectDetection;
 
 public class DetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
-  private final PhotonCamera camera = new PhotonCamera("HD_Pro_Webcam_C920"); // TODO: only use object detection cameras
-  private boolean targetVisible;
-  private double targetYaw; 
+  private final PhotonCamera camera = new PhotonCamera(ObjectDetection.CAMERA_NAME);
 
+  // For debugging
+  private boolean targetVisible = false;
+  private double targetYaw;
+  private double bottomDistance;
   private PhotonTrackedTarget currentObject;
 
-  public DetectionSubsystem() {}
+  public Transform2d getObjectBottom() {
+  }
 
-  /**
-   * 
-   * @returns if object is visible or not 
-   */
-  public boolean isTargetVisible(){
+  public boolean isTargetVisible() {
     return targetVisible;
   }
 
-  /**
-   * 
-   * @returns the specific targetYaw of the object in Rotation2d's
-   */
-  public Rotation2d getTargetYaw(){
+  public double getBottomDistanceMeters() {
+    return bottomDistance;
+  }
+
+  public double getTargetYawDegrees() {
+    return targetYaw;
+  }
+
+  public Rotation2d getTargetYaw() {
     return Rotation2d.fromDegrees(targetYaw);
   }
 
+  public PhotonTrackedTarget getCurrentObject() {
+    return currentObject;
+  }
 
   @Override
   public void periodic() {
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
 
     currentObject = null;
+    bottomDistance = Double.MAX_VALUE;
+
 
     if (!results.isEmpty()) {
       // Get the oldest unread result
