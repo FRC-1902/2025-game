@@ -16,15 +16,15 @@ import frc.robot.Constants;
 public class EndEffectorSubsystem extends SubsystemBase {
 
   private SparkMax rollerMotor; 
-  private DigitalInput frontSensor;
-  private DigitalInput backSensor;
+  private DigitalInput frontPieceSensor;
+  private DigitalInput backPieceSensor;
 
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem() {
     rollerMotor = new SparkMax(Constants.EndEffector.ROLLER_MOTOR_ID, MotorType.kBrushless);
 
-    frontSensor = new DigitalInput(Constants.EndEffector.FRONT_IR_SENSOR_ID);
-    backSensor = new DigitalInput(Constants.EndEffector.BACK_IR_SENSOR_ID);
+    frontPieceSensor = new DigitalInput(Constants.EndEffector.FRONT_PIECE_SENSOR_ID);
+    backPieceSensor = new DigitalInput(Constants.EndEffector.BACK_PIECE_SENSOR_ID);
 
     configureMotors();
   }
@@ -47,7 +47,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @returns if front IRsensor is activated 
    */
   public boolean isFrontPieceSensorActive(){
-    return !frontSensor.get(); 
+    return !frontPieceSensor.get(); 
   }
 
   /**
@@ -55,7 +55,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @returns if back IRsensor is activated 
    */
   public boolean isBackPieceSensorActive(){
-    return !backSensor.get(); 
+    return !backPieceSensor.get(); 
   }
 
   /**
@@ -63,7 +63,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed){
-    rollerMotor.set(targetSpeed); // TODO: Re-Enable
+    rollerMotor.set(targetSpeed);
   }
 
   @Override

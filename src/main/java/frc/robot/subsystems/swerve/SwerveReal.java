@@ -2,6 +2,8 @@ package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Meter;
 
+import java.io.File;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -18,8 +20,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
-
-import java.io.File;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveDriveConfiguration;
@@ -39,7 +39,7 @@ public class SwerveReal implements SwerveBase {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(
         Constants.Swerve.MAX_SPEED,
           new Pose2d(
-          new Translation2d(Meter.of(3.2), Meter.of(4)),
+          new Translation2d(Meter.of(2.850), Meter.of(4)),
           Rotation2d.fromDegrees(0)
         )
       );
@@ -54,6 +54,8 @@ public class SwerveReal implements SwerveBase {
     swerveDrive.setCosineCompensator(false);
     swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
     swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
+    swerveDrive.setChassisDiscretization(true, 0.02);
+
     //swerveDrive.pushOffsetsToEncoders(); // Removed because absolute encoders have build in zeroing
   }
 
@@ -175,8 +177,8 @@ public class SwerveReal implements SwerveBase {
           }
         },
         new PPHolonomicDriveController(
-          new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-          new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+          new PIDConstants(3.7, 0.2, 0), // Translation PID constants
+          new PIDConstants(4.0, 0.0, 0.0) // Rotation PID constants
         ),
         config,
         () -> {

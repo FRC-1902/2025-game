@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 5.239307255706334,
-        "y": 5.007820161429038
+        "x": 5.286498681080486,
+        "y": 5.083585581594958
       },
       "prevControl": {
-        "x": 6.723810685477541,
-        "y": 4.885936846838158
+        "x": 6.771002110851693,
+        "y": 4.961702267004078
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,16 +33,16 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularVelocity": 200.0,
+    "maxAngularAcceleration": 300.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -118.55962047831983
+    "rotation": -119.99999999999999
   },
   "reversed": false,
   "folder": "DropAndGo",
