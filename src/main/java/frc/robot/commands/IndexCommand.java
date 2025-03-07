@@ -34,6 +34,6 @@ public class IndexCommand extends Command {
   @Override
   public boolean isFinished() {
     // XXX: may not want front piece sensor true check here, but it probably should be
-    return !floorIntakeSubsystem.irSensorActive() && !endEffectorSubsystem.isBackPieceSensorActive() && endEffectorSubsystem.isFrontPieceSensorActive();
+    return !floorIntakeSubsystem.pieceSensorActive() && !endEffectorSubsystem.isBackPieceSensorActive() && endEffectorSubsystem.isFrontPieceSensorActive();
   }
 }

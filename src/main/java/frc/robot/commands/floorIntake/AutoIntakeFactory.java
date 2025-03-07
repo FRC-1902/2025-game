@@ -83,7 +83,7 @@ public class AutoIntakeFactory {
             floorIntakeSubsystem
           )
         ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), 
-        () -> floorIntakeSubsystem.irSensorActive()
+        () -> floorIntakeSubsystem.pieceSensorActive()
       ).schedule();
     });
   }
