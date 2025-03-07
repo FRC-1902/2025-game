@@ -1,8 +1,12 @@
 package frc.robot;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -10,6 +14,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -19,10 +24,13 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.LED;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
+import frc.robot.commands.ContinuousConditionalCommand;
+import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
+import frc.robot.commands.drive.ObjectAlign;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
 import frc.robot.commands.floorIntake.OuttakeCommand;
 import frc.robot.commands.floorIntake.PositionIntakeCommand;
@@ -32,6 +40,11 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.DetectionSubsystem;
+import frc.robot.FieldConstants;
+import frc.robot.Constants.EndEffector;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 
 /*
  * Publishes a network table chooser to smart dashboard to select the autonomous command. 
@@ -44,20 +57,28 @@ public class AutoSelector {
   AlgaeIntakeSubsystem algaeIntake;
   FloorIntakeSubsystem floorIntake;
   EndEffectorSubsystem endEffector;
+  DetectionSubsystem detectionSubsystem;
   ElevatorSubsystem elevator;
 
   PositionIntakeCommand deployFloorIntakeCommand;
-  ElevatorFactory elevatorFactory;
   AutoIntakeFactory autoIntakeFactory;
+  ElevatorFactory elevatorFactory;
+  ObjectAlign objectAlign;
+
+  ContinuousConditionalCommand continuousConditionalCommand;
   EndEffectorFactory endEffectorFactory;
   LEDSubsystem led;
   
   public AutoSelector(RobotContainer robotContainer) {
     // this.robotContainer = robotContainer;
     swerve = robotContainer.swerve;
+    elevator = robotContainer.elevator;
     algaeIntake = robotContainer.algaeIntake;
     floorIntake = robotContainer.floorIntake;
     endEffector = robotContainer.endEffector;
+    detectionSubsystem = robotContainer.detectionSubsystem;
+    this.objectAlign = objectAlign;
+    this.continuousConditionalCommand = continuousConditionalCommand;
     elevator = robotContainer.elevator;
     led = robotContainer.led;
 
@@ -90,7 +111,7 @@ public class AutoSelector {
     }
   }
 
-  private Command setStartPosition(double x, double y) {
+  public Command setStartPosition(double x, double y) {
     return new ConditionalCommand(
       new SequentialCommandGroup(
         new InstantCommand(() -> swerve.resetOdometry(new Pose2d(x, y, Rotation2d.fromDegrees(180)))),
@@ -103,6 +124,15 @@ public class AutoSelector {
       this::isBlue
     );
   }
+
+  private Command getVerified(String PathName){
+    return new ContinuousConditionalCommand(
+      swerve.getFollowPathCommand(PathName),
+      new ObjectAlign(detectionSubsystem, swerve),
+      () -> detectionSubsystem.isTargetVisible()
+    );
+  }
+  
 
   // Auto definitions
 

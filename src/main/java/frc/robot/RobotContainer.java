@@ -79,6 +79,7 @@ public class RobotContainer {
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
 
     detectionSubsystem = new DetectionSubsystem();
+
     // Path Planner logging
     field = new Field2d();
     SmartDashboard.putData("Field", field);
@@ -138,15 +139,15 @@ public class RobotContainer {
     // Zero Gyro
     controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
       .onTrue(new InstantCommand(swerve::zeroGyro));
-
+    
     // Align to Reef
     controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
-
+      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));
+    
     // Align with Coral TODO: Change when Align PR is merged
-    controllers.getTrigger(ControllerName.DRIVE, Button.A)
-      .whileTrue(new ObjectAlign(detectionSubsystem, swerve));
-
+    // Align to Processor
+    controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR)); 
     // Align to Processor
     //controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       //.whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
