@@ -4,6 +4,8 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -21,7 +23,7 @@ public class PathToWaypoint extends Command {
       Constants.Swerve.AUTO_MAX_SPEED, 
       Constants.Swerve.AUTO_MAX_ACCELERATION, 
       Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations(), 
-      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations() // TODO: Change to rotation accel
+      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations()
     );
 
     addRequirements(swerve);
@@ -29,7 +31,7 @@ public class PathToWaypoint extends Command {
 
   @Override
   public void initialize() {
-    pathCommand = AutoBuilder.pathfindToPose(targetPose.get(), constraints, 0);
+    pathCommand = AutoBuilder.pathfindToPose(targetPose.get(), constraints, 1);
     pathCommand.initialize();
   }
 
@@ -37,10 +39,11 @@ public class PathToWaypoint extends Command {
   public void execute() {
     pathCommand.execute();
   }
-
+  
   @Override
   public void end(boolean interrupted) {
     pathCommand.end(interrupted);
+
   }
 
   @Override

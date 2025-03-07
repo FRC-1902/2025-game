@@ -12,10 +12,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -50,20 +47,8 @@ public class LEDSubsystem extends SubsystemBase {
    * @param condition
    * @param pattern
    */
-  public void registerPattern(BooleanSupplier condition, LEDPattern pattern, Double time) {
-    if (time == null) {
-      ledRegistry.add(new KeyValue<>(condition, pattern));
-    } else {
-      final double startTime = Timer.getFPGATimestamp();
-      BooleanSupplier timedCondition = () -> {
-        if (condition.getAsBoolean()) {
-          double currentTime = Timer.getFPGATimestamp();
-          return (currentTime - startTime) <= time;
-        }
-        return false;
-      };
-      ledRegistry.add(new KeyValue<>(timedCondition, pattern));
-    }
+  public void registerPattern(BooleanSupplier condition, LEDPattern pattern) {
+    ledRegistry.add(new KeyValue<>(condition, pattern));
   }
 
   /**

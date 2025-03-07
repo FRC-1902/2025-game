@@ -18,7 +18,7 @@ public class AlgaeIntakeCommand extends Command {
 
   @Override
   public void initialize() {
-    earlyExit = algaeIntakeSubsystem.isAlgaeDetected(); // returns if algae is detected or not
+    earlyExit = algaeIntakeSubsystem.isPieceSensorActive(); // returns if algae is detected or not
     if(earlyExit) {
       return;
     }
@@ -32,7 +32,7 @@ public class AlgaeIntakeCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     if (!interrupted) {
-      algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(85));
+      algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(75));
       algaeIntakeSubsystem.setSpeed(0.9);
     }
     else{
@@ -43,6 +43,6 @@ public class AlgaeIntakeCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    return earlyExit || algaeIntakeSubsystem.isAlgaeDetected(); 
+    return earlyExit || algaeIntakeSubsystem.isPieceSensorActive(); 
   }
 }

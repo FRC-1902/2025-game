@@ -10,7 +10,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
-import swervelib.math.Matter;
 
 public final class Constants {
 
@@ -45,14 +44,14 @@ public final class Constants {
     public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
 
     // Speeds
-    public static final double MAX_SPEED = Units.feetToMeters(16.6); // m/s
-    public static final double MAX_ACCELERATION = Units.feetToMeters(12.0); // m/s^2
+    public static final double MAX_SPEED = Units.feetToMeters(16.6); // ft/s
+    public static final double MAX_ACCELERATION = Units.feetToMeters(12.0); // ft/s^2
     public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
     // Auto Speeds
-    public static final double AUTO_MAX_SPEED = Units.feetToMeters(.5); // m/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(.7); // m/s^2 TODO: Adjust later
-    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(1); // m/s TODO: Adjust later
+    public static final double AUTO_MAX_SPEED = Units.feetToMeters(5); // ft/s TODO: Adjust later
+    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(5); // ft/s^2 TODO: Adjust later
+    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
 
     // todo: figure out magic ##
     public static final double OBJECT_TURN_KP = 4; // describes how much gas to give the robot to turn
@@ -63,7 +62,7 @@ public final class Constants {
 
     public static final int ROLLER_MOTOR_ID = 19; 
     public static final int PIVOT_MOTOR_ID = 12; 
-    public static final int IR_SENSOR_ID = 5; 
+    public static final int PIECE_SENSOR_ID = 5; 
 
     public static final double kP = 0.0125; 
     public static final double kI = 0; 
@@ -74,7 +73,7 @@ public final class Constants {
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(100); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(20); 
 
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(54.3); 
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(57.3); 
 
     public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(90);
   }
@@ -83,25 +82,25 @@ public final class Constants {
     private FloorIntake() {}
     public static final int ROLLER_MOTOR_ID = 20; 
     public static final int PIVOT_MOTOR_ID = 3;
-    public static final int IR_SENSOR_ID = 8; 
+    public static final int PIECE_SENSOR_ID = 8; 
     public static final int PIVOT_ENCODER_ID = 20; 
 
-    public static final double PIVOT_P = 0.011; 
-    public static final double PIVOT_I = 0; 
-    public static final double PIVOT_D = 0;
-    public static final double PIVOT_G = 0.022; 
+    public static final double PIVOT_P = 0.0125; 
+    public static final double PIVOT_I = 0.0035; 
+    public static final double PIVOT_D = 0.00005; 
+    public static final double PIVOT_G = 0.022; //.022 
 
-    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(2); 
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(3); 
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(350); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(342.53);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(349.53);
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
-    public static final double FLOOR_ANGLE = 180.0;
-    public static final double ELEVATOR_ANGLE = 90.0;
+    public static final double FLOOR_ANGLE = 178.0;
+    public static final double ELEVATOR_ANGLE = 80.0;
     public static final double CLIMB_ANGLE = 90.0;
-    public static final double DEFAULT_ANGLE = 5.0;
+    public static final double DEFAULT_ANGLE = 5;
   } 
 
   public static final class LED{
@@ -121,13 +120,13 @@ public final class Constants {
     public static final double kP = 4.6;
     public static final double kI = 0.0005;
     public static final double kD = 0;
-    public static final double kF = 0.0125; 
+    public static final double kF = 0.0125;  //0.0.125
     public static final double kS = 0.0069;
 
-    public static final double TOLERANCE = 0.015;
+    public static final double TOLERANCE = 0.015; // In meters
     public static final double CONVERSION_FACTOR = 0.0193145; // converts to meters 
-    public static final double LOCK_ANGLE = 166; // Range from 0 to 1
-    public static final double UNLOCK_ANGLE = 150.0; //Range from 0 to 1
+    public static final double LOCK_ANGLE = 166; // In degrees
+    public static final double UNLOCK_ANGLE = 150.0;  
 
     public enum Position{ 
       // center carriage to floor 9.375 inches, 0.23825 meters, in meters
@@ -137,7 +136,9 @@ public final class Constants {
       CLIMB_UP(.3), // TODO: Set height
       CLIMB_DOWN(0), 
       MIN(0), 
-      MAX(0.96);
+      MAX(0.96),
+      HOME(0),
+      HOLD(0);
 
       private final double height;
 
@@ -155,8 +156,8 @@ public final class Constants {
     private EndEffector() {}
     public static final int ROLLER_MOTOR_ID = 13;
 
-    public static final int FRONT_IR_SENSOR_ID = 7; 
-    public static final int BACK_IR_SENSOR_ID = 4; 
+    public static final int FRONT_PIECE_SENSOR_ID = 7; 
+    public static final int BACK_PIECE_SENSOR_ID = 4; 
   }
 
   public static final class Vision {
@@ -166,7 +167,7 @@ public final class Constants {
     // Camera Configs
     // TODO: Set real values
     public enum Camera {
-      ArducamOne(
+      CAMERA_ONE(
         "arducamOne",
         new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(38)),
         new Translation3d(
@@ -181,7 +182,7 @@ public final class Constants {
         VecBuilder.fill(0.5, 0.5, 1)
       ),
 
-      ArducamTwo(
+      CAMERA_TWO(
         "arducamFour",
         new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(-38)),
         new Translation3d(
@@ -196,7 +197,7 @@ public final class Constants {
         VecBuilder.fill(0.5, 0.5, 1)
       ),
 
-      ArducamThree(
+      CAMERA_THREE(
         "arducamThree",
         new Rotation3d(0, Units.degreesToRadians(-145), 0),
         new Translation3d(
@@ -229,9 +230,9 @@ public final class Constants {
       }
     }
     public static final Pose3d[] CAMERA_POSITIONS = {
-      new Pose3d(Camera.ArducamOne.translation, Camera.ArducamOne.rotation),
-      new Pose3d(Camera.ArducamTwo.translation, Camera.ArducamTwo.rotation),
-      new Pose3d(Camera.ArducamThree.translation, Camera.ArducamThree.rotation),
+      new Pose3d(Camera.CAMERA_ONE.translation, Camera.CAMERA_ONE.rotation),
+      new Pose3d(Camera.CAMERA_TWO.translation, Camera.CAMERA_TWO.rotation),
+      new Pose3d(Camera.CAMERA_THREE.translation, Camera.CAMERA_THREE.rotation),
     };
   }
 }

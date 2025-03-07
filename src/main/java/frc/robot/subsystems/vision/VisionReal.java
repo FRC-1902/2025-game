@@ -38,7 +38,7 @@ public class VisionReal implements VisionBase {
 
   /** Constructor initializes all cameras and their pose estimators */
   public VisionReal() {
-    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
     for (Constants.Vision.Camera cam : Constants.Vision.Camera.values()) {
       cameras.put(cam, new PhotonCamera(cam.camName));
@@ -93,15 +93,15 @@ public class VisionReal implements VisionBase {
 
           // TODO: Add/Change Cameras
         switch (cam) {
-          case ArducamOne:
+          case CAMERA_ONE:
             inputs.arducamOne = true;
             inputs.arducamOneBestTargetID = bestTarget.getFiducialId();
             break;
-          case ArducamTwo:
+          case CAMERA_TWO:
             inputs.arducamTwo = true;
             inputs.arducamTwoBestTargetID = bestTarget.getFiducialId();
             break;
-          case ArducamThree:
+          case CAMERA_THREE:
             inputs.arducamThree = true;
             inputs.arducamThreeBestTargetID = bestTarget.getFiducialId();
             break;
