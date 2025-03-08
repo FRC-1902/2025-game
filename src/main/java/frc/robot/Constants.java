@@ -167,11 +167,14 @@ public final class Constants {
     public static final class ObjectDetection {
       public static final String CAMERA_NAME = "colorCam";
       public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
-      public static final Rotation2d ANGLE = Rotation2d.fromDegrees(35); // TODO: Change to real value
-      public static final double HEIGHT = Units.inchesToMeters(29.5); // TODO: Change to real value
-      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(49); // TODO: Change to real value
-      public static final double VERTICAL_RES = 720;
-      public static final double HORIZONTAL_RES = 1280;
+      public static final Rotation2d ANGLE = Rotation2d.fromDegrees(55); // TODO: Change to real value
+      public static final double HEIGHT = 26; // TODO: Change to real value
+      public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(65); // TODO: Change to real value
+      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(53); // TODO: Change to real value
+      public static final double HORIZONTAL_RES = 1920;
+      public static final double VERTICAL_RES = 1080;
+      public static final Translation3d CAMERA_TRANSLATION = new Translation3d(0, 0, 0);
+      public static final Rotation3d CAMERA_ROTATION = new Rotation3d(0, 0, 0);
     }
 
     // Camera Configs

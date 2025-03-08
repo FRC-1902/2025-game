@@ -8,11 +8,17 @@ import java.util.List;
 
 import org.opencv.core.Point;
 import org.photonvision.PhotonCamera;
+import org.photonvision.estimation.OpenCVHelp;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Vision.ObjectDetection;
@@ -28,6 +34,21 @@ public class DetectionSubsystem extends SubsystemBase {
   private PhotonTrackedTarget currentObject;
   private Point targetPoint;
   private double distance;
+  private double xDistance;
+
+  Matrix<N3,N3> cameraMatrix;
+  Matrix<N8,N1> distCoeffs; 
+
+  public void getUndistortedPoints(List<Point> corners) {
+    Point[] cornerArray = corners.toArray(new Point[0]);
+
+    Point[] undistortedArray = OpenCVHelp.undistortPoints(cameraMatrix, distCoeffs, cornerArray);
+
+    for (int i = 0; i < corners.size(); i++) {
+        corners.get(i).x = undistortedArray[i].x;
+        corners.get(i).y = undistortedArray[i].y;
+    }
+  }
 
   public Point getTargetPoint(PhotonTrackedTarget currentObject) {
     if (currentObject == null) return null;
@@ -36,45 +57,71 @@ public class DetectionSubsystem extends SubsystemBase {
 
     double y = Double.NEGATIVE_INFINITY;
     double sumX = 0.0;
+    // double sumY = 0.0; // center point
 
     if (corners.size() == 0) return null;
 
     for (var corner : corners) {
       sumX += corner.x;
+      // sumY += corner.y; // center point
       if (corner.y > y) {
           y = corner.y;
       }
     }
 
     double x = sumX / corners.size();
+    // double y = sumY / corners.size(); // center point
     
     x = Math.max(0, Math.min(x, ObjectDetection.HORIZONTAL_RES));
     y = Math.max(0, Math.min(y, ObjectDetection.VERTICAL_RES));
 
 
-    double normY = (ObjectDetection.VERTICAL_RES - y)/ObjectDetection.VERTICAL_RES;
     double normX = x/ObjectDetection.HORIZONTAL_RES;
+    double normY = (ObjectDetection.VERTICAL_RES - y)/ObjectDetection.VERTICAL_RES;
 
     return new Point(normX, normY);
   }
 
-  public double distance(Point point) {
-    double angleOffset = point.y + .5;
+  public double depth(Point point) {
+    // Offset from center of the camera
+    double angleOffset = point.y - .5;
     double pitchDeg =  angleOffset * (ObjectDetection.VERTICAL_FOV).getDegrees(); 
 
     double totalAngleDeg = (ObjectDetection.ANGLE).getDegrees() + pitchDeg;
     double totalAngleRad = Math.toRadians(totalAngleDeg);
 
-    double distance = ObjectDetection.HEIGHT / Math.tan(totalAngleRad);  
+    double distance = ObjectDetection.HEIGHT * Math.tan(totalAngleRad);  
 
-    SmartDashboard.putNumber("Vision/pointY", point.y);
-    SmartDashboard.putNumber("Vision/PitchDeg", pitchDeg);
-    SmartDashboard.putNumber("Vision/TotalAngleDeg", totalAngleDeg);
-    SmartDashboard.putNumber("Vision/Distance", distance);
-
+    SmartDashboard.putNumber("VisionObjectDetection/angleOffset", angleOffset);
+    SmartDashboard.putNumber("VisionObjectDetection/PitchDeg", pitchDeg);
+    SmartDashboard.putNumber("VisionObjectDetection/TotalAngleDeg", totalAngleDeg);
+    SmartDashboard.putNumber("VisionObjectDetection/Distance", distance);
 
     return distance;
   }
+
+  public double width(Point point) {
+    // Offset from center of the camera
+    double angleOffset = point.x - .5;
+    
+    double yawDeg = angleOffset * (ObjectDetection.HORIZONTAL_FOV).getDegrees();
+    double yawRad = Math.toRadians(yawDeg);
+    
+    double depth = depth(point);
+    
+    double xDistance = depth * Math.tan(yawRad)*2;
+    
+    SmartDashboard.putNumber("VisionObjectDetection/XangleOffset", angleOffset);
+    SmartDashboard.putNumber("VisionObjectDetection/YawDeg", yawDeg);
+    SmartDashboard.putNumber("VisionObjectDetection/xDistance", xDistance);
+    
+    return xDistance;
+  }
+
+  Transform2d cameraToObject = new Transform2d(
+    new Translation2d(2.5, 0),
+    new Rotation2d() 
+  );
 
 
   public boolean isTargetVisible() {
@@ -121,9 +168,11 @@ public class DetectionSubsystem extends SubsystemBase {
           if (currentObject == null || currentObject.getDetectedObjectConfidence() < target.getDetectedObjectConfidence())
             currentObject = target;
 
+
           targetYaw = currentObject.getYaw();
           targetPoint = getTargetPoint(currentObject);
-          distance = distance(targetPoint);
+          distance = depth(targetPoint);
+          xDistance = width(targetPoint);
         }
         
       } else {
