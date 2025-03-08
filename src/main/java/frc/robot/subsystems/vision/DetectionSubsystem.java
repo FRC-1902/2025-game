@@ -6,6 +6,7 @@ package frc.robot.subsystems.vision;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.opencv.core.Point;
 import org.photonvision.PhotonCamera;
@@ -14,6 +15,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -25,11 +27,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Vision.ObjectDetection;
 import org.photonvision.targeting.TargetCorner;
 import org.photonvision.estimation.OpenCVHelp;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
+
 
 
 public class DetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
   private final PhotonCamera camera = new PhotonCamera(ObjectDetection.CAMERA_NAME);
+  private final SwerveSubsystem swerve;
 
   // For debugging
   private boolean targetVisible = false;
@@ -40,25 +45,30 @@ public class DetectionSubsystem extends SubsystemBase {
   private double distance;
   private double xDistance;
 
-
-  public Point[] getUndistortedPoints(List<Point> corners) {
-    
-    Point[] cornersList = OpenCVHelp.cornersToPoints(currentObject.getMinAreaRectCorners());
-    Point[] undistortedArray = OpenCVHelp.undistortPoints(camera.getCameraMatrix().orElseThrow(), camera.getDistCoeffs().orElseThrow(), cornersList);
-
-    for (int i = 0; i < corners.size(); i++) {
-        corners.get(i).x = undistortedArray[i].x;
-        corners.get(i).y = undistortedArray[i].y;
-    }
-
-    return undistortedArray;
+  public DetectionSubsystem(SwerveSubsystem swerve) {
+    this.swerve = swerve;
   }
+
 
   public Point getTargetPoint(PhotonTrackedTarget currentObject) {
     if (currentObject == null) return null;
     
+    Optional<Matrix<N3, N3>> cameraMatrixOpt = camera.getCameraMatrix();
+    Optional<Matrix<N8, N1>> distCoeffsOpt = camera.getDistCoeffs();
+
+        // Check if both camera matrix and distortion coefficients are available
+        if (!cameraMatrixOpt.isPresent() || !distCoeffsOpt.isPresent()) {
+          // Log error or handle the case when camera calibration data is not available
+          System.err.println("Camera calibration data not available");
+          return null;
+      }
+      
+      Matrix<N3, N3> cameraMatrix = cameraMatrixOpt.get();
+      Matrix<N8, N1> distCoeffs = distCoeffsOpt.get();
+  
+
     Point[] cornersList = OpenCVHelp.cornersToPoints(currentObject.getMinAreaRectCorners());
-    Point[] undistortedArray = OpenCVHelp.undistortPoints(camera.getCameraMatrix().orElseThrow(), camera.getDistCoeffs().orElseThrow(), cornersList);
+    Point[] undistortedArray = OpenCVHelp.undistortPoints(cameraMatrix, distCoeffs, cornersList);
 
     List<Point> corners = Arrays.asList(cornersList);
 
@@ -131,10 +141,22 @@ public class DetectionSubsystem extends SubsystemBase {
     return xDistance;
   }
 
-  Transform2d cameraToObject = new Transform2d(
-    new Translation2d(2.5, 0),
-    new Rotation2d() 
-  );
+  public Pose2d objectPose(double yawDegrees) {
+    Pose2d robotPose = swerve.getPose();
+
+    double yawRad = Math.toRadians(yawDegrees);
+
+    double xCamera = distance * Math.cos(yawRad);  // forward
+    double yCamera = distance * Math.sin(yawRad);  // left
+
+    Transform2d cameraToObject = new Transform2d(
+        new Translation2d(xCamera, yCamera),
+        new Rotation2d()
+    );
+
+    Pose2d objectPose = robotPose.transformBy(cameraToObject);
+    return objectPose;
+}
 
 
   public boolean isTargetVisible() {
@@ -155,6 +177,14 @@ public class DetectionSubsystem extends SubsystemBase {
 
   public PhotonTrackedTarget getCurrentObject() {
     return currentObject;
+  }
+
+  public Pose2d CartesianToPolar(Pose2d pose) {
+    return new Pose2d(
+      Math.sqrt(Math.pow(pose.getX(), 2) + Math.pow(pose.getY(), 2)),
+      Math.atan2(pose.getY(), pose.getX()),
+      pose.getRotation()
+    );
   }
 
   @Override
@@ -193,8 +223,11 @@ public class DetectionSubsystem extends SubsystemBase {
       }
     }
 
+
+
     SmartDashboard.putBoolean("VisionObjectDetection/TargetVisible", targetVisible);
     SmartDashboard.putNumber("VisionObjectDetection/TargetYaw", targetYaw);
+    SmartDashboard.putData("VisionObjectDetection/Object Pose", objectPose(targetYaw));
     
     if (targetPoint != null) {
         SmartDashboard.putNumber("VisionObjectDetection/TargetX", targetPoint.x);
