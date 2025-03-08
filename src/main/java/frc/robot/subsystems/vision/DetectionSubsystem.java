@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Vision.ObjectDetection;
 
+
 public class DetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
   private final PhotonCamera camera = new PhotonCamera(ObjectDetection.CAMERA_NAME);
@@ -36,18 +37,18 @@ public class DetectionSubsystem extends SubsystemBase {
   private double distance;
   private double xDistance;
 
-  Matrix<N3,N3> cameraMatrix;
-  Matrix<N8,N1> distCoeffs; 
 
   public void getUndistortedPoints(List<Point> corners) {
+    Optional <Matrix <N3, N3>> cameraMatrix = camera.getCameraMatrix();
     Point[] cornerArray = corners.toArray(new Point[0]);
 
-    Point[] undistortedArray = OpenCVHelp.undistortPoints(cameraMatrix, distCoeffs, cornerArray);
+    Point[] undistortedArray = OpenCVHelp.undistortPoints(camera.getCameraMatrix(), camera.getDistCoeffs(), cornerArray);
 
     for (int i = 0; i < corners.size(); i++) {
         corners.get(i).x = undistortedArray[i].x;
         corners.get(i).y = undistortedArray[i].y;
     }
+
   }
 
   public Point getTargetPoint(PhotonTrackedTarget currentObject) {
@@ -104,15 +105,16 @@ public class DetectionSubsystem extends SubsystemBase {
     // Offset from center of the camera
     double angleOffset = point.x - .5;
     
-    double yawDeg = angleOffset * (ObjectDetection.HORIZONTAL_FOV).getDegrees();
+    double yawDeg = targetYaw; //angleOffset * (ObjectDetection.HORIZONTAL_FOV).getDegrees();
     double yawRad = Math.toRadians(yawDeg);
     
-    double depth = depth(point);
+    double depth = distance;
     
-    double xDistance = depth * Math.tan(yawRad)*2;
+    double xDistance = depth * Math.tan(yawRad) * 1.6;
     
     SmartDashboard.putNumber("VisionObjectDetection/XangleOffset", angleOffset);
     SmartDashboard.putNumber("VisionObjectDetection/YawDeg", yawDeg);
+    SmartDashboard.putNumber("VisionObjectDetection/YawRad", yawRad);
     SmartDashboard.putNumber("VisionObjectDetection/xDistance", xDistance);
     
     return xDistance;
