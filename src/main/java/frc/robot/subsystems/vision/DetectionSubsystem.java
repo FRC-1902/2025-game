@@ -6,6 +6,7 @@ package frc.robot.subsystems.vision;
 
 import java.util.List;
 
+import org.opencv.core.Point;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -25,9 +26,56 @@ public class DetectionSubsystem extends SubsystemBase {
   private double targetYaw;
   private double bottomDistance;
   private PhotonTrackedTarget currentObject;
+  private Point targetPoint;
+  private double distance;
 
-  public Transform2d getObjectBottom() {
+  public Point getTargetPoint(PhotonTrackedTarget currentObject) {
+    if (currentObject == null) return null;
+
+    var corners = currentObject.getMinAreaRectCorners();
+
+    double y = Double.NEGATIVE_INFINITY;
+    double sumX = 0.0;
+
+    if (corners.size() == 0) return null;
+
+    for (var corner : corners) {
+      sumX += corner.x;
+      if (corner.y > y) {
+          y = corner.y;
+      }
+    }
+
+    double x = sumX / corners.size();
+    
+    x = Math.max(0, Math.min(x, ObjectDetection.HORIZONTAL_RES));
+    y = Math.max(0, Math.min(y, ObjectDetection.VERTICAL_RES));
+
+
+    double normY = (ObjectDetection.VERTICAL_RES - y)/ObjectDetection.VERTICAL_RES;
+    double normX = x/ObjectDetection.HORIZONTAL_RES;
+
+    return new Point(normX, normY);
   }
+
+  public double distance(Point point) {
+    double angleOffset = point.y + .5;
+    double pitchDeg =  angleOffset * (ObjectDetection.VERTICAL_FOV).getDegrees(); 
+
+    double totalAngleDeg = (ObjectDetection.ANGLE).getDegrees() + pitchDeg;
+    double totalAngleRad = Math.toRadians(totalAngleDeg);
+
+    double distance = ObjectDetection.HEIGHT / Math.tan(totalAngleRad);  
+
+    SmartDashboard.putNumber("Vision/pointY", point.y);
+    SmartDashboard.putNumber("Vision/PitchDeg", pitchDeg);
+    SmartDashboard.putNumber("Vision/TotalAngleDeg", totalAngleDeg);
+    SmartDashboard.putNumber("Vision/Distance", distance);
+
+
+    return distance;
+  }
+
 
   public boolean isTargetVisible() {
     return targetVisible;
@@ -74,6 +122,8 @@ public class DetectionSubsystem extends SubsystemBase {
             currentObject = target;
 
           targetYaw = currentObject.getYaw();
+          targetPoint = getTargetPoint(currentObject);
+          distance = distance(targetPoint);
         }
         
       } else {
@@ -83,5 +133,16 @@ public class DetectionSubsystem extends SubsystemBase {
 
     SmartDashboard.putBoolean("VisionObjectDetection/TargetVisible", targetVisible);
     SmartDashboard.putNumber("VisionObjectDetection/TargetYaw", targetYaw);
+    
+    if (targetPoint != null) {
+        SmartDashboard.putNumber("VisionObjectDetection/TargetX", targetPoint.x);
+        SmartDashboard.putNumber("VisionObjectDetection/TargetY", targetPoint.y);
+        SmartDashboard.putNumber("VisionObjectDetection/Distance", distance);
+    } else {
+        SmartDashboard.putNumber("VisionObjectDetection/TargetX", Double.NaN);
+        SmartDashboard.putNumber("VisionObjectDetection/TargetY", Double.NaN);
+        SmartDashboard.putNumber("VisionObjectDetection/Distance", Double.NaN);
+
+    }
   }
 }

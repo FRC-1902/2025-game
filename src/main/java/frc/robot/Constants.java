@@ -165,11 +165,13 @@ public final class Constants {
     public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
 
     public static final class ObjectDetection {
-      public static final String CAMERA_NAME = "colorArducamOne";
+      public static final String CAMERA_NAME = "colorCam";
       public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
-      public static final Rotation2d ANGLE = Rotation2d.fromDegrees(40); // TODO: Change to real value
-      public static final double HEIGHT = Units.inchesToMeters(24); // TODO: Change to real value
-      public static final double VERTICAL_FOV = Units.inchesToMeters(24); // TODO: Change to real value
+      public static final Rotation2d ANGLE = Rotation2d.fromDegrees(35); // TODO: Change to real value
+      public static final double HEIGHT = Units.inchesToMeters(29.5); // TODO: Change to real value
+      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(49); // TODO: Change to real value
+      public static final double VERTICAL_RES = 720;
+      public static final double HORIZONTAL_RES = 1280;
     }
 
     // Camera Configs
