@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.vision;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.opencv.core.Point;
@@ -22,6 +23,8 @@ import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Vision.ObjectDetection;
+import org.photonvision.targeting.TargetCorner;
+import org.photonvision.estimation.OpenCVHelp;
 
 
 public class DetectionSubsystem extends SubsystemBase {
@@ -38,24 +41,32 @@ public class DetectionSubsystem extends SubsystemBase {
   private double xDistance;
 
 
-  public void getUndistortedPoints(List<Point> corners) {
-    Optional <Matrix <N3, N3>> cameraMatrix = camera.getCameraMatrix();
-    Point[] cornerArray = corners.toArray(new Point[0]);
-
-    Point[] undistortedArray = OpenCVHelp.undistortPoints(camera.getCameraMatrix(), camera.getDistCoeffs(), cornerArray);
+  public Point[] getUndistortedPoints(List<Point> corners) {
+    
+    Point[] cornersList = OpenCVHelp.cornersToPoints(currentObject.getMinAreaRectCorners());
+    Point[] undistortedArray = OpenCVHelp.undistortPoints(camera.getCameraMatrix().orElseThrow(), camera.getDistCoeffs().orElseThrow(), cornersList);
 
     for (int i = 0; i < corners.size(); i++) {
         corners.get(i).x = undistortedArray[i].x;
         corners.get(i).y = undistortedArray[i].y;
     }
 
+    return undistortedArray;
   }
 
   public Point getTargetPoint(PhotonTrackedTarget currentObject) {
     if (currentObject == null) return null;
+    
+    Point[] cornersList = OpenCVHelp.cornersToPoints(currentObject.getMinAreaRectCorners());
+    Point[] undistortedArray = OpenCVHelp.undistortPoints(camera.getCameraMatrix().orElseThrow(), camera.getDistCoeffs().orElseThrow(), cornersList);
 
-    var corners = currentObject.getMinAreaRectCorners();
+    List<Point> corners = Arrays.asList(cornersList);
 
+    for (int i = 0; i < corners.size(); i++) {
+        corners.get(i).x = undistortedArray[i].x;
+        corners.get(i).y = undistortedArray[i].y;
+    }
+  
     double y = Double.NEGATIVE_INFINITY;
     double sumX = 0.0;
     // double sumY = 0.0; // center point
