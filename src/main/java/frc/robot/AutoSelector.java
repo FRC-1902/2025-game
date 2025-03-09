@@ -142,7 +142,7 @@ public class AutoSelector {
           new ObjectAlign(detectionSubsystem, swerve),
           new DriveToObject(swerve, detectionSubsystem)
         ),
-        () -> detectionSubsystem.isTargetVisible() && floorIntake.irSensorActive()
+        () -> detectionSubsystem.isTargetVisible() && floorIntake.pieceSensorActive()
       )
     );
   }
