@@ -119,7 +119,7 @@ public class RobotContainer {
 
     led.registerPattern(elevator::isLocked, redPattern);
     led.registerPattern(() -> { return elevator.isAtPosition() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
-    led.registerPattern(algaeIntake::isAlgaeDetected, greenPattern);
+    led.registerPattern(algaeIntake::isPieceSensorActive, greenPattern);
 
     bindButtons();
   }
@@ -178,6 +178,7 @@ public class RobotContainer {
 
     // Floor Intake
     new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.2)
+      // .whileTrue(new IntakeCommand(floorIntake, led));
       .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
 
     controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)

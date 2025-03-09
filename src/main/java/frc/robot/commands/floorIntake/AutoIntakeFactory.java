@@ -72,18 +72,18 @@ public class AutoIntakeFactory {
           //   floorIntakeSubsystem, 
           //   endEffectorSubsystem
           // ),
-          // new ParallelDeadlineGroup(
-          //   new WaitCommand(.5), 
-          //   new OuttakeCommand(floorIntakeSubsystem)
-          // ),          
-          new OuttakeCommand(floorIntakeSubsystem),
+          new ParallelDeadlineGroup(
+            new WaitCommand(.5), 
+            new OuttakeCommand(floorIntakeSubsystem)
+          ),          
+          // new OuttakeCommand(floorIntakeSubsystem),
           new PositionIntakeCommand(
             Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: check #
             elevatorSubsystem,
             floorIntakeSubsystem
           )
         ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), 
-        () -> floorIntakeSubsystem.irSensorActive()
+        () -> floorIntakeSubsystem.pieceSensorActive()
       ).schedule();
     });
   }
