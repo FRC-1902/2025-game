@@ -54,7 +54,7 @@ public final class Constants {
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
 
     // todo: figure out magic ##
-    public static final double OBJECT_TURN_KP = 4; // describes how much gas to give the robot to turn
+    public static final double OBJECT_TURN_KP = 5; // describes how much gas to give the robot to turn
   }
 
   public static final class AlgaeIntake{
@@ -94,10 +94,10 @@ public final class Constants {
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(350); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(349.53);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(351.53);
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
-    public static final double FLOOR_ANGLE = 178.0;
+    public static final double FLOOR_ANGLE = 180.0;
     public static final double ELEVATOR_ANGLE = 80.0;
     public static final double CLIMB_ANGLE = 90.0;
     public static final double DEFAULT_ANGLE = 5;
@@ -190,7 +190,7 @@ public final class Constants {
           // Units.inchesToMeters(9.691), 
           // Units.inchesToMeters(8.513920)
           Units.inchesToMeters(10.590),
-          Units.inchesToMeters(-12.164),
+          Units.inchesToMeters(12.164),
           Units.inchesToMeters(8.319)
         ),
         VecBuilder.fill(4, 4, 8),

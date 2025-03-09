@@ -26,7 +26,10 @@ public class ObjectAlign extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    DataLogManager.log("Start Aligne");
+
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -38,7 +41,9 @@ public class ObjectAlign extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    swerve.drive(new Translation2d(0,0), 0, true);
+    swerve.drive(new Translation2d(0,0), 0, false);
+    DataLogManager.log("Eneded Aligne");
+    
   }
 
   // Returns true when the command should end.
@@ -49,6 +54,6 @@ public class ObjectAlign extends Command {
       return true;
     }
 
-    return Math.abs(swerve.getPose().getRotation().getRadians() - detectionSubsystem.getTargetYaw().getRadians()) <= 0.001;
+    return Math.abs(detectionSubsystem.getTargetYaw().getRadians()) <= 0.07;
   }
 }
