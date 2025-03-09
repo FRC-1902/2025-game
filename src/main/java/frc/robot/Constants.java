@@ -169,14 +169,14 @@ public final class Constants {
     public enum Camera {
       CAMERA_ONE(
         "arducamOne",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(38)),
+        new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(40)),
         new Translation3d(
           // Units.inchesToMeters(11.233), 
           // Units.inchesToMeters(9.691),
           // Units.inchesToMeters(8.513920)
-          Units.inchesToMeters(9.883),
-          Units.inchesToMeters(-11.103),
-          Units.inchesToMeters(8.069)
+          Units.inchesToMeters(10.590),
+          Units.inchesToMeters(-12.164),
+          Units.inchesToMeters(8.319)
         ),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)
@@ -184,14 +184,14 @@ public final class Constants {
 
       CAMERA_TWO(
         "arducamFour",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(-38)),
+        new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(-40)),
         new Translation3d(
           // Units.inchesToMeters(-11.233), 
           // Units.inchesToMeters(9.691), 
           // Units.inchesToMeters(8.513920)
-          Units.inchesToMeters(9.883),
-          Units.inchesToMeters(11.103),
-          Units.inchesToMeters(8.069)
+          Units.inchesToMeters(10.590),
+          Units.inchesToMeters(-12.164),
+          Units.inchesToMeters(8.319)
         ),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)
