@@ -35,7 +35,8 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private PIDController pid;
   private Alert pivotAlert;
   private final ElevatorSubsystem elevatorSubsystem;
-  private Watchdog pivotWatchdog;
+  private Watchdog pivotWatchdog; 
+  private Pose3d intakePose;
 
   /** Creates a new FloorIntake. */
   public FloorIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
@@ -87,6 +88,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     // resetSafeParameters might be an issue
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
     rollerMotor.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
@@ -155,18 +157,6 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     }
   }
 
-  private void setupLogging(){
-    SmartDashboard.putData("PID/FloorIntake", pid); // TODO: Remove after tuning
-    SmartDashboard.putNumber("FloorIntake/Current Angle", getAngle().getDegrees());
-    SmartDashboard.putBoolean("FloorIntake/Piece Sensor", irSensorActive());
-    SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
-    SmartDashboard.putNumber("FloorIntake/power", pivotMotor.get());
-
-    Logger.recordOutput("FloorIntake/Intake Pose", 
-      new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, getAngle().getDegrees(), 0))
-    ); // TODO: Math and offset
-  }
-
   @Override
   public void periodic() {
 
@@ -178,8 +168,14 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(4).getRadians());
 
+    intakePose = new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, getAngle().getDegrees(), 0)); // TODO: Math and offset
 
-    setupLogging();
+    SmartDashboard.putData("PID/FloorIntake", pid); // TODO: Remove after tuning
+    SmartDashboard.putNumber("FloorIntake/Current Angle", getAngle().getDegrees());
+    SmartDashboard.putBoolean("FloorIntake/Piece Sensor", irSensorActive());
+    SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
+    SmartDashboard.putNumber("FloorIntake/power", power);
+    Logger.recordOutput("FloorIntake/Intake Pose", intakePose);
 
     if (pivotWatchdog()) {
       pivotMotor.set(0);
