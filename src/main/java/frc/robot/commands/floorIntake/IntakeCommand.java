@@ -41,6 +41,6 @@ public class IntakeCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    return floorIntakeSubsystem.irSensorActive();
+    return floorIntakeSubsystem.pieceSensorActive();
   }
 }

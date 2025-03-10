@@ -10,6 +10,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import swervelib.math.Matter;
 
 public final class Constants {
 
@@ -59,7 +60,7 @@ public final class Constants {
 
     public static final int ROLLER_MOTOR_ID = 19; 
     public static final int PIVOT_MOTOR_ID = 12; 
-    public static final int PIECE_SENSOR_ID = 5; 
+    public static final int IR_SENSOR_ID = 5; 
 
     public static final double kP = 0.0125; 
     public static final double kI = 0; 
@@ -79,7 +80,7 @@ public final class Constants {
     private FloorIntake() {}
     public static final int ROLLER_MOTOR_ID = 20; 
     public static final int PIVOT_MOTOR_ID = 3;
-    public static final int PIECE_SENSOR_ID = 8; 
+    public static final int IR_SENSOR_ID = 8; 
     public static final int PIVOT_ENCODER_ID = 20; 
 
     public static final double PIVOT_P = 0.0125; 
@@ -153,8 +154,8 @@ public final class Constants {
     private EndEffector() {}
     public static final int ROLLER_MOTOR_ID = 13;
 
-    public static final int FRONT_PIECE_SENSOR_ID = 7; 
-    public static final int BACK_PIECE_SENSOR_ID = 4; 
+    public static final int FRONT_IR_SENSOR_ID = 7; 
+    public static final int BACK_IR_SENSOR_ID = 4; 
   }
 
   public static final class Vision {
@@ -164,7 +165,7 @@ public final class Constants {
     // Camera Configs
     // TODO: Set real values
     public enum Camera {
-      CAMERA_ONE(
+      ArducamOne(
         "arducamOne",
         new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(38)),
         new Translation3d(
@@ -179,7 +180,7 @@ public final class Constants {
         VecBuilder.fill(0.5, 0.5, 1)
       ),
 
-      CAMERA_TWO(
+      ArducamTwo(
         "arducamFour",
         new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(-38)),
         new Translation3d(
@@ -194,7 +195,7 @@ public final class Constants {
         VecBuilder.fill(0.5, 0.5, 1)
       ),
 
-      CAMERA_THREE(
+      ArducamThree(
         "arducamThree",
         new Rotation3d(0, Units.degreesToRadians(-145), 0),
         new Translation3d(
@@ -227,9 +228,9 @@ public final class Constants {
       }
     }
     public static final Pose3d[] CAMERA_POSITIONS = {
-      new Pose3d(Camera.CAMERA_ONE.translation, Camera.CAMERA_ONE.rotation),
-      new Pose3d(Camera.CAMERA_TWO.translation, Camera.CAMERA_TWO.rotation),
-      new Pose3d(Camera.CAMERA_THREE.translation, Camera.CAMERA_THREE.rotation),
+      new Pose3d(Camera.ArducamOne.translation, Camera.ArducamOne.rotation),
+      new Pose3d(Camera.ArducamTwo.translation, Camera.ArducamTwo.rotation),
+      new Pose3d(Camera.ArducamThree.translation, Camera.ArducamThree.rotation),
     };
   }
 }
