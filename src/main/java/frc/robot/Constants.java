@@ -118,7 +118,7 @@ public final class Constants {
     public static final double kI = 0.0005;
     public static final double kD = 0;
     public static final double kF = 0.0125;  //0.0.125
-    public static final double kS = 0.007; // friction
+    public static final double kS = 0.0069;
 
     public static final double TOLERANCE = 0.015; // In meters
     public static final double CONVERSION_FACTOR = 0.0193145; // converts to meters 

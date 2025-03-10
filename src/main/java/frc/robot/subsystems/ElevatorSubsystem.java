@@ -239,10 +239,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // zero out on ground
     // XXX: might want to remove b/c coral getting stuck
-    // if (limitSwitchTriggered()) {
-    //   leftMotor.getEncoder().setPosition(0);
-    //   rightMotor.getEncoder().setPosition(0);
-    // }
+    if (limitSwitchTriggered()) {
+      leftMotor.getEncoder().setPosition(0);
+      rightMotor.getEncoder().setPosition(0);
+    }
 
     if (watchDog()) {
       leftMotor.set(0);
