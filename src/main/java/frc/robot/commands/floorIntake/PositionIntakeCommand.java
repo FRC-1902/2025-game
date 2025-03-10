@@ -43,7 +43,7 @@ public class PositionIntakeCommand extends Command {
    */
   @Override
   public void execute() {
-    if (floorIntakeSubsystem.pieceSensorActive()) {
+    if (floorIntakeSubsystem.irSensorActive()) {
       floorIntakeSubsystem.setSpeed(1); // Runs intake to keep coral in the intake while rotating intake.
     }
   }

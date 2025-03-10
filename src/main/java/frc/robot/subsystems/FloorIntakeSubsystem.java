@@ -31,7 +31,7 @@ import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 public class FloorIntakeSubsystem extends SubsystemBase {
   private SparkMax rollerMotor;
   private SparkMax pivotMotor;
-  private DigitalInput pieceSensor;
+  private DigitalInput irSensor;
   private PIDController pid;
   private Alert pivotAlert;
   private final ElevatorSubsystem elevatorSubsystem;
@@ -42,7 +42,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     rollerMotor = new SparkMax(Constants.FloorIntake.ROLLER_MOTOR_ID, MotorType.kBrushless);
     pivotMotor = new SparkMax(Constants.FloorIntake.PIVOT_MOTOR_ID, MotorType.kBrushless);
 
-    pieceSensor = new DigitalInput(Constants.FloorIntake.PIECE_SENSOR_ID);
+    irSensor = new DigitalInput(Constants.FloorIntake.PIECE_SENSOR_ID);
 
     pid = new PIDController(Constants.FloorIntake.PIVOT_P, Constants.FloorIntake.PIVOT_I, Constants.FloorIntake.PIVOT_D);
     pid.disableContinuousInput(); // Makes sure that intake doesn't try to gas it through the floor
@@ -140,8 +140,8 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * 
    * @returns whether or not a piece is detected
    */
-  public boolean pieceSensorActive() {
-    return !pieceSensor.get();
+  public boolean irSensorActive() {
+    return !irSensor.get();
   }
 
   // checks that the pivot isn't going out of tolerance, will send an alert if it does
@@ -158,7 +158,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private void setupLogging(){
     SmartDashboard.putData("PID/FloorIntake", pid); // TODO: Remove after tuning
     SmartDashboard.putNumber("FloorIntake/Current Angle", getAngle().getDegrees());
-    SmartDashboard.putBoolean("FloorIntake/Piece Sensor", pieceSensorActive());
+    SmartDashboard.putBoolean("FloorIntake/Piece Sensor", irSensorActive());
     SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
     SmartDashboard.putNumber("FloorIntake/power", pivotMotor.get());
 

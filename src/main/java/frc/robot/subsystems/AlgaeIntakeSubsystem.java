@@ -30,7 +30,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   private SparkMax pivotMotor;
   private PIDController pid;
   private Alert alert;
-  private DigitalInput pieceSensor; 
+  private DigitalInput irSensor; 
   private Watchdog pivotWatchdog;
   private final ElevatorSubsystem elevatorSubsystem;
 
@@ -46,7 +46,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     alert = new Alert("Algae Pivot Out Of Bounds", AlertType.kWarning);
 
-    pieceSensor = new DigitalInput(Constants.AlgaeIntake.PIECE_SENSOR_ID);
+    irSensor = new DigitalInput(Constants.AlgaeIntake.PIECE_SENSOR_ID);
 
     pivotWatchdog = new Watchdog(Constants.AlgaeIntake.MAX_PIVOT.getDegrees(), Constants.AlgaeIntake.MIN_PIVOT.getDegrees(), () -> getAngle().getDegrees());
 
@@ -121,10 +121,10 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
   /**
    * 
-   * @returns if pieceSensor is triggered or not 
+   * @returns if irSensor is triggered or not 
    */
-  public boolean isPieceSensorActive(){
-    return !pieceSensor.get(); 
+  public boolean isAlgaeDetected(){
+    return !irSensor.get(); 
   }
 
   /**
@@ -153,7 +153,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
     Pose3d intakePose = new Pose3d(new Translation3d(0.312, 0 + elevatorSubsystem.getPosition(), 0.4), new Rotation3d(0,0,0)); // TODO: Offset and Math
 
     SmartDashboard.putNumber("AlgaeIntake/Pivot Angle ", getAngle().getDegrees());
-    SmartDashboard.putBoolean("AlgaeIntake/Piece Sensor", isPieceSensorActive());
+    SmartDashboard.putBoolean("AlgaeIntake/Algae Detected ", isAlgaeDetected());
     Logger.recordOutput("AlgaeIntake/Intake Pose", intakePose);
     
     if (pivotWatchdog()) {
