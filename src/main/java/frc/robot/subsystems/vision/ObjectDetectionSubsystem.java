@@ -32,8 +32,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Vision.ObjectDetection;
-import org.photonvision.targeting.TargetCorner;
-import org.photonvision.estimation.OpenCVHelp;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 
@@ -60,7 +58,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     getCameraCalibrationData();
   }
 
-    /**
+  /**
    * Fetches the photonvision calibration results
    * @return calibration results
    */
@@ -78,10 +76,11 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
 
   /**
    * Converts a PhotonTrackedTarget to a undistorted Point on the bottom center of an object
+   * Can return null
    * @param currentObject
    * @return
    */
-  public Point getTargetPoint(PhotonTrackedTarget currentObject) {
+  private Point getTargetPoint(PhotonTrackedTarget currentObject) {
     if (currentObject == null) return null;
 
     if (!cameraMatrixOpt.isPresent() || !distCoeffsOpt.isPresent()) {
@@ -95,33 +94,30 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     Point[] cornersList = OpenCVHelp.cornersToPoints(currentObject.getMinAreaRectCorners());
     Point[] undistortedArray = OpenCVHelp.undistortPoints(cameraMatrix, distCoeffs, cornersList);
 
-    List<Point> corners = Arrays.asList(cornersList);
-
-    for (int i = 0; i < corners.size(); i++) {
-        corners.get(i).x = undistortedArray[i].x;
-        corners.get(i).y = undistortedArray[i].y;
+    for (int i = 0; i < cornersList.length; i++) {
+      cornersList[i].x = undistortedArray[i].x;
+      cornersList[i].y = undistortedArray[i].y;
     }
   
     double y = Double.NEGATIVE_INFINITY;
     double sumX = 0.0;
-    // double sumY = 0.0; // center point
 
-    if (corners.size() == 0) return null;
+    if (cornersList.length == 0) return null;
 
-    for (var corner : corners) {
+    // Find the average x value and the max y value
+    for (Point corner : cornersList) {
       sumX += corner.x;
-      // sumY += corner.y; // center point
+      // Find the max y value
       if (corner.y > y) {
-          y = corner.y;
+        y = corner.y;
       }
     }
 
-    double x = sumX / corners.size();
-    // double y = sumY / corners.size(); // center point
+    // Average the x values
+    double x = sumX / cornersList.length;
     
     x = Math.max(0, Math.min(x, ObjectDetection.HORIZONTAL_RES));
     y = Math.max(0, Math.min(y, ObjectDetection.VERTICAL_RES));
-
 
     double normX = x/ObjectDetection.HORIZONTAL_RES;
     double normY = (ObjectDetection.VERTICAL_RES - y)/ObjectDetection.VERTICAL_RES;
@@ -134,9 +130,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
    * @param point
    * @return
    */
-  public double getDepth(Point point) {
-    if (point == null) return 0; // Add null check to prevent NPE
-
+  private double getDepth(Point point) {
     // Calculate the angle offset from the center of the camera
     double angleOffset = point.y - .5;
 
@@ -157,9 +151,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
    * @param point
    * @return
    */
-  public Rotation2d getYaw(Point point) {
-    if (point == null) return new Rotation2d(); // Add null check to prevent NPE
-
+  private Rotation2d getYaw(Point point) {
     // Calculate the angle offset from the center of the camera
     double angleOffset = point.x - .5;
     
@@ -168,6 +160,12 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     return yaw;
   }
 
+  /**
+   * Calculates the object pose relative to the field
+   * Can return null
+   * @param point
+   * @return
+   */
   public Pose2d getObjectPose(Point point) {
     if (point == null) return null;
 
@@ -221,7 +219,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   /**
    * Returns the best-known object pose, or null if we have none.
    */
-  public Pose2d getLastGoodPose() {
+  private Pose2d getLastGoodPose() {
     return lastGoodPose;
   }
 
