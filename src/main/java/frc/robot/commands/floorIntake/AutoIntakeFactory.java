@@ -87,4 +87,52 @@ public class AutoIntakeFactory {
       ).schedule();
     });
   }
+  public Command getAutonomousIntakeSequence(double angle) {
+    return new SequentialCommandGroup(
+      new ParallelCommandGroup(
+        new ElevatorCommand(
+          elevatorSubsystem, 
+          Constants.Elevator.Position.MIN
+        ),
+        new PositionIntakeCommand(
+          Rotation2d.fromDegrees(angle),
+          elevatorSubsystem, 
+          floorIntakeSubsystem 
+        )
+      ),
+      new IntakeCommand(floorIntakeSubsystem, led),
+
+      new ConditionalCommand(
+        // index successful intake
+        new SequentialCommandGroup(
+          new PositionIntakeCommand(
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: double check -> bring it in
+            elevatorSubsystem,
+            floorIntakeSubsystem
+          ),
+          new IndexCommand( 
+            floorIntakeSubsystem, 
+            endEffectorSubsystem
+          ),
+          endEffectorFactory.getIndexSequence()
+        ),
+
+        // clean up failed intake
+        new SequentialCommandGroup(
+          new ParallelDeadlineGroup(
+            new WaitCommand(.5), 
+            new OuttakeCommand(floorIntakeSubsystem)
+          ),          
+          // new OuttakeCommand(floorIntakeSubsystem),
+          new PositionIntakeCommand(
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: check #
+            elevatorSubsystem,
+            floorIntakeSubsystem
+          )
+        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), 
+        
+        () -> floorIntakeSubsystem.pieceSensorActive()
+      )
+    );
+  }
 }

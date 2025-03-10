@@ -90,9 +90,8 @@ public class AutoSelector {
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
-    autoChooser.addOption("3 L3", get3L3());
     autoChooser.addOption("3 L3 Test", get3L3Test());
-    autoChooser.addOption("The Everything App", getTheEverythingApp());
+    autoChooser.addOption("3 L3", get3L3());
   }
 
   /**
@@ -126,7 +125,7 @@ public class AutoSelector {
   }
 
   /**
-   * TODO: actual docs
+   * Aligns and drives to coral and ends once intaken
    * <b><h1>Gussy likes to call this "get verified"</h1></b>
    * @param pathName
    * @return
@@ -134,7 +133,7 @@ public class AutoSelector {
   private Command getCoralWithDetection(){
     return new ParallelRaceGroup(
       new SequentialCommandGroup(
-        autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE),
+        autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE),
         new InstantCommand(() -> DataLogManager.log("Intake Seq Won"))
         ),
       
@@ -151,10 +150,9 @@ public class AutoSelector {
       // )
       new SequentialCommandGroup(
         new InstantCommand(() -> DataLogManager.log("Coral Detect routine")),
-        new WaitCommand(2),
         new ObjectAlign(detectionSubsystem, swerve),
         new InstantCommand(() -> DataLogManager.log("Align Done")),
-        new DriveToObject(swerve, detectionSubsystem),
+        new DriveToObject(swerve),
         new InstantCommand(() -> DataLogManager.log("Coral Detect Finished"))
       )
     );
@@ -170,51 +168,6 @@ public class AutoSelector {
     return setStartPosition(0, 0); // TODO: Configure
   }
 
-
-  /**
-   * 3 L3 From blue right
-   */
-  private SequentialCommandGroup get3L3() {
-    return new SequentialCommandGroup(
-      // setup odometry
-      setStartPosition(7.170, 2.200),
-      // drive and suck
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("3 L3 1")
-        //new AlgaeIntakeCommand(algaeIntake)
-      ),
-      // Place
-      new ScoreCommand(endEffector),
-      // Drive to HP
-      new ParallelCommandGroup(
-        swerve.getFollowPathCommand("3 L3 2"),
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-      ),
-      // Intake
-      //new AlgaeOuttakeCommand(algaeIntake),
-      autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.HP_ANGLE),
-      
-      new WaitCommand(3),
-      // Drive to reef
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("3 L3 3")
-      ),
-      // Place 
-      new ScoreCommand(endEffector),
-      new ParallelCommandGroup(
-        swerve.getFollowPathCommand("3 L3 4"),
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-      ),
-      autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.HP_ANGLE),
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("3 L3 5")
-      ),
-      new ScoreCommand(endEffector)
-    );
-  }
   private SequentialCommandGroup get3L3Test() {
     return new SequentialCommandGroup(
       // setup odometry
@@ -228,18 +181,21 @@ public class AutoSelector {
     );
   }
 
-  private SequentialCommandGroup getTheEverythingApp(){
+  private SequentialCommandGroup get3L3(){
     return new SequentialCommandGroup(
       // setup odometry
       setStartPosition(7.170, 2.200), // TODO: fix start pos
 
       endEffectorFactory.getIndexSequence(),
 
-      // Drive to reef & grab algae
+      // Drive to reef and grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
         swerve.getFollowPathCommand("3 L3 1"),
-        new AlgaeIntakeCommand(algaeIntake)
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new AlgaeOuttakeCommand(algaeIntake)
+        )
       ),
       // Place
       new ScoreCommand(endEffector),
@@ -249,11 +205,14 @@ public class AutoSelector {
       // Drive to HP
 
       // drive far enough away to get rid of algae
-      swerve.getFollowPathCommand("3 L3 2a"),
+      swerve.getFollowPathCommand("3 L3 2"),
       // drive, while outaking algae, intaking, and looking for a piece
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
-        new AlgaeOuttakeCommand(algaeIntake)
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new AlgaeOuttakeCommand(algaeIntake)
+        )
       ),
       new InstantCommand(() -> DataLogManager.log("Before ob dect")),
       getCoralWithDetection(),
@@ -269,13 +228,9 @@ public class AutoSelector {
 
       // END OF CYCLE TWO
 
-      // drive far enough away to get rid of algae
-      // drive, while outaking algae, intaking, and looking for a piece
-      // drive far enough away to get rid of algae
-      // drive, while outaking algae, intaking, and looking for a piece
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
-        new AlgaeOuttakeCommand(algaeIntake)
+        swerve.getFollowPathCommand("3 L3 4")
       ),
       getCoralWithDetection(),
 
