@@ -5,6 +5,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -167,14 +169,15 @@ public final class Constants {
     public static final class ObjectDetection {
       public static final String CAMERA_NAME = "colorCam";
       public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
-      public static final Rotation2d ANGLE = Rotation2d.fromDegrees(50); // TODO: Change to real value
-      public static final double HEIGHT = Units.inchesToMeters(29); // TODO: Change to real value
+      public static final Rotation2d ANGLE = Rotation2d.fromDegrees(90-32); // TODO: Change to real value
+      public static final double HEIGHT = Units.inchesToMeters(28); // TODO: Change to real value
       public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(65); // TODO: Change to real value
       public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(53); // TODO: Change to real value
       public static final double HORIZONTAL_RES = 1920;
       public static final double VERTICAL_RES = 1080;
       public static final Translation3d CAMERA_TRANSLATION = new Translation3d(0, 0, 0);
       public static final Rotation3d CAMERA_ROTATION = new Rotation3d(0, 0, 0);
+      public static final Transform2d CAMERA_POSE = new Transform2d(new Translation2d(0.102, 0.0),Rotation2d.fromDegrees(180.0));
     }
 
     // Camera Configs

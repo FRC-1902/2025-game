@@ -8,16 +8,16 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.vision.DetectionSubsystem;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ObjectAlign extends Command {
 
-  private final DetectionSubsystem detectionSubsystem;
+  private final ObjectDetectionSubsystem detectionSubsystem;
   private final SwerveSubsystem swerve;
   /** Creates a new ObjectAllign. */
-  public ObjectAlign(DetectionSubsystem detectionSubsystem, SwerveSubsystem swerve) {
+  public ObjectAlign(ObjectDetectionSubsystem detectionSubsystem, SwerveSubsystem swerve) {
     this.detectionSubsystem = detectionSubsystem;
     this.swerve = swerve;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -31,8 +31,8 @@ public class ObjectAlign extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double turn = -detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP;
-    swerve.drive(new Translation2d(0,0), turn, true);
+    // double turn = -detectionSubsystem.getYaw(detectionSubsystem.getTargetPoint()).getRadians() * Constants.Swerve.OBJECT_TURN_KP;
+    // swerve.drive(new Translation2d(0,0), turn, true);
   }
 
   // Called once the command ends or is interrupted.
@@ -48,7 +48,7 @@ public class ObjectAlign extends Command {
       DataLogManager.log("Piece not visible");
       return true;
     }
-
-    return Math.abs(swerve.getPose().getRotation().getRadians() - detectionSubsystem.getTargetYaw().getRadians()) <= 0.001;
+    return false;
+    // return Math.abs(swerve.getPose().getRotation().getRadians() - detectionSubsystem.getTargetYaw().getRadians()) <= 0.001;
   }
 }

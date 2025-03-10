@@ -7,17 +7,17 @@ package frc.robot.commands.drive;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.DetectionSubsystem;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
 import edu.wpi.first.wpilibj.Timer;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveToObject extends Command {
   private final SwerveSubsystem swerveSubsystem;
-  private final DetectionSubsystem detectionSubsystem;
+  private final ObjectDetectionSubsystem detectionSubsystem;
   private double start;
 
   /** Creates a new DriveToObject. */
-  public DriveToObject(SwerveSubsystem swerveSubsystem, DetectionSubsystem detectionSubsystem) {
+  public DriveToObject(SwerveSubsystem swerveSubsystem, ObjectDetectionSubsystem detectionSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
     this.detectionSubsystem = detectionSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.

@@ -42,7 +42,7 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.DetectionSubsystem;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
 import frc.robot.FieldConstants;
 import frc.robot.Constants.EndEffector;
 import frc.robot.commands.endEffector.ScoreCommand;
@@ -60,7 +60,7 @@ public class AutoSelector {
   AlgaeIntakeSubsystem algaeIntake;
   FloorIntakeSubsystem floorIntake;
   EndEffectorSubsystem endEffector;
-  DetectionSubsystem detectionSubsystem;
+  ObjectDetectionSubsystem detectionSubsystem;
   ElevatorSubsystem elevator;
 
   PositionIntakeCommand deployFloorIntakeCommand;
