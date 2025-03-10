@@ -242,9 +242,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     switch (targetPosition) {
-      case HOME:
-        home();
-        return;
+      case MIN:
+        if (getPosition() < 0.05) {
+          home();
+          return;
+        }else{
+          break;
+        }
       case CLIMB_DOWN:
         climb();
         return;

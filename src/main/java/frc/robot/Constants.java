@@ -134,8 +134,7 @@ public final class Constants {
       CLIMB_UP(.3), // TODO: Set height
       CLIMB_DOWN(0), 
       MIN(0), 
-      MAX(0.96),
-      HOME(0);
+      MAX(0.96);
 
       private final double height;
 
