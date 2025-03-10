@@ -23,7 +23,7 @@ public class PathToWaypoint extends Command {
       Constants.Swerve.AUTO_MAX_SPEED, 
       Constants.Swerve.AUTO_MAX_ACCELERATION, 
       Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations(), 
-      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations() // TODO: Change to rotation accel
+      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations()
     );
 
     addRequirements(swerve);
@@ -31,9 +31,8 @@ public class PathToWaypoint extends Command {
 
   @Override
   public void initialize() {
-    pathCommand = AutoBuilder.pathfindToPose(targetPose.get(), constraints, 0);
+    pathCommand = AutoBuilder.pathfindToPose(targetPose.get(), constraints, 1);
     pathCommand.initialize();
-    DataLogManager.log("AAAAAA");
   }
 
   @Override
@@ -44,7 +43,6 @@ public class PathToWaypoint extends Command {
   @Override
   public void end(boolean interrupted) {
     pathCommand.end(interrupted);
-    DataLogManager.log("BBBB");
 
   }
 

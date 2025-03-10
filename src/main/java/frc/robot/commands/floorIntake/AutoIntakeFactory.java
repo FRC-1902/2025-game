@@ -1,4 +1,4 @@
-package frc.robot.commands.intake;
+package frc.robot.commands.floorIntake;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -12,7 +12,8 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.Constants;
 import frc.robot.Constants.LED;
 import frc.robot.commands.ElevatorCommand;
-import frc.robot.commands.EndEffectorFactory;
+import frc.robot.commands.IndexCommand;
+import frc.robot.commands.endEffector.EndEffectorFactory;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -40,23 +41,23 @@ public class AutoIntakeFactory {
           elevatorSubsystem, 
           Constants.Elevator.Position.MIN
         ),
-        new DeployFloorIntakeCommand(
+        new PositionIntakeCommand(
           Rotation2d.fromDegrees(angle),
           elevatorSubsystem, 
           floorIntakeSubsystem 
         )
       ),
-      new IntakeFloorIntakeCommand(floorIntakeSubsystem, led)
+      new IntakeCommand(floorIntakeSubsystem, led)
     ).finallyDo((wasCancelled) -> {
       new ConditionalCommand(
         // index successful intake
         new SequentialCommandGroup(
-          new DeployFloorIntakeCommand(
+          new PositionIntakeCommand(
             Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: double check -> bring it in
             elevatorSubsystem,
             floorIntakeSubsystem
           ),
-          new IndexFloorIntakeCommand( 
+          new IndexCommand( 
             floorIntakeSubsystem, 
             endEffectorSubsystem
           ),
@@ -73,9 +74,10 @@ public class AutoIntakeFactory {
           // ),
           new ParallelDeadlineGroup(
             new WaitCommand(.5), 
-            new OuttakeFloorIntakeCommand(floorIntakeSubsystem)
+            new OuttakeCommand(floorIntakeSubsystem)
           ),          
-          new DeployFloorIntakeCommand(
+          // new OuttakeCommand(floorIntakeSubsystem),
+          new PositionIntakeCommand(
             Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: check #
             elevatorSubsystem,
             floorIntakeSubsystem

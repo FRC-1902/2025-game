@@ -9,13 +9,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
-import frc.robot.commands.intake.DeployFloorIntakeCommand;   
+import frc.robot.commands.endEffector.EndEffectorFactory;
+import frc.robot.commands.floorIntake.PositionIntakeCommand;   
 
 /** Add your docs here. */
 public class ElevatorFactory {
@@ -39,7 +39,7 @@ public class ElevatorFactory {
    */
   public Command getElevatorCommand(Position targetPosition){
     return new SequentialCommandGroup(
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
       new ConditionalCommand(
         endEffectorFactory.getIndexSequence(),  
         new InstantCommand(),
@@ -56,7 +56,7 @@ public class ElevatorFactory {
     return new SequentialCommandGroup(
       endEffectorFactory.getIndexSequence(),
       new ElevatorCommand(elevatorSubsystem, Position.MIN),
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
+      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
     ).finallyDo(() -> {
       elevatorSubsystem.setPosition(Constants.Elevator.Position.MIN);
     });
@@ -64,7 +64,7 @@ public class ElevatorFactory {
 
   public SequentialCommandGroup getClimberUpSequence(){
     return new SequentialCommandGroup(
-      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
       new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.CLIMB_UP)
     );
   }
