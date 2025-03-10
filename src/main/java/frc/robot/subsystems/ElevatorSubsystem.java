@@ -217,19 +217,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getAngle());
     SmartDashboard.putBoolean("Elevator/Elevator Locked", isLocked());
     SmartDashboard.putBoolean("Elevator/isAtPos", isAtPosition(targetPosition));
-    SmartDashboard.putString("Elevator/Enum Position", targetPosition.name());
 
-    SmartDashboard.putNumber("Elevator/Motors/Left Power", leftMotor.get());
-    SmartDashboard.putNumber("Elevator/Motors/Right Power", rightMotor.get());
-    SmartDashboard.putNumber("Elevator/Motors/Left Position", leftMotor.getEncoder().getPosition());
-    SmartDashboard.putNumber("Elevator/Motors/Left Position", rightMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("Elevator/LeftPower", leftMotor.get());
+    SmartDashboard.putNumber("Elevator/RightPower", rightMotor.get());
   }
 
   @Override
   public void periodic() {
     double power;
 
-    Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()/2), new Rotation3d()); // TODO: Math
+    Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
     Pose3d carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
 
     Logger.recordOutput("Elevator/Stage", elevatorPose);
