@@ -1,4 +1,4 @@
-package frc.robot.commands.floorIntake;
+package frc.robot.commands.intake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -9,14 +9,14 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 
-public class PositionIntakeCommand extends Command {
+public class DeployFloorIntakeCommand extends Command {
   private final ElevatorSubsystem elevatorSubsystem;
   private final FloorIntakeSubsystem floorIntakeSubsystem;
 
   private Rotation2d targetAngle;
 
   /** Creates a new DeployFloorIntakeCommand. */
-  public PositionIntakeCommand(
+  public DeployFloorIntakeCommand(
       Rotation2d targetAngle,
       ElevatorSubsystem elevatorSubsystem, 
       FloorIntakeSubsystem floorIntakeSubsystem

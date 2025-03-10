@@ -21,17 +21,18 @@ import frc.robot.Constants.FloorIntake;
 import frc.robot.FieldConstants.WaypointType;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
+import frc.robot.commands.AutoPlaceFactory;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
-import frc.robot.commands.IndexCommand;
+import frc.robot.commands.EndEffectorFactory;
+import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
-import frc.robot.commands.endEffector.EndEffectorFactory;
-import frc.robot.commands.endEffector.ScoreCommand;
-import frc.robot.commands.floorIntake.AutoIntakeFactory;
-import frc.robot.commands.floorIntake.OuttakeCommand;
-import frc.robot.commands.floorIntake.IntakeCommand;
-import frc.robot.commands.floorIntake.PositionIntakeCommand;
+import frc.robot.commands.intake.AutoIntakeFactory;
+import frc.robot.commands.intake.DeployFloorIntakeCommand;
+import frc.robot.commands.intake.IntakeFloorIntakeCommand;
+import frc.robot.commands.intake.OuttakeFloorIntakeCommand;
+import frc.robot.commands.intake.IndexFloorIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.Axis;
@@ -59,7 +60,8 @@ public class RobotContainer {
   ControllerSubsystem controllers;
 
   AutoDriveFactory autoDrive;
-  AutoIntakeFactory autoIntakeFactory;
+  AutoIntakeFactory autoIntake;
+  AutoPlaceFactory autoPlaceFactory;
   ElevatorFactory elevatorFactory;
   EndEffectorFactory endEffectorFactory;
   private final Field2d field;
@@ -103,18 +105,19 @@ public class RobotContainer {
 
     autoDrive = new AutoDriveFactory(swerve);
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
+    autoIntake = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
+    autoPlaceFactory = new AutoPlaceFactory(endEffector, elevator, floorIntake);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
     swerve.setDefaultCommand(closedDrive);
 
     LEDPattern greenPattern = LEDPattern.solid(new Color(0, 255, 0)).atBrightness(Percent.of(50));
     LEDPattern redPattern = LEDPattern.solid(new Color(255, 0, 0)).atBrightness(Percent.of(50));
-    LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(30));
+    LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(50));
 
     led.registerPattern(elevator::isLocked, redPattern);
-    led.registerPattern(() -> { return elevator.isAtPosition() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
-    led.registerPattern(algaeIntake::isPieceSensorActive, greenPattern);
+    led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
+    led.registerPattern(() -> { return algaeIntake.isAlgaeDetected() || floorIntake.pieceSensorActive(); }, greenPattern);
 
     bindButtons();
   }
@@ -125,7 +128,7 @@ public class RobotContainer {
 
     // Place Coral
     new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.RT) > 0.5)
-      .whileTrue(new ScoreCommand(endEffector));
+      .whileTrue(new PlaceCommand(endEffector));
 
     // Score/Outtake Algae
     controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
@@ -134,6 +137,9 @@ public class RobotContainer {
     // Zero Gyro
     controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
       .onTrue(new InstantCommand(swerve::zeroGyro));
+
+    // Spin to win
+
 
     // Align to Reef
     controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
@@ -147,6 +153,15 @@ public class RobotContainer {
     //controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       //.whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR));
 
+    // Align to Reef
+   // controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
+     // .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
+
+
+
+    // Align to Cage, Removed for now
+    // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+    //     .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.CAGE));
 
     /* Manipulator Controls */
 
@@ -165,19 +180,18 @@ public class RobotContainer {
 
     // Spit Floor Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LS).debounce(0.05)
-      .whileTrue(new OuttakeCommand(floorIntake));
+      .whileTrue(new OuttakeFloorIntakeCommand(floorIntake));
 
     // Floor Intake
     new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.2)
-      // .whileTrue(new IntakeCommand(floorIntake, led));
-      .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
+      .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
 
     controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)
-      .whileTrue(new InstantCommand(() -> autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)));
+      .whileTrue(new InstantCommand(() -> autoIntake.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)));
 
     // HP Intake
     controllers.getTrigger(ControllerName.MANIP, Button.X).debounce(0.05)
-        .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.HP_ANGLE));
+        .whileTrue(autoIntake.getIntakeSequence(Constants.FloorIntake.HP_ANGLE));
 
     // Algae Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)
@@ -193,11 +207,10 @@ public class RobotContainer {
 
     // Climber Intake Out
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90) // TODO: Get Correct angle
-      .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(70)), floorIntake));
+      .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(90)), floorIntake));
 
     // Home
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 270)
-      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.HOLD))
-      .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.HOME));
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 90)
+      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.MIN));
   }
 }

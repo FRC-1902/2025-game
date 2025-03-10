@@ -98,15 +98,15 @@ public class VisionSim implements VisionBase {
 
         // TODO: Change/Switch to actual cameras
         switch (cam) {
-          case CAMERA_ONE:
+          case ArducamOne:
             inputs.arducamOne = true;
             inputs.arducamOneBestTargetID = result.getBestTarget().getFiducialId();
             break;
-          case CAMERA_TWO:
+          case ArducamTwo:
             inputs.arducamTwo = true;
             inputs.arducamTwoBestTargetID = result.getBestTarget().getFiducialId();
             break;
-          case CAMERA_THREE:
+          case ArducamThree:
             inputs.arducamThree = true;
             inputs.arducamThreeBestTargetID = result.getBestTarget().getFiducialId();
             break;

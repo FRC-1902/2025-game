@@ -61,7 +61,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     boundsAlert = new Alert("Elevator/Elevator out of bounds", AlertType.kError);
     servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
 
-    elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight() + 0.01, Constants.Elevator.Position.MIN.getHeight() - 0.05, this::getPosition);
+    elevatorWatchdog = new Watchdog(Constants.Elevator.Position.MAX.getHeight() + 0.01, Constants.Elevator.Position.MIN.getHeight() - 0.01, this::getPosition);
 
     targetPosition = Constants.Elevator.Position.MIN;
 
@@ -74,12 +74,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     SparkBaseConfig configOne = new SparkMaxConfig();
     SparkBaseConfig configTwo = new SparkMaxConfig();
 
-    configOne.idleMode(IdleMode.kBrake);
+    configOne.idleMode(IdleMode.kCoast);
     configOne.smartCurrentLimit(50);
     configOne.inverted(true); // todo: switch inverted
     configOne.voltageCompensation(12);
 
-    configTwo.idleMode(IdleMode.kBrake);
+    configTwo.idleMode(IdleMode.kCoast);
     configTwo.smartCurrentLimit(50);
     configTwo.inverted(false); // todo: switch inverted
     configTwo.voltageCompensation(12);
@@ -129,17 +129,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     pid.reset();
   }
 
-  public boolean isAtPosition() {
-    return isAtPosition(targetPosition);
-  }
-
   /**
    * 
-   * @param pos
-   * @returns whether the elevator is at a tolerance to the specified position or not
+   * @returns whether or not the pid is at setpoint
    */
-  public boolean isAtPosition(Position pos){
-    return Math.abs(getPosition() - pos.getHeight()) <= Constants.Elevator.TOLERANCE;
+  public boolean pidAtSetpoint() {
+    return pid.atSetpoint();
   }
 
   /**
@@ -149,7 +144,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     if (lock) {
       servo.setAngle(Constants.Elevator.LOCK_ANGLE);
     } else {
-      unlockTime = Timer.getFPGATimestamp();
       servo.setAngle(Constants.Elevator.UNLOCK_ANGLE);
     }
   }
@@ -178,38 +172,40 @@ public class ElevatorSubsystem extends SubsystemBase {
   /**
    * full throttle downward for climb until limit switch is hit
    */
-  private double climb() {
+  private void climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
-      return -0.6; // TODO: change speed
+      leftMotor.set(-0.3); // TODO: change speed
+      rightMotor.set(-0.3);
     } else {
-      return 0;
+      setLocked(true);
+      leftMotor.set(0);
+      rightMotor.set(0);
     }
   }
 
   /**
    * go to the bottom of the elevator to re-home
    */
-  private double home() {
+  private void home() {
     if (!limitSwitchTriggered() && !isLocked()) {
-      return -0.3; // TODO: change speed
+      leftMotor.set(-0.3); // TODO: change speed
+      rightMotor.set(-0.3);
     } else {
-      return 0;
+      leftMotor.set(0);
+      rightMotor.set(0);
     }
   }
 
   /**
-   * Checks if locked and if not, calculates the power to set the motors to
-   * @returns the power to set the motors to
+   * 
+   * @param targetPosition
+   * @returns whether the elevator is at a tolerance to the specified position or not
    */
-  private double calcPID() {
-    if (!isLocked() && Timer.getFPGATimestamp() - unlockTime > 0.1) {
-      return pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
-    } else {
-      return 0;
-    }    
+  public boolean isAtPosition(Position targetPosition){
+    return Math.abs(getPosition() - targetPosition.getHeight()) <= Constants.Elevator.TOLERANCE;
   }
 
-  private void publishTelemetry(){
+  private void smartConfigs(){
     SmartDashboard.putData("PID/Elevator", pid); // TODO: Remove after tuning
 
     SmartDashboard.putBoolean("Elevator/Limit Switch", limitSwitchTriggered());
@@ -217,32 +213,27 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Elevator/Servo Position", servo.getAngle());
     SmartDashboard.putBoolean("Elevator/Elevator Locked", isLocked());
     SmartDashboard.putBoolean("Elevator/isAtPos", isAtPosition(targetPosition));
-    SmartDashboard.putString("Elevator/Enum Position", targetPosition.name());
 
-    SmartDashboard.putNumber("Elevator/Motors/Left Power", leftMotor.get());
-    SmartDashboard.putNumber("Elevator/Motors/Right Power", rightMotor.get());
-    SmartDashboard.putNumber("Elevator/Motors/Left Position", leftMotor.getEncoder().getPosition());
-    SmartDashboard.putNumber("Elevator/Motors/Right Position", rightMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("Elevator/LeftPower", leftMotor.get());
+    SmartDashboard.putNumber("Elevator/RightPower", rightMotor.get());
   }
 
   @Override
   public void periodic() {
     double power;
 
-    // simulate elevator for 3d visualization
-    Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()/2), new Rotation3d()); // TODO: Math
+    Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
     Pose3d carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
+
     Logger.recordOutput("Elevator/Stage", elevatorPose);
     Logger.recordOutput("Elevator/Carriage", carriagePose);
 
-    publishTelemetry();
+    smartConfigs();
 
-    // zero out on ground
-    // XXX: might want to remove b/c coral getting stuck
-    // if (limitSwitchTriggered()) {
-    //   leftMotor.getEncoder().setPosition(0);
-    //   rightMotor.getEncoder().setPosition(0);
-    // }
+    if (limitSwitchTriggered()) {
+      leftMotor.getEncoder().setPosition(0);
+      rightMotor.getEncoder().setPosition(0);
+    }
 
     if (watchDog()) {
       leftMotor.set(0);
@@ -251,35 +242,37 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     switch (targetPosition) {
-      case HOLD:
-        power = 0;
-        break;
-      case HOME:
-        if (isLocked()) {
-          setLocked(false);
+      case MIN:
+        if (getPosition() < 0.05) {
+          home();
+          return;
+        }else{
+          break;
         }
-        power = home();
-        break;
       case CLIMB_DOWN:
-        power = climb();
-        if (power == 0) {
-          setLocked(true);
+        climb();
+        return;
+      case CLIMB_UP:
+        if (isLocked() == true) {
+          unlockTime = Timer.getFPGATimestamp();
+          setLocked(false);
         }
         break;
       default:
-        if (isLocked()) {
-          setLocked(false);
-        }
-        power = calcPID();
         break;
     }
 
-    if (isLocked() && power != 0) { // XXX: might slip too fast on climb weight
+    if (!isLocked() && Timer.getFPGATimestamp() - unlockTime > 0.1) {
+      power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
+      leftMotor.set(power);
+      rightMotor.set(power);
+    } else if (isLocked()) { // XXX: might slip too fast on climb weight
       servoAlert.set(true);
+      leftMotor.set(0);
+      rightMotor.set(0);
+    } else {
+      leftMotor.set(0);
+      rightMotor.set(0);
     }
-
-    leftMotor.set(power);
-    rightMotor.set(power);
-
   }
 }

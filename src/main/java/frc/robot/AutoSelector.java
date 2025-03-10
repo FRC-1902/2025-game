@@ -19,13 +19,14 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.LED;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
+import frc.robot.commands.AutoPlaceFactory;
 import frc.robot.commands.ElevatorFactory;
+import frc.robot.commands.EndEffectorFactory;
+import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
-import frc.robot.commands.endEffector.EndEffectorFactory;
-import frc.robot.commands.endEffector.ScoreCommand;
-import frc.robot.commands.floorIntake.AutoIntakeFactory;
-import frc.robot.commands.floorIntake.OuttakeCommand;
-import frc.robot.commands.floorIntake.PositionIntakeCommand;
+import frc.robot.commands.intake.AutoIntakeFactory;
+import frc.robot.commands.intake.DeployFloorIntakeCommand;
+import frc.robot.commands.intake.OuttakeFloorIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -46,7 +47,7 @@ public class AutoSelector {
   EndEffectorSubsystem endEffector;
   ElevatorSubsystem elevator;
 
-  PositionIntakeCommand deployFloorIntakeCommand;
+  DeployFloorIntakeCommand deployFloorIntakeCommand;
   ElevatorFactory elevatorFactory;
   AutoIntakeFactory autoIntakeFactory;
   EndEffectorFactory endEffectorFactory;
@@ -136,7 +137,7 @@ public class AutoSelector {
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
         swerve.getFollowPathCommand("1")
       ),
-      new ScoreCommand(endEffector),
+      new PlaceCommand(endEffector),
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
         swerve.getFollowPathCommand("1.2")
@@ -158,7 +159,7 @@ public class AutoSelector {
         //new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
-      new ScoreCommand(endEffector),
+      new PlaceCommand(endEffector),
       // Drive to HP
       new ParallelCommandGroup(
         swerve.getFollowPathCommand("3 L3 2"),
@@ -175,7 +176,7 @@ public class AutoSelector {
         swerve.getFollowPathCommand("3 L3 3")
       ),
       // Place 
-      new ScoreCommand(endEffector),
+      new PlaceCommand(endEffector),
       new ParallelCommandGroup(
         swerve.getFollowPathCommand("3 L3 4"),
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
@@ -185,7 +186,7 @@ public class AutoSelector {
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
         swerve.getFollowPathCommand("3 L3 5")
       ),
-      new ScoreCommand(endEffector)
+      new PlaceCommand(endEffector)
     );
   }
   private SequentialCommandGroup get3L3Test() {
