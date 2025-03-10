@@ -135,8 +135,7 @@ public final class Constants {
       CLIMB_DOWN(0), 
       MIN(0), 
       MAX(0.96),
-      HOME(0),
-      HOLD(0);
+      HOME(0);
 
       private final double height;
 

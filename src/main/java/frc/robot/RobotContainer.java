@@ -195,11 +195,10 @@ public class RobotContainer {
 
     // Climber Intake Out
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90) // TODO: Get Correct angle
-      .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(70)), floorIntake));
+      .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(90)), floorIntake));
 
     // Home
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 270)
-      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.HOLD))
-      .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.HOME));
+      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.HOME));
   }
 }
