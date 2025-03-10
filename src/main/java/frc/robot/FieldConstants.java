@@ -20,13 +20,14 @@ public final class FieldConstants {
   public static final double WIDTH = Units.inchesToMeters(317); // TODO: Confirm size 
   public static final double LENGTH = Units.inchesToMeters(690.875); // TODO: Confirm size 
 
-  public static final double offset = 0; // TODO: Get offsets
-  public static final double pathOffset = 0.2; // TODO: get path offset
   public static final class WAYPOINTS {
     private WAYPOINTS() {}; 
     // Reef Waypoints, Lettering goes counterclockwise blue, clockwise red
     // TODO: Set real values
     public static final Pose2d PROCESSOR = new Pose2d(3.165, 4.195, Rotation2d.fromDegrees(0));
+
+    public static final double offset = 0;
+    public static final double pathOffset = 2.0;
 
     public static final Pose2d[] POLES = {
       // Temp welded
@@ -51,13 +52,19 @@ public final class FieldConstants {
       return new Pose2d(offsetX, offsetY, pose.getRotation());
     }
 
-    // Add a method that generates reef positions with a custom offset
-    public static Pose2d[] getReefPositions(double offset) {
-      Pose2d[] reefPositions = new Pose2d[POLES.length];
-      for (int i = 0; i < POLES.length; i++) {
-          reefPositions[i] = getOffsetPose(POLES[i], offset);
-      }
-      return reefPositions;
-    }
+    public static final Pose2d[] REEF = {
+      getOffsetPose(POLES[0], offset),  // A
+      getOffsetPose(POLES[1], offset),  // B
+      getOffsetPose(POLES[2], offset),  // C
+      getOffsetPose(POLES[3], offset),  // D
+      getOffsetPose(POLES[4], offset),  // E
+      getOffsetPose(POLES[5], offset),  // F
+      getOffsetPose(POLES[6], offset),  // G
+      getOffsetPose(POLES[7], offset),  // H
+      getOffsetPose(POLES[8], offset),  // I
+      getOffsetPose(POLES[9], offset),  // J
+      getOffsetPose(POLES[10], offset), // K
+      getOffsetPose(POLES[11], offset)  // L
+    };
   }
 }
