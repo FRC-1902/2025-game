@@ -116,7 +116,7 @@ public class RobotContainer {
     LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(30));
 
     led.registerPattern(elevator::isLocked, redPattern);
-    led.registerPattern(() -> { return elevator.isAtPosition() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
+    led.registerPattern(() -> { return elevator.pidAtSetpoint() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
     led.registerPattern(algaeIntake::isAlgaeDetected, greenPattern);
 
     bindButtons();
