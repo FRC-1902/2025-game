@@ -41,31 +41,33 @@ public class DetectionSubsystem extends SubsystemBase {
     return Rotation2d.fromDegrees(targetYaw);
   }
 
+  // Gets the lowest ID
   @Override
   public void periodic() {
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
 
     currentObject = null;
+    int lowestId = Integer.MAX_VALUE; // Track the lowest ID seen
 
     if (!results.isEmpty()) {
       // Get the oldest unread result
       PhotonPipelineResult result = results.get(results.size() - 1);
-
+  
       if (result.hasTargets()) {
         targetVisible = true;
-
-        // loop over all targets, grabbing the highest confidence one
+  
+        // Loop over all targets, finding the one with lowest ID that meets confidence threshold
         for (var target : result.getTargets()) {
-          // cull based on camera confidence
-          if (target.getDetectedObjectConfidence() < 0.5) // TODO: add a confidence threashold constant
-            continue;
-          
-          if (currentObject == null || currentObject.getDetectedObjectConfidence() < target.getDetectedObjectConfidence())
-            currentObject = target;
 
-          targetYaw = currentObject.getYaw();
+          int targetId = target.getFiducialId();
+          
+          // Update if this is the lowest ID we've seen
+          if (targetId < lowestId) {
+            currentObject = target;
+            lowestId = targetId;
+            targetYaw = currentObject.getYaw();
+          }
         }
-        
       } else {
         targetVisible = false;
       }
