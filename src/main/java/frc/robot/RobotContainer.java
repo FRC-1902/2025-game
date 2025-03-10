@@ -106,7 +106,7 @@ public class RobotContainer {
       () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE)
     );
 
-    autoDrive = new AutoDriveFactory(swerve);
+    autoDrive = new AutoDriveFactory(swerve, detectionSubsystem);
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
@@ -150,7 +150,7 @@ public class RobotContainer {
 
     // Align to Coral
     controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.CORAL)); 
+      .whileTrue(autoDrive.pathAndSnapToObjectCommand()); 
 
     /* Manipulator Controls */
 

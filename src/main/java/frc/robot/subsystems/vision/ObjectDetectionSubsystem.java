@@ -7,8 +7,13 @@ package frc.robot.subsystems.vision;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.littletonrobotics.junction.Logger;
 import org.opencv.core.Point;
@@ -54,6 +59,18 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private Point targetPoint = null;
   private boolean calibrationInitialized = false;
 
+  private static final double MAX_TRACKING_AGE = 0.5; // Maximum time to track an object without seeing it (seconds)
+  private static final double MIN_TRACKING_CONFIDENCE = 0.7; // Minimum confidence to report an object
+  private static final double POSITION_MATCH_THRESHOLD = 0.5; // Maximum distance in meters to consider the same object
+
+  private double lastCalibrationAttempt = 0;
+private static final double CALIBRATION_RETRY_INTERVAL = 1.0; // seconds
+
+
+  // Map to track objects over time - key is a unique ID, value is tracked object data
+  private Map<Integer, TrackedObject> trackedObjects = new HashMap<>();
+  private int nextObjectId = 0;
+
 
   public ObjectDetectionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
@@ -70,11 +87,14 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     
     boolean hasCalibrationData = cameraMatrixOpt.isPresent() && distCoeffsOpt.isPresent();
     if (!hasCalibrationData) {
-      System.err.println("Camera calibration data not available yet");
-      calibrationInitialized = true;
+        System.err.println("Camera calibration data not available yet");
+        // Don't set calibrationInitialized - we need to keep trying
+        return false;
+    } else {
+        System.out.println("Camera calibration data successfully loaded");
+        calibrationInitialized = true; // Only set to true when we have data
+        return true;
     }
-    
-    return hasCalibrationData;
   }
 
   /**
@@ -202,49 +222,189 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     return objects;
   }
 
+  // Class to track object data over time
+  private static class TrackedObject {
+    public Pose2d pose;
+    public double lastSeenTimestamp;
+    public double confidence;
+    
+    public TrackedObject(Pose2d pose, double timestamp, double initialConfidence) {
+        this.pose = pose;
+        this.lastSeenTimestamp = timestamp;
+        this.confidence = initialConfidence;
+    }
+  }
+
+  /**
+   * Returns the closest object to the robot
+   * @return The closest Pose2d object, or null if no objects detected
+   */
+  public Pose2d getClosestObject() {
+    if (objects == null || objects.length == 0) {
+      return null;
+    }
+    
+    // Get robot position
+    Pose2d robotPose = swerveSubsystem.getPose();
+    Translation2d robotTranslation = robotPose.getTranslation();
+    
+    // Find the closest object
+    Pose2d closestObject = null;
+    double closestDistance = Double.MAX_VALUE;
+    
+    for (Pose2d objectPose : objects) {
+      double distance = robotTranslation.getDistance(objectPose.getTranslation());
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestObject = objectPose;
+      }
+    }
+    
+    return closestObject;
+  }
+
+  /**
+ * Updates object tracking based on current detections
+ */
+private void updateTracking(List<Pose2d> currentObjects, double currentTime) {
+    // First, match current detections to existing tracks
+    Set<Integer> matchedTracks = new HashSet<>();
+    Set<Pose2d> unmatchedDetections = new HashSet<>(currentObjects);
+    
+    // Try to match each detection to an existing track
+    for (Pose2d detection : currentObjects) {
+        int bestMatchId = -1;
+        double bestDistance = POSITION_MATCH_THRESHOLD;
+        
+        // Find the closest tracked object
+        for (Map.Entry<Integer, TrackedObject> entry : trackedObjects.entrySet()) {
+            int id = entry.getKey();
+            TrackedObject obj = entry.getValue();
+            
+            // Skip already matched tracks
+            if (matchedTracks.contains(id)) continue;
+            
+            // Calculate distance between detection and tracked object
+            double distance = detection.getTranslation().getDistance(obj.pose.getTranslation());
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestMatchId = id;
+            }
+        }
+        
+        // Update the matched track
+        if (bestMatchId != -1) {
+            TrackedObject obj = trackedObjects.get(bestMatchId);
+            // Update position (could use a Kalman filter for better smoothing)
+            obj.pose = detection;
+            obj.lastSeenTimestamp = currentTime;
+            obj.confidence = Math.min(1.0, obj.confidence + 0.2); // Increase confidence
+            
+            matchedTracks.add(bestMatchId);
+            unmatchedDetections.remove(detection);
+        }
+    }
+    
+    // Create new tracks for unmatched detections
+    for (Pose2d detection : unmatchedDetections) {
+        TrackedObject newObj = new TrackedObject(detection, currentTime, 0.5);
+        trackedObjects.put(nextObjectId++, newObj);
+    }
+    
+    // Update confidence for unmatched tracks and remove old ones
+    Iterator<Map.Entry<Integer, TrackedObject>> it = trackedObjects.entrySet().iterator();
+    while (it.hasNext()) {
+        Map.Entry<Integer, TrackedObject> entry = it.next();
+        TrackedObject obj = entry.getValue();
+        
+        if (!matchedTracks.contains(entry.getKey())) {
+            // Decrease confidence for objects not seen in this frame
+            double timeSinceLastSeen = currentTime - obj.lastSeenTimestamp;
+            obj.confidence -= timeSinceLastSeen * 2.0; // Decrease faster for longer unseen objects
+            
+            // Remove if too old or confidence too low
+            if (timeSinceLastSeen > MAX_TRACKING_AGE || obj.confidence <= 0) {
+                it.remove();
+            }
+        }
+    }
+  }
+
   @Override
   public void periodic() {
+    double currentTime = Timer.getFPGATimestamp();
+    
+    // Try to get calibration data if needed, with rate limiting
+    if (!calibrationInitialized && 
+        (currentTime - lastCalibrationAttempt) > CALIBRATION_RETRY_INTERVAL) {
+        lastCalibrationAttempt = currentTime;
+        getCameraCalibrationData();
+        
+        // If we still don't have calibration, skip the rest of processing
+        if (!calibrationInitialized) {
+            return;
+        }
+    }
+    
+    // Skip vision processing if we don't have calibration
     if (!calibrationInitialized) {
-      getCameraCalibrationData();
+        return;
     }
-
-    List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-    if (results.isEmpty()) {
-      objects = new Pose2d[0];
-      return;
-    }
-
-    // Get the most recent frame
-    PhotonPipelineResult result = results.get(results.size() - 1);
-    if (!result.hasTargets()) {
-      // No targets in this frame
-      objects = new Pose2d[0];
-      return;
-    }
-    List<Pose2d> foundPoses = new ArrayList<>();
-
-    for (PhotonTrackedTarget target : result.getTargets()) {
-      // Confidence check
-      if (target.getDetectedObjectConfidence() < 0.5) {
-        continue;
+      
+      List<Pose2d> currentFrameObjects = new ArrayList<>();
+      
+      // Process new detections
+      List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+      if (!results.isEmpty()) {
+          // Get the most recent frame
+          PhotonPipelineResult result = results.get(results.size() - 1);
+          if (result.hasTargets()) {
+              // Process each target
+              for (PhotonTrackedTarget target : result.getTargets()) {
+                  // Skip low-confidence detections
+                  if (target.getDetectedObjectConfidence() < 0.5) {
+                      continue;
+                  }
+                  
+                  // Convert target to a "bottom-center" point, then to a field Pose2d
+                  Point point = getTargetPoint(target);
+                  if (point == null) continue;
+                  
+                  Pose2d objectPose = getObjectPose(point);
+                  if (objectPose == null) continue;
+                  
+                  currentFrameObjects.add(objectPose);
+              }
+          }
       }
-
-      // Convert target to a "bottom-center" point, then to a field Pose2d
-      Point point = getTargetPoint(target);
-      if (point == null) {
-        continue;
+      
+      // Update tracking based on current frame detections
+      updateTracking(currentFrameObjects, currentTime);
+      
+      // Generate filtered output array
+      List<Pose2d> filteredPoses = new ArrayList<>();
+      for (TrackedObject obj : trackedObjects.values()) {
+          // Only include objects that have sufficient confidence
+          if (obj.confidence >= MIN_TRACKING_CONFIDENCE) {
+              filteredPoses.add(obj.pose);
+          }
       }
-      Pose2d objectPose = getObjectPose(point);
-      if (objectPose == null) {
-        continue;
+      
+      // Update the objects array
+      objects = filteredPoses.toArray(new Pose2d[0]);
+      
+      // Update target visibility state
+      targetVisible = objects.length > 0;
+      if (targetVisible) {
+          // Find the closest object for targeting
+          Pose2d closest = getClosestObject();
+          // Update current object (keeping it simple for now)
+          // In a more sophisticated system, you'd track each object individually
       }
-
-      // Add it to our list
-      foundPoses.add(objectPose);
-    }
-
-    // 4) Convert to array and store
-    objects = foundPoses.toArray(new Pose2d[0]);
-    SmartDashboard.putNumberArray("Vision/Object Poses", Arrays.stream(objects).mapToDouble(pose -> pose.getTranslation().getX()).toArray());
+      
+      // Log to dashboard
+      SmartDashboard.putNumberArray("Vision/Object Poses", 
+          Arrays.stream(objects).mapToDouble(pose -> pose.getTranslation().getX()).toArray());
+      SmartDashboard.putNumber("Vision/Object Count", objects.length);
   }
 }
