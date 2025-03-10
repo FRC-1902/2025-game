@@ -1,15 +1,15 @@
-package frc.robot.commands;
+package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 
-public class IndexCommand extends Command {
+public class IndexFloorIntakeCommand extends Command {
   private final FloorIntakeSubsystem floorIntakeSubsystem;
   private final EndEffectorSubsystem endEffectorSubsystem;
   
   /** Creates a new IndexFloorIntakeCommand. */
-  public IndexCommand(FloorIntakeSubsystem floorIntakeSubsystem, EndEffectorSubsystem endEffectorSubsystem){
+  public IndexFloorIntakeCommand(FloorIntakeSubsystem floorIntakeSubsystem, EndEffectorSubsystem endEffectorSubsystem){
     this.floorIntakeSubsystem = floorIntakeSubsystem; 
     this.endEffectorSubsystem = endEffectorSubsystem;
 

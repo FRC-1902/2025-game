@@ -8,7 +8,7 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
-import frc.robot.commands.floorIntake.PositionIntakeCommand;   
+import frc.robot.commands.intake.DeployFloorIntakeCommand;   
 
 /** Add your docs here. */
 public class AutoPlaceFactory {
@@ -24,11 +24,11 @@ public class AutoPlaceFactory {
 
   public Command getAutoPlace(Position targetPosition){
     return new SequentialCommandGroup(
-      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem), // todo: figure out what resting angle should be at
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem), // todo: figure out what resting angle should be at
       new ElevatorCommand(elevatorSubsystem, targetPosition),
       new PlaceCommand(endEffectorSubsystem),
       new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
-      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
+      new DeployFloorIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
     );
   }
 }

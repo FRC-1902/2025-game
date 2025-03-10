@@ -24,9 +24,9 @@ import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.EndEffectorFactory;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
-import frc.robot.commands.floorIntake.AutoIntakeFactory;
-import frc.robot.commands.floorIntake.OuttakeCommand;
-import frc.robot.commands.floorIntake.PositionIntakeCommand;
+import frc.robot.commands.intake.AutoIntakeFactory;
+import frc.robot.commands.intake.DeployFloorIntakeCommand;
+import frc.robot.commands.intake.OuttakeFloorIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -47,7 +47,7 @@ public class AutoSelector {
   EndEffectorSubsystem endEffector;
   ElevatorSubsystem elevator;
 
-  PositionIntakeCommand deployFloorIntakeCommand;
+  DeployFloorIntakeCommand deployFloorIntakeCommand;
   ElevatorFactory elevatorFactory;
   AutoIntakeFactory autoIntakeFactory;
   EndEffectorFactory endEffectorFactory;

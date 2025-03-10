@@ -1,13 +1,13 @@
-package frc.robot.commands.floorIntake;
+package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 
-public class OuttakeCommand extends Command {
+public class OuttakeFloorIntakeCommand extends Command {
   private final FloorIntakeSubsystem floorIntakeSubsystem;
 
   /** Creates a new OuttakeFloorIntakeCommand. */
-  public OuttakeCommand(FloorIntakeSubsystem floorIntakeSubsystem) {
+  public OuttakeFloorIntakeCommand(FloorIntakeSubsystem floorIntakeSubsystem) {
     this.floorIntakeSubsystem = floorIntakeSubsystem;
 
     addRequirements(floorIntakeSubsystem);
