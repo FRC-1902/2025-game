@@ -148,6 +148,10 @@ public class RobotContainer {
     controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR)); 
 
+    // Align to Coral
+    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.CORAL)); 
+
     /* Manipulator Controls */
 
     // L3

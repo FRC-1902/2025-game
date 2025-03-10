@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.FieldConstants.WaypointType;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;

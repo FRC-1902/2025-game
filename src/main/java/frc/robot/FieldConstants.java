@@ -13,7 +13,7 @@ public final class FieldConstants {
   public enum WaypointType {
     REEF,
     PROCESSOR,
-    CAGE
+    CORAL
   }
 
   // TODO: Adjust for each field type

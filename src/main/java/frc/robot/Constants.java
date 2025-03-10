@@ -167,7 +167,7 @@ public final class Constants {
     public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
 
     public static final class ObjectDetection {
-      public static final String CAMERA_NAME = "colorCam";
+      public static final String CAMERA_NAME = "colorCam2";
       public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
       public static final Rotation2d ANGLE = Rotation2d.fromDegrees(90-32); // TODO: Change to real value
       public static final double HEIGHT = Units.inchesToMeters(28); // TODO: Change to real value

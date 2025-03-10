@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.vision;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -47,11 +49,11 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private boolean targetVisible = false;
   private PhotonTrackedTarget currentObject;
 
-  private double lastSeenTime = 0.0;
-  private static final double LOST_TARGET_TIMEOUT = 0.5;
-  private Pose2d lastGoodPose = null;
+  public Pose2d[] objects = new Pose2d[0];
 
   private Point targetPoint = null;
+  private boolean calibrationInitialized = false;
+
 
   public ObjectDetectionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
@@ -69,6 +71,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     boolean hasCalibrationData = cameraMatrixOpt.isPresent() && distCoeffsOpt.isPresent();
     if (!hasCalibrationData) {
       System.err.println("Camera calibration data not available yet");
+      calibrationInitialized = true;
     }
     
     return hasCalibrationData;
@@ -195,91 +198,53 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     return currentObject;
   }
 
-  private void checkTargetTimeout() {
-    double now = Timer.getFPGATimestamp();
-    double timeSinceLastSeen = now - lastSeenTime;
-    if (timeSinceLastSeen > LOST_TARGET_TIMEOUT) {
-      // Timed out
-      targetVisible = false;
-      lastGoodPose = null;
-      SmartDashboard.putBoolean("Vision/TargetVisible", false);
-    } else {
-      // Not visible *this frame*, but not timed out => keep lastGoodPose
-      targetVisible = true;
-      if (lastGoodPose != null) {
-        // Show the old pose
-        SmartDashboard.putBoolean("Vision/TargetVisible", true);
-        SmartDashboard.putNumber("Vision/ObjectPoseX", lastGoodPose.getX());
-        SmartDashboard.putNumber("Vision/ObjectPoseY", lastGoodPose.getY());
-        SmartDashboard.putNumber("Vision/ObjectPoseHeading",lastGoodPose.getRotation().getDegrees());
-      }
-    }
-  }
-
-  /**
-   * Returns the best-known object pose, or null if we have none.
-   */
-  private Pose2d getLastGoodPose() {
-    return lastGoodPose;
+  public Pose2d[] objects() {
+    return objects;
   }
 
   @Override
   public void periodic() {
-    // 1) Get latest results
+    if (!calibrationInitialized) {
+      getCameraCalibrationData();
+    }
+
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
     if (results.isEmpty()) {
-      // No new results => check if we timed out
-      checkTargetTimeout();
+      objects = new Pose2d[0];
       return;
     }
-    
-    // 2) Grab the most recent result
+
+    // Get the most recent frame
     PhotonPipelineResult result = results.get(results.size() - 1);
     if (!result.hasTargets()) {
-      // No targets => check if we timed out
-      checkTargetTimeout();
+      // No targets in this frame
+      objects = new Pose2d[0];
       return;
     }
+    List<Pose2d> foundPoses = new ArrayList<>();
 
-    // 3) Find valid target(s)
-    PhotonTrackedTarget bestTarget = null;
-    double highestConfidence = 0.5; // example threshold
-    for (PhotonTrackedTarget tgt : result.getTargets()) {
-      if (tgt.getDetectedObjectConfidence() > highestConfidence) {
-        bestTarget = tgt;
-        highestConfidence = tgt.getDetectedObjectConfidence();
+    for (PhotonTrackedTarget target : result.getTargets()) {
+      // Confidence check
+      if (target.getDetectedObjectConfidence() < 0.5) {
+        continue;
       }
-    }
-    if (bestTarget == null) {
-      // No valid target => maybe timed out
-      checkTargetTimeout();
-      return;
+
+      // Convert target to a "bottom-center" point, then to a field Pose2d
+      Point point = getTargetPoint(target);
+      if (point == null) {
+        continue;
+      }
+      Pose2d objectPose = getObjectPose(point);
+      if (objectPose == null) {
+        continue;
+      }
+
+      // Add it to our list
+      foundPoses.add(objectPose);
     }
 
-    // 4) Compute the pose of this best target
-    Point targetPoint = getTargetPoint(bestTarget); // your lens-undistort + bottom-center code
-    if (targetPoint == null) {
-      checkTargetTimeout();
-      return;
-    }
-
-    // We have a valid target with a valid point
-    targetVisible = true;
-    
-    // Calculate measurements
-    double depthMeters = getDepth(targetPoint);
-    Rotation2d yaw = getYaw(targetPoint);
-    Pose2d objectFieldPose = getObjectPose(targetPoint);
-    
-    
-    // Only publish pose data if we have a valid pose
-    if (objectFieldPose != null) {
-      // Log to AdvantageKit
-      Pose3d pose3d = new Pose3d(
-        new Translation3d(objectFieldPose.getX(), objectFieldPose.getY()+Units.inchesToMeters(4.5/2), .15), 
-        new Rotation3d(0, Math.toRadians(90), 0)
-      );
-      Logger.recordOutput("Vision/Object", pose3d);
-    }
+    // 4) Convert to array and store
+    objects = foundPoses.toArray(new Pose2d[0]);
+    SmartDashboard.putNumberArray("Vision/Object Poses", Arrays.stream(objects).mapToDouble(pose -> pose.getTranslation().getX()).toArray());
   }
 }
