@@ -53,7 +53,7 @@ public class AutoIntakeFactory {
         // index successful intake
         new SequentialCommandGroup(
           new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: double check -> bring it in
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
             elevatorSubsystem,
             floorIntakeSubsystem
           ),
@@ -78,7 +78,7 @@ public class AutoIntakeFactory {
           ),          
           // new OuttakeCommand(floorIntakeSubsystem),
           new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: check #
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
             elevatorSubsystem,
             floorIntakeSubsystem
           )
@@ -106,7 +106,7 @@ public class AutoIntakeFactory {
         // index successful intake
         new SequentialCommandGroup(
           new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: double check -> bring it in
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
             elevatorSubsystem,
             floorIntakeSubsystem
           ),
@@ -125,14 +125,13 @@ public class AutoIntakeFactory {
           ),          
           // new OuttakeCommand(floorIntakeSubsystem),
           new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: check #
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
             elevatorSubsystem,
             floorIntakeSubsystem
           )
-        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), 
-        
+        ),
         () -> floorIntakeSubsystem.pieceSensorActive()
-      )
+      ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
     );
   }
 }
