@@ -87,6 +87,12 @@ public class AutoIntakeFactory {
       ).schedule();
     });
   }
+
+  /**
+   * Auto intake sequence for autonomous with cleanup
+   * @param angle
+   * @return
+   */
   public Command getAutonomousIntakeSequence(double angle) {
     return new SequentialCommandGroup(
       new ParallelCommandGroup(

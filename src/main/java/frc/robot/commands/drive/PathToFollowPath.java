@@ -12,58 +12,35 @@ import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
-public class PathToFollowPath extends Command {
-  private PathConstraints constraints;
-  private String pathName;
-  private Command pathCommand;
-
-  /** Creates a new PathToWaypoint. */
-  public PathToFollowPath(String pathName, SwerveSubsystem swerve) {
-    this.pathName = pathName;
-
-    constraints = new PathConstraints(
-      Constants.Swerve.AUTO_MAX_SPEED, 
-      Constants.Swerve.AUTO_MAX_ACCELERATION, 
-      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations(), 
-      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations()
-    );
-
-    addRequirements(swerve);
-  }
-
-  @Override
-  public void initialize() {
-    PathPlannerPath path = null;
+public class PathToFollowPath {
+  /**
+   * Creates a command to pathfind to and follow the specified path
+   * 
+   * @param pathName Name of the path file to load and follow
+   * @param swerve SwerveSubsystem to use for driving
+   * @return A command that pathfinds to and follows the specified path
+   */
+  public static Command path(String pathName, SwerveSubsystem swerve) {
     try {
-      path = PathPlannerPath.fromPathFile(pathName);
-    } catch (FileVersionException | IOException | ParseException e) {
+      PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+      
+      PathConstraints constraints = new PathConstraints(
+        Constants.Swerve.AUTO_MAX_SPEED, 
+        Constants.Swerve.AUTO_MAX_ACCELERATION, 
+        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations(), 
+        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations()
+      );
+      
+      return AutoBuilder.pathfindThenFollowPath(path, constraints);
+
+    } catch (Exception e) {
+      DataLogManager.log("ERROR: Failed to load path: " + pathName);
       e.printStackTrace();
+      return new InstantCommand();
     }
-    
-    if (path != null) {
-      pathCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
-      pathCommand.initialize();
-    } else {
-      System.err.println("Failed to load path: " + pathName);
-    }
-  }
-
-  @Override
-  public void execute() {
-    pathCommand.execute();
-  }
-  
-  @Override
-  public void end(boolean interrupted) {
-    DataLogManager.log("PathToFollowPath ended");
-    pathCommand.end(interrupted);
-  }
-
-  @Override
-  public boolean isFinished() {
-    return pathCommand.isFinished();
   }
 }

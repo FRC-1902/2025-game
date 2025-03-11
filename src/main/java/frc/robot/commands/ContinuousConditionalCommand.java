@@ -12,7 +12,11 @@ public class ContinuousConditionalCommand extends Command {
   Command incomingCommand, baseCommand;
   BooleanSupplier supplier;
   private boolean flag;
-  /** Creates a new ContinuousConditionalCommand. */
+
+  /* Big broken, big bad */ // TODO: Fix this
+  /*
+   * Creates a new ConditionalCommand. This command will run the selected command continuously until the supplier returns true.
+   */
   public ContinuousConditionalCommand(Command baseCommand, Command incomingCommand, BooleanSupplier supplier) {
     this.supplier = supplier;
     this.incomingCommand = incomingCommand;

@@ -89,12 +89,12 @@ public class AutoSelector {
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
+    pathToFollowPath = new PathToFollowPath();
 
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
-    autoChooser.addOption("3 L3 Test", get3L3Test());
-    autoChooser.addOption("3 L3", getTheEverythingApp());
+    autoChooser.addOption("4 L3", getTheEverythingApp());
   }
 
   /**
@@ -158,22 +158,7 @@ public class AutoSelector {
         () -> detectionSubsystem.isTargetVisible()
       )
     );
-  }
-  // private Command getCoralWithDetection(String pathName){
-  //   return new ParallelRaceGroup(
-  //     autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE),
-  //     // follow path, breaking out if you see a piece and drive to that piece instead
-  //     new ContinuousConditionalCommand(
-  //       swerve.getFollowPathCommand(pathName),
-  //       new SequentialCommandGroup(
-  //         new ObjectAlign(detectionSubsystem, swerve),
-  //         new DriveToObject(swerve, floorIntake)
-  //       ),
-  //       () -> detectionSubsystem.isTargetVisible()
-  //     )
-  //   );
-  // }
-  
+  }  
 
   // Auto definitions
 
@@ -182,19 +167,6 @@ public class AutoSelector {
    */
   private Command getDoNothingAuto() {
     return setStartPosition(0, 0); // TODO: Configure
-  }
-
-  private SequentialCommandGroup get3L3Test() {
-    return new SequentialCommandGroup(
-      // setup odometry
-      setStartPosition(7.170, 2.200),
-      swerve.getFollowPathCommand("3 L3 1"),
-      swerve.getFollowPathCommand("3 L3 2a"),
-      swerve.getFollowPathCommand("3 L3 2b"),
-      swerve.getFollowPathCommand("3 L3 3"), 
-      swerve.getFollowPathCommand("3 L3 4"),
-      swerve.getFollowPathCommand("3 L3 5")
-    );
   }
 
   private SequentialCommandGroup getTheEverythingApp(){
@@ -234,7 +206,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        new PathToFollowPath("4 L3 3", swerve)
+        PathToFollowPath.path("4 L3 3", swerve)
       ),
       
       // Place 
@@ -251,7 +223,7 @@ public class AutoSelector {
       // Drive to reef & grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        new PathToFollowPath("4 L3 5", swerve),
+        PathToFollowPath.path("4 L3 5", swerve),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
@@ -274,7 +246,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        new PathToFollowPath("4 L3 7", swerve)
+        PathToFollowPath.path("4 L3 7", swerve)
       ),
 
       // Place

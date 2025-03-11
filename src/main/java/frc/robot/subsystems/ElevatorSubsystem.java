@@ -37,8 +37,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private Alert servoAlert;
   private Watchdog elevatorWatchdog;
   private double unlockTime;
-  private boolean hasBeenZeroed = false;
-  private double climbLockTime = 0;
+  private boolean hasBeenZeroed;
+  private double climbLockTime;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -51,7 +51,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
     pid.setTolerance(Constants.Elevator.TOLERANCE);
 
-    hasBeenZeroed = false;
 
     badStart = new Alert(
       "Elevator start position wrong, limit switch not triggered",
@@ -60,6 +59,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     if (!limitSwitchTriggered()) {
       badStart.set(true);
+      hasBeenZeroed = false;
+    } else {
+      hasBeenZeroed = true;
     }
 
     boundsAlert = new Alert("Elevator/Elevator out of bounds", AlertType.kError);
@@ -196,7 +198,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   /**
-   * Full throttle downward for climb until limit switch is hit
+   * Goes downward for climb until climber is locked
    */
   private double climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
