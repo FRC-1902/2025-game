@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.29,
-        "y": 2.97
+        "x": 5.28,
+        "y": 2.96
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.991680327868853,
-        "y": 2.6871721311475403
+        "x": 5.578873291015626,
+        "y": 2.45242919921875
       },
       "isLocked": false,
       "linkedName": "F"
     },
     {
       "anchor": {
-        "x": 3.715938667990019,
-        "y": 1.9686377576478957
+        "x": 4.49423583984375,
+        "y": 2.17392822265625
       },
       "prevControl": {
-        "x": 3.9698869926938944,
-        "y": 1.9678954483553626
+        "x": 4.748184164547626,
+        "y": 2.173185913363717
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "HP"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,16 +33,16 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 400.0,
     "maxAngularAcceleration": 300.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 32.7242488438233
+    "velocity": 0.5,
+    "rotation": 30.65012338248426
   },
   "reversed": false,
   "folder": "3 L3 Piece",

@@ -74,12 +74,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     SparkBaseConfig configOne = new SparkMaxConfig();
     SparkBaseConfig configTwo = new SparkMaxConfig();
 
-    configOne.idleMode(IdleMode.kBrake);
+    configOne.idleMode(IdleMode.kCoast);
     configOne.smartCurrentLimit(50);
     configOne.inverted(true); // todo: switch inverted
     configOne.voltageCompensation(12);
 
-    configTwo.idleMode(IdleMode.kBrake);
+    configTwo.idleMode(IdleMode.kCoast);
     configTwo.smartCurrentLimit(50);
     configTwo.inverted(false); // todo: switch inverted
     configTwo.voltageCompensation(12);
@@ -179,10 +179,15 @@ public class ElevatorSubsystem extends SubsystemBase {
    * full throttle downward for climb until limit switch is hit
    */
   private double climb() {
+    double startTime = Timer.getFPGATimestamp();
     if (!limitSwitchTriggered() && !isLocked()) {
-      return -0.6; // TODO: change speed
+      return -0.5; // TODO: change speed
     } else {
-      return 0;
+      setLocked(true);
+      if (Timer.getFPGATimestamp() - startTime > 1) {
+        return 0;
+      }
+      return -0.2;
     }
   }
 
@@ -262,9 +267,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         break;
       case CLIMB_DOWN:
         power = climb();
-        if (power == 0) {
-          setLocked(true);
-        }
         break;
       default:
         if (isLocked()) {

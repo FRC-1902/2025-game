@@ -1,7 +1,6 @@
 package frc.robot.commands.drive;
 
 import java.io.IOException;
-import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
 
@@ -10,6 +9,8 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
 
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -44,20 +45,25 @@ public class PathToFollowPath extends Command {
     
     if (path != null) {
       pathCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
-      pathCommand.schedule();
+      pathCommand.initialize();
     } else {
       System.err.println("Failed to load path: " + pathName);
     }
   }
 
   @Override
-  public void execute() {}
+  public void execute() {
+    pathCommand.execute();
+  }
   
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    DataLogManager.log("PathToFollowPath ended");
+    pathCommand.end(interrupted);
+  }
 
   @Override
   public boolean isFinished() {
-    return pathCommand == null || !pathCommand.isScheduled();
+    return pathCommand.isFinished();
   }
 }

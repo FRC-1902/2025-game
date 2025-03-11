@@ -149,8 +149,8 @@ public class RobotContainer {
       .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR)); 
 
     // Align with Coral TODO: Change when Align PR is merged
-     controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-           .whileTrue(new ObjectAlign(detectionSubsystem, swerve));
+    //  controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+    //        .whileTrue(new ObjectAlign(detectionSubsystem, swerve));
 
     // Align to Processor
     //controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
@@ -200,7 +200,7 @@ public class RobotContainer {
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 180) // TODO: Get Correct angle
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
 
-    // Climber Intake Out
+    // Climber Intake In
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90) // TODO: Get Correct angle
       .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(70)), floorIntake));
 

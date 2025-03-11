@@ -131,7 +131,7 @@ public class AutoIntakeFactory {
           )
         ),
         () -> floorIntakeSubsystem.pieceSensorActive()
-      ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-    );
+      )
+    ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
   }
 }

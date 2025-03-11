@@ -1,6 +1,7 @@
 package frc.robot;
 
 import java.lang.reflect.Field;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -33,6 +34,7 @@ import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.drive.ObjectAlign;
+import frc.robot.commands.drive.PathToFollowPath;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
 import frc.robot.commands.floorIntake.OuttakeCommand;
 import frc.robot.commands.floorIntake.PositionIntakeCommand;
@@ -67,6 +69,7 @@ public class AutoSelector {
   AutoIntakeFactory autoIntakeFactory;
   ElevatorFactory elevatorFactory;
   ObjectAlign objectAlign;
+  PathToFollowPath pathToFollowPath;
 
   ContinuousConditionalCommand continuousConditionalCommand;
   EndEffectorFactory endEffectorFactory;
@@ -91,7 +94,7 @@ public class AutoSelector {
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
     autoChooser.addOption("3 L3 Test", get3L3Test());
-    autoChooser.addOption("3 L3", get3L3());
+    autoChooser.addOption("3 L3", getTheEverythingApp());
   }
 
   /**
@@ -131,32 +134,45 @@ public class AutoSelector {
    * @return
    */
   private Command getCoralWithDetection(){
-    return new ParallelRaceGroup(
-      new SequentialCommandGroup(
-        autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE),
-        new InstantCommand(() -> DataLogManager.log("Intake Seq Won"))
-        ),
+    return new ParallelDeadlineGroup(
+      new ParallelRaceGroup(
+        new WaitCommand(7),
+        autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)
+      ),
       
       // follow path, breaking out if you see a piece and drive to that piece instead
       // new ContinuousConditionalCommand(
+      //   swerve.getFollowPathCommand(pathName),
       //   new SequentialCommandGroup(
-      //     new InstantCommand(() -> DataLogManager.log("Coral Detect routine")),
-      //     new WaitCommand(4),
       //     new ObjectAlign(detectionSubsystem, swerve),
       //     new DriveToObject(swerve, detectionSubsystem)
       //   ),
-      //   swerve.getFollowPathCommand(pathName),
       //   () -> detectionSubsystem.isTargetVisible()
       // )
-      new SequentialCommandGroup(
-        new InstantCommand(() -> DataLogManager.log("Coral Detect routine")),
-        new ObjectAlign(detectionSubsystem, swerve),
-        new InstantCommand(() -> DataLogManager.log("Align Done")),
-        new DriveToObject(swerve),
-        new InstantCommand(() -> DataLogManager.log("Coral Detect Finished"))
+      new ConditionalCommand(
+        new SequentialCommandGroup(
+          new ObjectAlign(detectionSubsystem, swerve, floorIntake)
+          // new DriveToObject(swerve, floorIntake)
+        ),
+        new InstantCommand(),
+        () -> detectionSubsystem.isTargetVisible()
       )
     );
   }
+  // private Command getCoralWithDetection(String pathName){
+  //   return new ParallelRaceGroup(
+  //     autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE),
+  //     // follow path, breaking out if you see a piece and drive to that piece instead
+  //     new ContinuousConditionalCommand(
+  //       swerve.getFollowPathCommand(pathName),
+  //       new SequentialCommandGroup(
+  //         new ObjectAlign(detectionSubsystem, swerve),
+  //         new DriveToObject(swerve, floorIntake)
+  //       ),
+  //       () -> detectionSubsystem.isTargetVisible()
+  //     )
+  //   );
+  // }
   
 
   // Auto definitions
@@ -181,7 +197,7 @@ public class AutoSelector {
     );
   }
 
-  private SequentialCommandGroup get3L3(){
+  private SequentialCommandGroup getTheEverythingApp(){
     return new SequentialCommandGroup(
       // setup odometry
       setStartPosition(7.170, 2.200), // TODO: fix start pos
@@ -192,10 +208,7 @@ public class AutoSelector {
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
         swerve.getFollowPathCommand("3 L3 1"),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new AlgaeOuttakeCommand(algaeIntake)
-        )
+        new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
       new ScoreCommand(endEffector),
@@ -205,22 +218,21 @@ public class AutoSelector {
       // Drive to HP
 
       // drive far enough away to get rid of algae
-      swerve.getFollowPathCommand("3 L3 2"),
+
+      // swerve.getFollowPathCommand("3 L3 2"),
       // drive, while outaking algae, intaking, and looking for a piece
+      swerve.getFollowPathCommand("3 L3 2a"),
+
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new AlgaeOuttakeCommand(algaeIntake)
-        )
+        new AlgaeOuttakeCommand(algaeIntake),
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
       ),
-      new InstantCommand(() -> DataLogManager.log("Before ob dect")),
       getCoralWithDetection(),
 
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("3 L3 3")
+        new PathToFollowPath("3 L3 3", swerve)
       ),
       
       // Place 
@@ -237,7 +249,7 @@ public class AutoSelector {
       // Drive to reef & grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("3 L3 5"),
+        new PathToFollowPath("3 L3 5", swerve),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
@@ -272,7 +284,7 @@ public class AutoSelector {
       ),
       // Intake
       //new AlgaeOuttakeCommand(algaeIntake),
-      new ObjectAlign(detectionSubsystem, swerve), // allign
+      new ObjectAlign(detectionSubsystem, swerve, floorIntake), // allign
       autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE),
       
       new WaitCommand(3),
@@ -287,7 +299,7 @@ public class AutoSelector {
         swerve.getFollowPathCommand("Some path that makes the comments angry"),
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
       ),
-      new ObjectAlign(detectionSubsystem, swerve),
+      new ObjectAlign(detectionSubsystem, swerve, floorIntake),
       autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE),
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),

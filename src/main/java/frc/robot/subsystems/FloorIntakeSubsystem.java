@@ -171,7 +171,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   public void periodic() {
 
     if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < Constants.FloorIntake.ELEVATOR_ANGLE){
-      DataLogManager.log("FloorIntake cannot deploy while elevator is not at MIN");
+     // DataLogManager.log("FloorIntake cannot deploy while elevator is not at MIN");
       setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE)); // TODO: Re-Enable
     }
     
