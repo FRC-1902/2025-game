@@ -24,19 +24,18 @@ public class PathToFollowPath {
    * @param swerve SwerveSubsystem to use for driving
    * @return A command that pathfinds to and follows the specified path
    */
+  static PathConstraints constraints = new PathConstraints(
+    Constants.Swerve.AUTO_MAX_SPEED, 
+    Constants.Swerve.AUTO_MAX_ACCELERATION, 
+    Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations(), 
+    Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations()
+  );
+  
   public static Command path(String pathName, SwerveSubsystem swerve) {
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
       
-      PathConstraints constraints = new PathConstraints(
-        Constants.Swerve.AUTO_MAX_SPEED, 
-        Constants.Swerve.AUTO_MAX_ACCELERATION, 
-        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations(), 
-        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRotations()
-      );
-      
       return AutoBuilder.pathfindThenFollowPath(path, constraints);
-
     } catch (Exception e) {
       DataLogManager.log("ERROR: Failed to load path: " + pathName);
       e.printStackTrace();

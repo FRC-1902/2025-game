@@ -37,7 +37,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   private Alert servoAlert;
   private Watchdog elevatorWatchdog;
   private double unlockTime;
-  private boolean hasBeenZeroed;
   private double climbLockTime;
 
   /** Creates a new Elevator. */
@@ -59,9 +58,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     if (!limitSwitchTriggered()) {
       badStart.set(true);
-      hasBeenZeroed = false;
-    } else {
-      hasBeenZeroed = true;
     }
 
     boundsAlert = new Alert("Elevator/Elevator out of bounds", AlertType.kError);
@@ -169,22 +165,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   /**
-   * Zeros the elevator encoders if the limit switch is triggered
-   * Only zeros once until manually reset
-   * @return true if zeroing occurred
-   */
-  public boolean zeroElevatorOnce() {
-    if (limitSwitchTriggered() && !hasBeenZeroed) {
-      leftMotor.getEncoder().setPosition(0);
-      rightMotor.getEncoder().setPosition(0);
-      hasBeenZeroed = true;
-      DataLogManager.log("Elevator zeroed at limit switch");
-      return true;
-    }
-    return false;
-  }
-
-  /**
    * Alerts if elevator is out of bounds
    */
   private boolean watchDog() {
@@ -286,8 +266,6 @@ public class ElevatorSubsystem extends SubsystemBase {
       rightMotor.set(0);
       return; 
     }
-
-    zeroElevatorOnce();
 
     switch (targetPosition) {
       case HOLD:

@@ -17,7 +17,7 @@ import org.photonvision.PhotonCamera;
 
 public class DetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
-  private final PhotonCamera camera = new PhotonCamera("colorCam"); // TODO: only use object detection cameras
+  private final PhotonCamera camera = new PhotonCamera("colorCam");
   private boolean targetVisible;
   private double targetYaw; 
 

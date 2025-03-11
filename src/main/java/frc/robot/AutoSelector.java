@@ -139,16 +139,6 @@ public class AutoSelector {
         new WaitCommand(7),
         autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)
       ),
-      
-      // follow path, breaking out if you see a piece and drive to that piece instead
-      // new ContinuousConditionalCommand(
-      //   swerve.getFollowPathCommand(pathName),
-      //   new SequentialCommandGroup(
-      //     new ObjectAlign(detectionSubsystem, swerve),
-      //     new DriveToObject(swerve, detectionSubsystem)
-      //   ),
-      //   () -> detectionSubsystem.isTargetVisible()
-      // )
       new ConditionalCommand(
         new SequentialCommandGroup(
           new ObjectAlign(detectionSubsystem, swerve, floorIntake)
