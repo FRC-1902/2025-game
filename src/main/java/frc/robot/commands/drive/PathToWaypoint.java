@@ -31,7 +31,7 @@ public class PathToWaypoint extends Command {
 
   @Override
   public void initialize() {
-    pathCommand = AutoBuilder.pathfindToPose(targetPose.get(), constraints, 1);
+    pathCommand = AutoBuilder.pathfindToPose(targetPose.get(), constraints, .5);
     pathCommand.initialize();
   }
 
