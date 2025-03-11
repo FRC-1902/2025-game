@@ -14,16 +14,16 @@ import frc.robot.subsystems.vision.DetectionSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
-/*
- * Moves backwards and centers object when detected
- */
+
 public class ObjectAlign extends Command {
 
   private final DetectionSubsystem detectionSubsystem;
   private final SwerveSubsystem swerve;
   private final FloorIntakeSubsystem floorIntakeSubsystem;
 
-  /** Creates a new ObjectAllign. */
+  /*
+  * Moves backwards and centers object when detected
+  */
   public ObjectAlign(DetectionSubsystem detectionSubsystem, SwerveSubsystem swerve, FloorIntakeSubsystem floorIntakeSubsystem) {
     this.detectionSubsystem = detectionSubsystem;
     this.swerve = swerve;

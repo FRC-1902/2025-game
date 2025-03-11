@@ -31,7 +31,6 @@ public class DriveToObject extends Command {
   @Override
   public void initialize() {
     start = Timer.getFPGATimestamp();
-    DataLogManager.log("Start Drive Aligne");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -44,7 +43,6 @@ public class DriveToObject extends Command {
   @Override
   public void end(boolean interrupted) {
     swerveSubsystem.drive(new Translation2d(0, 0), 0, false);
-    DataLogManager.log("End Drive Aligne");
   }
 
   // Returns true when the command should end.

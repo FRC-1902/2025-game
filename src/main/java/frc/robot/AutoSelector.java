@@ -34,7 +34,6 @@ import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.drive.ObjectAlign;
-import frc.robot.commands.drive.PathToFollowPath;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
 import frc.robot.commands.floorIntake.OuttakeCommand;
 import frc.robot.commands.floorIntake.PositionIntakeCommand;
@@ -69,7 +68,6 @@ public class AutoSelector {
   AutoIntakeFactory autoIntakeFactory;
   ElevatorFactory elevatorFactory;
   ObjectAlign objectAlign;
-  PathToFollowPath pathToFollowPath;
 
   ContinuousConditionalCommand continuousConditionalCommand;
   EndEffectorFactory endEffectorFactory;
@@ -89,7 +87,6 @@ public class AutoSelector {
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
-    pathToFollowPath = new PathToFollowPath();
 
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
 
@@ -196,7 +193,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        PathToFollowPath.path("4 L3 3", swerve)
+        swerve.getPathfindToPathCommand("4 L3 3")
       ),
       
       // Place 
@@ -213,7 +210,7 @@ public class AutoSelector {
       // Drive to reef & grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        PathToFollowPath.path("4 L3 5", swerve),
+        swerve.getPathfindToPathCommand("4 L3 5"),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
@@ -236,7 +233,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        PathToFollowPath.path("4 L3 7", swerve)
+        swerve.getPathfindToPathCommand("4 L3 7")
       ),
 
       // Place
