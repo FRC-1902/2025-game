@@ -207,7 +207,7 @@ public class AutoSelector {
       // Drive to reef and grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("3 L3 1"),
+        swerve.getFollowPathCommand("4 L3 1"),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
@@ -219,20 +219,22 @@ public class AutoSelector {
 
       // drive far enough away to get rid of algae
 
-      // swerve.getFollowPathCommand("3 L3 2"),
       // drive, while outaking algae, intaking, and looking for a piece
-      swerve.getFollowPathCommand("3 L3 2a"),
 
       new ParallelCommandGroup(
-        new AlgaeOuttakeCommand(algaeIntake),
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+        swerve.getFollowPathCommand("4 L3 2"),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new AlgaeOuttakeCommand(algaeIntake),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+        )
       ),
       getCoralWithDetection(),
 
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        new PathToFollowPath("3 L3 3", swerve)
+        new PathToFollowPath("4 L3 3", swerve)
       ),
       
       // Place 
@@ -242,14 +244,14 @@ public class AutoSelector {
 
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
-        swerve.getFollowPathCommand("3 L3 4")
+        swerve.getFollowPathCommand("4 L3 4")
       ),
       getCoralWithDetection(),
 
       // Drive to reef & grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        new PathToFollowPath("3 L3 5", swerve),
+        new PathToFollowPath("4 L3 5", swerve),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
@@ -257,55 +259,30 @@ public class AutoSelector {
 
       // END OF CYCLE THREE
 
-      // TODO: gracefully put stuff down
-      new SequentialCommandGroup(
-        swerve.getFollowPathCommand("3 L3 6"),
-        new ElevatorCommand(elevator, Constants.Elevator.Position.MIN)
-      )
-    );
-  }
-
-  private SequentialCommandGroup getBluesky(){
-    return new SequentialCommandGroup(
-      // setup odometry
-      setStartPosition(7.170, 2.200),
-      // drive and suck
+      // Drive to get coral
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("3 L3 1")
-        //new AlgaeIntakeCommand(algaeIntake)
+        swerve.getFollowPathCommand("4 L3 6"),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new AlgaeOuttakeCommand(algaeIntake),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+        )
       ),
-      // Place
-      new ScoreCommand(endEffector),
-      // Drive to HP
-      new ParallelCommandGroup(
-        swerve.getFollowPathCommand("some path that is essentially fencesitting"),
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-      ),
-      // Intake
-      //new AlgaeOuttakeCommand(algaeIntake),
-      new ObjectAlign(detectionSubsystem, swerve, floorIntake), // allign
-      autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE),
       
-      new WaitCommand(3),
+      getCoralWithDetection(),
+
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("3 L3 3")
+        new PathToFollowPath("4 L3 7", swerve)
       ),
-      // Place 
-      new ScoreCommand(endEffector),
-      new ParallelCommandGroup(
-        swerve.getFollowPathCommand("Some path that makes the comments angry"),
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-      ),
-      new ObjectAlign(detectionSubsystem, swerve, floorIntake),
-      autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE),
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("3 L3 5")
-      ),
+
+      // Place
       new ScoreCommand(endEffector)
+
+      // END OF CYCLE FOUR
+
+      // End of Auto
     );
   }
 }
