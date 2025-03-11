@@ -184,7 +184,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       return -0.5; // TODO: change speed
     } else {
       setLocked(true);
-      if (Timer.getFPGATimestamp() - startTime > 1) {
+      if (Timer.getFPGATimestamp() - startTime > .2) {
         return 0;
       }
       return -0.2;
