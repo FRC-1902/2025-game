@@ -49,8 +49,8 @@ public final class Constants {
     public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
     // Auto Speeds
-    public static final double AUTO_MAX_SPEED = Units.feetToMeters(5); // ft/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(5); // ft/s^2 TODO: Adjust later
+    public static final double AUTO_MAX_SPEED = 2; // ft/s TODO: Adjust later
+    public static final double AUTO_MAX_ACCELERATION = 1; // ft/s^2 TODO: Adjust later
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
 
     // Object detection turn KP
@@ -64,7 +64,7 @@ public final class Constants {
     public static final int PIVOT_MOTOR_ID = 12; 
     public static final int PIECE_SENSOR_ID = 5; 
 
-    public static final double kP = 0.0125; 
+    public static final double kP = 0.0125;
     public static final double kI = 0; 
     public static final double kD = 0; 
     public static final double kG = 0.01;
@@ -85,10 +85,11 @@ public final class Constants {
     public static final int PIECE_SENSOR_ID = 8; 
     public static final int PIVOT_ENCODER_ID = 20; 
 
-    public static final double PIVOT_P = 0.0125; 
-    public static final double PIVOT_I = 0.0035; 
-    public static final double PIVOT_D = 0.00005; 
-    public static final double PIVOT_G = 0.022; //.022 
+    public static final double PIVOT_P = 0.015;// 0.0125; 
+    public static final double PIVOT_I = 0.003;// 0.0035; 
+    public static final double PIVOT_D = 0.0002;// 0.00005; 
+    public static final double PIVOT_G = 0.022;// 0.022;
+    public static final double PIVOT_F = 0.03;// 0.022;
 
     public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(3); 
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(350); 
