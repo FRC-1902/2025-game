@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems.vision;
 
 import java.util.List;
@@ -19,9 +15,10 @@ public class DetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
   private final PhotonCamera camera = new PhotonCamera("colorCam");
   private boolean targetVisible;
+  private boolean validTargetVisible;
   private double targetYaw; 
+  private double targetPitch; 
 
-  private PhotonTrackedTarget currentObject;
 
   public DetectionSubsystem() {}
 
@@ -29,8 +26,16 @@ public class DetectionSubsystem extends SubsystemBase {
    * 
    * @returns if object is visible or not 
    */
-  public boolean isTargetVisible(){
+  private boolean isTargetVisible(){
     return targetVisible;
+  }
+
+  /**
+   * 
+   * @returns if object is visible or not (post filtering)
+   */
+  public boolean isValidTargetVisible(){
+    return validTargetVisible;
   }
 
   /**
@@ -41,39 +46,54 @@ public class DetectionSubsystem extends SubsystemBase {
     return Rotation2d.fromDegrees(targetYaw);
   }
 
+  /**
+   * 
+   * @returns the specific targetYaw of the object in Rotation2d's
+   */
+  public Rotation2d getTargetPitch(){
+    return Rotation2d.fromDegrees(targetPitch);
+  }
+
   // Gets the lowest ID
   @Override
   public void periodic() {
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
 
-    currentObject = null;
-    int lowestId = Integer.MAX_VALUE; // Track the lowest ID seen
 
     if (!results.isEmpty()) {
       // Get the oldest unread result
       PhotonPipelineResult result = results.get(results.size() - 1);
   
       if (result.hasTargets()) {
+        boolean seenValidTarget = false;
         targetVisible = true;
+
+        int lowestId = Integer.MAX_VALUE; // Track the lowest ID seen
   
         // Loop over all targets, finding the one with lowest ID that meets confidence threshold
-        for (var target : result.getTargets()) {
+        for (PhotonTrackedTarget target : result.getTargets()) {
 
           int targetId = target.getFiducialId();
+          double pitch = target.getPitch(); 
           
-          // Update if this is the lowest ID we've seen
-          if (targetId < lowestId) {
-            currentObject = target;
+          // Only consider targets above the minimum pitch threshold
+          if (pitch >= -8 && targetId < lowestId) {
             lowestId = targetId;
-            targetYaw = currentObject.getYaw();
+
+            targetYaw = target.getYaw() + 2;
+            targetPitch = pitch;
+            seenValidTarget = true;
           }
         }
+        validTargetVisible = seenValidTarget;
       } else {
         targetVisible = false;
+        validTargetVisible = false;
       }
     }
 
     SmartDashboard.putBoolean("VisionObjectDetection/TargetVisible", targetVisible);
+    SmartDashboard.putBoolean("VisionObjectDetection/ValidTargetVisible", validTargetVisible);
     SmartDashboard.putNumber("VisionObjectDetection/TargetYaw", targetYaw);
   }
 }
