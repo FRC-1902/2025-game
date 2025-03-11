@@ -209,6 +209,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       if (limitSwitchTriggered()) {
         leftMotor.getEncoder().setPosition(0);
         rightMotor.getEncoder().setPosition(0);
+        badStart.set(false);
       }
       return 0;
     }

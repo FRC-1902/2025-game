@@ -20,7 +20,7 @@ public class ScoreCommand extends Command {
 
   @Override
   public void initialize() {
-    endEffectorSubsystem.setSpeed(0.50); // todo: find indexing speed
+    endEffectorSubsystem.setSpeed(0.60); // todo: find indexing speed
   }
 
   @Override

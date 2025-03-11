@@ -136,14 +136,7 @@ public class AutoSelector {
         new WaitCommand(7),
         autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)
       ),
-      new ConditionalCommand(
-        new SequentialCommandGroup(
-          new ObjectAlign(detectionSubsystem, swerve, floorIntake)
-          // new DriveToObject(swerve, floorIntake)
-        ),
-        new InstantCommand(),
-        () -> detectionSubsystem.isTargetVisible()
-      )
+      new ObjectAlign(detectionSubsystem, swerve, floorIntake)
     );
   }  
 
@@ -201,6 +194,10 @@ public class AutoSelector {
 
       // END OF CYCLE TWO
 
+      // Clean up
+      elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
+
+      /*
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
         swerve.getFollowPathCommand("4 L3 4")
@@ -238,8 +235,11 @@ public class AutoSelector {
 
       // Place
       new ScoreCommand(endEffector)
+      */
 
       // END OF CYCLE FOUR
+      // TODO: drive away a bit
+      elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
 
       // End of Auto
     );
