@@ -43,9 +43,11 @@ import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.DetectionSubsystem;
 import frc.robot.subsystems.vision.VisionReal;
 import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.commands.drive.ObjectAlign;
 
 public class RobotContainer {
 
@@ -57,6 +59,7 @@ public class RobotContainer {
   FloorIntakeSubsystem floorIntake;
   LEDSubsystem led;
   ControllerSubsystem controllers;
+  DetectionSubsystem detectionSubsystem;
 
   AutoDriveFactory autoDrive;
   AutoIntakeFactory autoIntakeFactory;
@@ -74,6 +77,8 @@ public class RobotContainer {
     floorIntake = new FloorIntakeSubsystem(elevator);
     led = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
+
+    detectionSubsystem = new DetectionSubsystem();
 
     // Path Planner logging
     field = new Field2d();
@@ -134,14 +139,18 @@ public class RobotContainer {
     // Zero Gyro
     controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
       .onTrue(new InstantCommand(swerve::zeroGyro));
-
+    
     // Align to Reef
     controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));  
+      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.REEF));
+    
+    // Align to Processor
+    controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+      .whileTrue(autoDrive.pathAndSnapCommand(WaypointType.PROCESSOR)); 
 
     // Align with Coral TODO: Change when Align PR is merged
-    // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-    //       .whileTrue(new ObjectAlign());
+    //  controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+    //        .whileTrue(new ObjectAlign(detectionSubsystem, swerve));
 
     // Align to Processor
     //controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
@@ -191,7 +200,7 @@ public class RobotContainer {
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 180) // TODO: Get Correct angle
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
 
-    // Climber Intake Out
+    // Climber Intake In
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90) // TODO: Get Correct angle
       .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(70)), floorIntake));
 

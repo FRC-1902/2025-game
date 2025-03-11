@@ -197,10 +197,10 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveToPose(Pose2d pose) {
     PathConstraints constraints =
       new PathConstraints(
-        getMaximumVelocity(), 
-        4.0, 
-        getMaximumAngularVelocity(), 
-        Units.degreesToRadians(720)
+        Constants.Swerve.AUTO_MAX_SPEED, 
+        Constants.Swerve.AUTO_MAX_ACCELERATION, 
+        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRadians(), 
+        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRadians()
       );
 
     return AutoBuilder.pathfindToPose(pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
@@ -216,6 +216,25 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     return AutoBuilder.followPath(path);
+  }
+
+  public Command getPathfindToPathCommand(String pathName) {
+    PathPlannerPath path;
+    PathConstraints constraints =
+    new PathConstraints(
+      Constants.Swerve.AUTO_MAX_SPEED, 
+      Constants.Swerve.AUTO_MAX_ACCELERATION, 
+      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRadians(), 
+      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRadians() 
+    );
+    try {
+      path = PathPlannerPath.fromPathFile(pathName);
+      
+      return AutoBuilder.pathfindThenFollowPath(path, constraints);
+    } catch (Exception e) {
+      DataLogManager.log("ERROR: Failed to load path: " + pathName);
+      return new InstantCommand();
+    }
   }
 
   public Pose2d allianceFlip(Pose2d pose) {

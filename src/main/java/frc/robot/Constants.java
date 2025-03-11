@@ -52,6 +52,9 @@ public final class Constants {
     public static final double AUTO_MAX_SPEED = Units.feetToMeters(5); // ft/s TODO: Adjust later
     public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(5); // ft/s^2 TODO: Adjust later
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
+
+    // Object detection turn KP
+    public static final double OBJECT_TURN_KP = 5;
   }
 
   public static final class AlgaeIntake{
@@ -91,13 +94,13 @@ public final class Constants {
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(350); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(349.53);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(351.53);
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
-    public static final double FLOOR_ANGLE = 178.0;
-    public static final double ELEVATOR_ANGLE = 80.0;
+    public static final double FLOOR_ANGLE = 180.0;
+    public static final double ELEVATOR_ANGLE = 75.0;
     public static final double CLIMB_ANGLE = 90.0;
-    public static final double DEFAULT_ANGLE = 5;
+    public static final double DEFAULT_ANGLE = 5.5;
   } 
 
   public static final class LED{
@@ -122,8 +125,8 @@ public final class Constants {
 
     public static final double TOLERANCE = 0.015; // In meters
     public static final double CONVERSION_FACTOR = 0.0193145; // converts to meters 
-    public static final double LOCK_ANGLE = 166; // In degrees
-    public static final double UNLOCK_ANGLE = 150.0;  
+    public static final double LOCK_ANGLE = 90; // In degrees
+    public static final double UNLOCK_ANGLE = 50.0;  
 
     public enum Position{ 
       // center carriage to floor 9.375 inches, 0.23825 meters, in meters
@@ -166,14 +169,14 @@ public final class Constants {
     public enum Camera {
       CAMERA_ONE(
         "arducamOne",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(38)),
+        new Rotation3d(Math.toRadians(0), Math.toRadians(-20), Math.toRadians(42)),
         new Translation3d(
           // Units.inchesToMeters(11.233), 
           // Units.inchesToMeters(9.691),
           // Units.inchesToMeters(8.513920)
-          Units.inchesToMeters(9.883),
-          Units.inchesToMeters(-11.103),
-          Units.inchesToMeters(8.069)
+          Units.inchesToMeters(10.),
+          Units.inchesToMeters(-12),
+          Units.inchesToMeters(8.563)
         ),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)
@@ -181,14 +184,14 @@ public final class Constants {
 
       CAMERA_TWO(
         "arducamFour",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(-38)),
+        new Rotation3d(Math.toRadians(0), Math.toRadians(-20), Math.toRadians(-42)),
         new Translation3d(
           // Units.inchesToMeters(-11.233), 
           // Units.inchesToMeters(9.691), 
           // Units.inchesToMeters(8.513920)
-          Units.inchesToMeters(9.883),
-          Units.inchesToMeters(11.103),
-          Units.inchesToMeters(8.069)
+          Units.inchesToMeters(10),
+          Units.inchesToMeters(12),
+          Units.inchesToMeters(8.563)
         ),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)

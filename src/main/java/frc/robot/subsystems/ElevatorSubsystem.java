@@ -37,6 +37,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private Alert servoAlert;
   private Watchdog elevatorWatchdog;
   private double unlockTime;
+  private double climbLockTime;
 
   /** Creates a new Elevator. */
   public ElevatorSubsystem() {
@@ -48,6 +49,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     pid = new PIDController(Constants.Elevator.kP, Constants.Elevator.kI, Constants.Elevator.kD);
     pid.setTolerance(Constants.Elevator.TOLERANCE);
+
 
     badStart = new Alert(
       "Elevator start position wrong, limit switch not triggered",
@@ -74,12 +76,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     SparkBaseConfig configOne = new SparkMaxConfig();
     SparkBaseConfig configTwo = new SparkMaxConfig();
 
-    configOne.idleMode(IdleMode.kBrake);
+    configOne.idleMode(IdleMode.kCoast);
     configOne.smartCurrentLimit(50);
     configOne.inverted(true); // todo: switch inverted
     configOne.voltageCompensation(12);
 
-    configTwo.idleMode(IdleMode.kBrake);
+    configTwo.idleMode(IdleMode.kCoast);
     configTwo.smartCurrentLimit(50);
     configTwo.inverted(false); // todo: switch inverted
     configTwo.voltageCompensation(12);
@@ -176,13 +178,24 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   /**
-   * full throttle downward for climb until limit switch is hit
+   * Goes downward for climb until climber is locked
    */
   private double climb() {
     if (!limitSwitchTriggered() && !isLocked()) {
-      return -0.6; // TODO: change speed
+      return -0.5; // Move down at half speed
     } else {
-      return 0;
+      // When limit switch is triggered, lock the elevator
+      if (!isLocked()) {
+        setLocked(true);
+        climbLockTime = Timer.getFPGATimestamp();
+      }
+      
+      // Continue applying slight downward pressure for a short time after locking
+      if (Timer.getFPGATimestamp() - climbLockTime < 0.2) {
+        return -0.1; // Gentle downward pressure
+      } else {
+        return 0; // Stop motor after the settling time
+      }
     }
   }
 
@@ -193,6 +206,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     if (!limitSwitchTriggered() && !isLocked()) {
       return -0.3; // TODO: change speed
     } else {
+      if (limitSwitchTriggered()) {
+        leftMotor.getEncoder().setPosition(0);
+        rightMotor.getEncoder().setPosition(0);
+      }
       return 0;
     }
   }
@@ -202,7 +219,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @returns the power to set the motors to
    */
   private double calcPID() {
-    if (!isLocked() && Timer.getFPGATimestamp() - unlockTime > 0.1) {
+    if (!isLocked() && Timer.getFPGATimestamp() - unlockTime > 0.3) {
       return pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
     } else {
       return 0;
@@ -262,9 +279,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         break;
       case CLIMB_DOWN:
         power = climb();
-        if (power == 0) {
-          setLocked(true);
-        }
         break;
       default:
         if (isLocked()) {

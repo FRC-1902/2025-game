@@ -32,7 +32,7 @@ public class PositionIntakeCommand extends Command {
   @Override
   public void initialize() {
     if(!elevatorSubsystem.isAtPosition(Position.MIN)){
-      DataLogManager.log("Command shouldn't start");
+      DataLogManager.log("IntakeCommand shouldn't start");
       return;
     }
     floorIntakeSubsystem.setAngle(targetAngle);

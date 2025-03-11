@@ -53,7 +53,7 @@ public class AutoIntakeFactory {
         // index successful intake
         new SequentialCommandGroup(
           new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: double check -> bring it in
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
             elevatorSubsystem,
             floorIntakeSubsystem
           ),
@@ -78,7 +78,7 @@ public class AutoIntakeFactory {
           ),          
           // new OuttakeCommand(floorIntakeSubsystem),
           new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), // todo: check #
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
             elevatorSubsystem,
             floorIntakeSubsystem
           )
@@ -86,5 +86,58 @@ public class AutoIntakeFactory {
         () -> floorIntakeSubsystem.pieceSensorActive()
       ).schedule();
     });
+  }
+
+  /**
+   * Auto intake sequence for autonomous with cleanup
+   * @param angle
+   * @return
+   */
+  public Command getAutonomousIntakeSequence(double angle) {
+    return new SequentialCommandGroup(
+      new ParallelCommandGroup(
+        new ElevatorCommand(
+          elevatorSubsystem, 
+          Constants.Elevator.Position.MIN
+        ),
+        new PositionIntakeCommand(
+          Rotation2d.fromDegrees(angle),
+          elevatorSubsystem, 
+          floorIntakeSubsystem 
+        )
+      ),
+      new IntakeCommand(floorIntakeSubsystem, led),
+
+      new ConditionalCommand(
+        // index successful intake
+        new SequentialCommandGroup(
+          new PositionIntakeCommand(
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
+            elevatorSubsystem,
+            floorIntakeSubsystem
+          ),
+          new IndexCommand( 
+            floorIntakeSubsystem, 
+            endEffectorSubsystem
+          ),
+          endEffectorFactory.getIndexSequence()
+        ),
+
+        // clean up failed intake
+        new SequentialCommandGroup(
+          new ParallelDeadlineGroup(
+            new WaitCommand(.5), 
+            new OuttakeCommand(floorIntakeSubsystem)
+          ),          
+          // new OuttakeCommand(floorIntakeSubsystem),
+          new PositionIntakeCommand(
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
+            elevatorSubsystem,
+            floorIntakeSubsystem
+          )
+        ),
+        () -> floorIntakeSubsystem.pieceSensorActive()
+      )
+    ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
   }
 }

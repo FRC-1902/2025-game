@@ -31,6 +31,6 @@ public class AlgaeOuttakeCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    return false; 
+    return !algaeIntakeSubsystem.isPieceSensorActive(); 
   }
 }

@@ -22,6 +22,16 @@ public final class FieldConstants {
 
   public static final double offset = 0; // TODO: Get offsets
   public static final double pathOffset = 0.2; // TODO: get path offset
+
+  /* Algae Placements
+   * A: L3
+   * B: L2
+   * C: L3
+   * D: L2
+   * E: L3
+   * F: L2
+   */
+
   public static final class WAYPOINTS {
     private WAYPOINTS() {}; 
     // Reef Waypoints, Lettering goes counterclockwise blue, clockwise red
