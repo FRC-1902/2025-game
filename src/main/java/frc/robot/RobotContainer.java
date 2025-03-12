@@ -132,6 +132,10 @@ public class RobotContainer {
     new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.RT) > 0.5)
       .whileTrue(new ScoreCommand(endEffector));
 
+    // Re Index Coral
+    new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
+      .onTrue(endEffectorFactory.getReverseSequence());
+
     // Score/Outtake Algae
     controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
       .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
@@ -205,7 +209,7 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(70)), floorIntake));
 
     // Home
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 270)
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 270)
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.HOLD))
       .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.HOME));
   }

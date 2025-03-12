@@ -36,4 +36,18 @@ public class EndEffectorFactory {
       () -> {return endEffector.isBackPieceSensorActive() || endEffector.isFrontPieceSensorActive();}
     );
   }
+  public Command getReverseSequence() {
+    return new SequentialCommandGroup(
+      new EndEffectorCommand(
+        endEffector, 
+        -0.1,
+        () -> endEffector.isBackPieceSensorActive()
+      ),
+      new EndEffectorCommand(
+        endEffector, 
+        0.1,
+        () -> !endEffector.isBackPieceSensorActive() && endEffector.isFrontPieceSensorActive()
+      )
+    );
+  }
 }

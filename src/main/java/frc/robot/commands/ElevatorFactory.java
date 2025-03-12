@@ -43,7 +43,7 @@ public class ElevatorFactory {
       new ConditionalCommand(
         endEffectorFactory.getIndexSequence(),  
         new InstantCommand(),
-        () -> floorIntakeSubsystem.pieceSensorActive()),
+        () -> floorIntakeSubsystem.pieceSensorActive() || endEffectorSubsystem.isBackPieceSensorActive()),
       new ElevatorCommand(elevatorSubsystem, targetPosition)
     );
   }

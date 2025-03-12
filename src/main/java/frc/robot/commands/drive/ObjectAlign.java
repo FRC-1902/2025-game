@@ -7,6 +7,7 @@ package frc.robot.commands.drive;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.FloorIntake;
@@ -21,6 +22,8 @@ public class ObjectAlign extends Command {
   private final SwerveSubsystem swerve;
   private final FloorIntakeSubsystem floorIntakeSubsystem;
 
+  double lastSeen;
+
   /*
   * Moves backwards and centers object when detected
   */
@@ -34,14 +37,21 @@ public class ObjectAlign extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    DataLogManager.log("ObjectAlign Start:");
+    lastSeen = -100;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double turn = -detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP;
-    if (detectionSubsystem.isTargetVisible()) {
-      swerve.drive(new Translation2d(-1,0), turn, false);
+    if (detectionSubsystem.isValidTargetVisible()) {
+      lastSeen = Timer.getFPGATimestamp();
+    }
+
+    if (Timer.getFPGATimestamp() - lastSeen < 1) {
+      double turn = -detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP;
+      swerve.drive(new Translation2d(-.9,0), turn, false);
     } else {
       swerve.drive(new Translation2d(0,0), 0, false);
     }
@@ -50,6 +60,7 @@ public class ObjectAlign extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    DataLogManager.log("ObjectAlign Ends:");
     swerve.drive(new Translation2d(0,0), 0, false);    
   }
 

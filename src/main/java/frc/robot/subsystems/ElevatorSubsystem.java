@@ -102,6 +102,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     return leftMotor.getEncoder().getPosition();
   }
 
+  public Position getTargePosition() {
+    return targetPosition;
+  }
+
   /**
    * 
    * @param targetPosition
@@ -181,7 +185,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * Goes downward for climb until climber is locked
    */
   private double climb() {
-    if (!limitSwitchTriggered() && !isLocked()) {
+    if (!limitSwitchTriggered()) {
       return -0.5; // Move down at half speed
     } else {
       // When limit switch is triggered, lock the elevator
@@ -192,7 +196,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       
       // Continue applying slight downward pressure for a short time after locking
       if (Timer.getFPGATimestamp() - climbLockTime < 0.2) {
-        return -0.1; // Gentle downward pressure
+        return -0.2; // Gentle downward pressure
       } else {
         return 0; // Stop motor after the settling time
       }
@@ -203,13 +207,13 @@ public class ElevatorSubsystem extends SubsystemBase {
    * go to the bottom of the elevator to re-home
    */
   private double home() {
-    if (!limitSwitchTriggered() && !isLocked()) {
-      return -0.3; // TODO: change speed
+    if (!limitSwitchTriggered()) {
+      return -0.2; // TODO: change speed
     } else {
-      if (limitSwitchTriggered()) {
-        leftMotor.getEncoder().setPosition(0);
-        rightMotor.getEncoder().setPosition(0);
-      }
+      leftMotor.getEncoder().setPosition(0);
+      rightMotor.getEncoder().setPosition(0);
+      badStart.set(false);
+      
       return 0;
     }
   }
@@ -248,7 +252,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // simulate elevator for 3d visualization
     Pose3d elevatorPose = new Pose3d(new Translation3d(0, 0, getPosition()/2), new Rotation3d()); // TODO: Math
-    Pose3d carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()*2), new Rotation3d()); // TODO: Math
+    Pose3d carriagePose = new Pose3d(new Translation3d(0, 0, getPosition()), new Rotation3d()); // TODO: Math
     Logger.recordOutput("Elevator/Stage", elevatorPose);
     Logger.recordOutput("Elevator/Carriage", carriagePose);
 
@@ -288,7 +292,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         break;
     }
 
-    if (isLocked() && power != 0) { // XXX: might slip too fast on climb weight
+    if (isLocked() && power != 0 && Timer.getFPGATimestamp() - climbLockTime >= 0.2) {
       servoAlert.set(true);
     }
 

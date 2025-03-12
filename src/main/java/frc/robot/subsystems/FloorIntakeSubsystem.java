@@ -169,16 +169,18 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < Constants.FloorIntake.ELEVATOR_ANGLE){
+    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && pid.getSetpoint() < Constants.FloorIntake.ELEVATOR_ANGLE + 0.01){
      // DataLogManager.log("FloorIntake cannot deploy while elevator is not at MIN");
-      setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE)); // TODO: Re-Enable
+      setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE));
     }
     
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(4).getRadians());
 
-
+    // compensate for friction if not near tolerance
+    if (Math.abs(pid.getSetpoint() - getAngle().getDegrees()) > Constants.FloorIntake.TOLERANCE.getDegrees() / 2)
+      power += Constants.FloorIntake.PIVOT_F * Math.signum(pid.getSetpoint() - getAngle().getDegrees());
+    
     setupLogging();
 
     if (pivotWatchdog()) {
