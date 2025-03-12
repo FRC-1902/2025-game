@@ -121,14 +121,14 @@ public class AutoIntakeFactory {
             endEffectorSubsystem
           ),
           endEffectorFactory.getIndexSequence()
-        ),
+        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming),
 
         // clean up failed intake
         new SequentialCommandGroup(
           new ParallelDeadlineGroup(
             new WaitCommand(.5), 
             new OuttakeCommand(floorIntakeSubsystem)
-          ),          
+          ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming),
           // new OuttakeCommand(floorIntakeSubsystem),
           new PositionIntakeCommand(
             Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
@@ -138,6 +138,6 @@ public class AutoIntakeFactory {
         ),
         () -> floorIntakeSubsystem.pieceSensorActive()
       )
-    ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
+    );
   }
 }

@@ -19,7 +19,7 @@ public class IndexCommand extends Command {
   @Override
   public void initialize() {
     floorIntakeSubsystem.setSpeed(-0.5); // todo: find indexing speed
-    endEffectorSubsystem.setSpeed(0.2); // todo: find indexing speed
+    endEffectorSubsystem.setSpeed(0.15); // todo: find indexing speed
   }
 
   @Override
