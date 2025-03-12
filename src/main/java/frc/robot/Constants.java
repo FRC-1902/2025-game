@@ -85,7 +85,7 @@ public final class Constants {
     public static final int PIECE_SENSOR_ID = 8; 
     public static final int PIVOT_ENCODER_ID = 20; 
 
-    public static final double PIVOT_P = 0.015;// 0.0125; 
+    public static final double PIVOT_P = 0.013;// 0.0125; 
     public static final double PIVOT_I = 0.003;// 0.0035; 
     public static final double PIVOT_D = 0.0002;// 0.00005; 
     public static final double PIVOT_G = 0.022;// 0.022;
@@ -95,7 +95,7 @@ public final class Constants {
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(350); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(351.53);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(350.5);
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
     public static final double FLOOR_ANGLE = 180.0;
