@@ -10,7 +10,6 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.Constants;
-import frc.robot.Constants.LED;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.IndexCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
@@ -25,6 +24,14 @@ public class AutoIntakeFactory {
   EndEffectorFactory endEffectorFactory;
   LEDSubsystem led;
 
+  /**
+   * returns command composition that correctly sucks piece off the floor, retracts, and indexes for scoring.
+   * @param floorIntakeSubsystem
+   * @param elevatorSubsystem
+   * @param endEffectorSubsystem
+   * @param endEffectorFactory
+   * @param led
+   */
   public AutoIntakeFactory(FloorIntakeSubsystem floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem, EndEffectorFactory endEffectorFactory, LEDSubsystem led) {
     this.floorIntakeSubsystem = floorIntakeSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
@@ -33,8 +40,13 @@ public class AutoIntakeFactory {
     this.led = led;
   }
 
+  /**
+   * 
+   * @param angle referring to deployed angle
+   * @returns command composition for picking up and indexing game piece
+   */
   public Command getIntakeSequence(double angle) {
-    // TODO: set rotation angles
+    // Move elevator down and intake out to specified deployed position
     return new SequentialCommandGroup(
       new ParallelCommandGroup(
         new ElevatorCommand(
@@ -47,10 +59,11 @@ public class AutoIntakeFactory {
           floorIntakeSubsystem 
         )
       ),
+      // Intake game piece
       new IntakeCommand(floorIntakeSubsystem, led)
     ).finallyDo((wasCancelled) -> {
       new ConditionalCommand(
-        // index successful intake
+        // Move floor intake in and index successful intake
         new SequentialCommandGroup(
           new PositionIntakeCommand(
             Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
@@ -61,37 +74,32 @@ public class AutoIntakeFactory {
             floorIntakeSubsystem, 
             endEffectorSubsystem
           ),
+          // Make sure piece is aligned with index sequence
           endEffectorFactory.getIndexSequence()
         ),
         // clean up failed intake
         new SequentialCommandGroup(
-          // XXX: may not want this initial move out for cleanup
-          // new DeployFloorIntakeCommand(
-          //   Rotation2d.fromDegrees(110), // todo: check # could be horrible
-          //   elevatorSubsystem,
-          //   floorIntakeSubsystem, 
-          //   endEffectorSubsystem
-          // ),
+          // Runs outtake for .5 seconds before cancelling
           new ParallelDeadlineGroup(
             new WaitCommand(.5), 
             new OuttakeCommand(floorIntakeSubsystem)
           ),          
-          // new OuttakeCommand(floorIntakeSubsystem),
+          // Move floor intake back in after running outtake
           new PositionIntakeCommand(
             Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
             elevatorSubsystem,
             floorIntakeSubsystem
           )
-        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), 
+        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // Gives interuption behavior where it cancels incoming command  
         () -> floorIntakeSubsystem.pieceSensorActive()
       ).schedule();
     });
   }
 
   /**
-   * Auto intake sequence for autonomous with cleanup
-   * @param angle
-   * @return
+   * Auto intake sequence for autonomous with cleanup handled. Doesn't have finallyDo behavior after end.
+   * @param angle referring to deploying angle
+   * @returns intake sequence specifically for auto. 
    */
   public Command getAutonomousIntakeSequence(double angle) {
     return new SequentialCommandGroup(
@@ -121,15 +129,15 @@ public class AutoIntakeFactory {
             endEffectorSubsystem
           ),
           endEffectorFactory.getIndexSequence()
-        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming),
+        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // Gives interuption behavior where it cancels incoming command 
 
         // clean up failed intake
         new SequentialCommandGroup(
           new ParallelDeadlineGroup(
             new WaitCommand(.5), 
             new OuttakeCommand(floorIntakeSubsystem)
-          ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming),
-          // new OuttakeCommand(floorIntakeSubsystem),
+          ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // Gives interuption behavior where it cancels incoming command 
+          
           new PositionIntakeCommand(
             Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
             elevatorSubsystem,

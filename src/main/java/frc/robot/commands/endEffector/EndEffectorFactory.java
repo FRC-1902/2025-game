@@ -10,7 +10,9 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.EndEffectorSubsystem;
 
-/** Add your docs here. */
+/**
+ * Returns command composition(s) to re-align game piece. Makes sure that game piece position in the end effector is consistent.
+ */
 public class EndEffectorFactory {
   private final EndEffectorSubsystem endEffector;
 
@@ -18,6 +20,10 @@ public class EndEffectorFactory {
     this.endEffector = endEffector;
   }
 
+  /**
+   * 
+   * @returns command to correctly index game piece after being fed by Floor Intake.
+   */
   public Command getIndexSequence() {
     return new ConditionalCommand(
       new SequentialCommandGroup(
@@ -36,6 +42,11 @@ public class EndEffectorFactory {
       () -> {return endEffector.isBackPieceSensorActive() || endEffector.isFrontPieceSensorActive();}
     );
   }
+
+  /**
+   * 
+   * @returns command to Re-Index game piece after initial indexing sequence.
+   */
   public Command getReverseSequence() {
     return new SequentialCommandGroup(
       new EndEffectorCommand(

@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -15,7 +14,11 @@ public class SnapToWaypoint extends Command {
   private Supplier<Pose2d> targetPoseSupplier;
   private Pose2d targetPose;
 
-  /** Creates a new SnapToWaypoint. */
+  /**
+   * snaps to specified targetPose based on currentPose
+   * @param swerve
+   * @param targetPoseSupplier
+   */
   public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
     this.swerve = swerve;
     this.targetPoseSupplier = targetPoseSupplier;
@@ -35,8 +38,8 @@ public class SnapToWaypoint extends Command {
     Pose2d currentPose = swerve.getPose();
 
     // Simple P-controllers for translation and rotation
-    double velocitykP = 3; // TODOL Tune these values
-    double rotationkP = 3; // TODO: Tune these values
+    double velocitykP = 3; 
+    double rotationkP = 3; 
 
     Translation2d velocity = targetPose.getTranslation().minus(currentPose.getTranslation()).times(velocitykP);
     Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
@@ -59,7 +62,7 @@ public class SnapToWaypoint extends Command {
   @Override
   public boolean isFinished() {
     // Finish when position and orientation are close enough
-    double distanceThreshold = 0.01;        // meters
+    double distanceThreshold = 0.01; // meters
     double rotationThreshold = Math.toRadians(.5); // radians
 
     double currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());

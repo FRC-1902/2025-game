@@ -23,7 +23,7 @@ public class ObjectAlign extends Command {
   double lastSeen;
 
  /**
-  * Moves 
+  * Aligns and moves towards detected object. Has timeout in case object is no longer detected. Ends with piece being detetected or timeout. 
   * @param detectionSubsystem
   * @param swerve
   * @param floorIntakeSubsystem
@@ -68,6 +68,6 @@ public class ObjectAlign extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return floorIntakeSubsystem.pieceSensorActive(); //!detectionSubsystem.isTargetVisible()
+    return floorIntakeSubsystem.pieceSensorActive(); 
   }
 }
