@@ -185,13 +185,6 @@ public class RobotContainer {
       // .whileTrue(new IntakeCommand(floorIntake, led));
       .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
 
-    controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)
-      .whileTrue(new InstantCommand(() -> autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)));
-
-    // HP Intake
-    controllers.getTrigger(ControllerName.MANIP, Button.X).debounce(0.05)
-        .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.HP_ANGLE));
-
     // Algae Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)
       .whileTrue(new AlgaeIntakeCommand(algaeIntake));

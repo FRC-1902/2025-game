@@ -24,18 +24,14 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.Constants.LED;
 import frc.robot.commands.AlgaeIntakeCommand;
 import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.ContinuousConditionalCommand;
-import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
-import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.drive.ObjectAlign;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
-import frc.robot.commands.floorIntake.OuttakeCommand;
 import frc.robot.commands.floorIntake.PositionIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -44,11 +40,6 @@ import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.DetectionSubsystem;
-import frc.robot.FieldConstants;
-import frc.robot.Constants.EndEffector;
-import frc.robot.commands.endEffector.ScoreCommand;
-import frc.robot.commands.drive.DriveToObject;
-import frc.robot.Constants;
 
 /*
  * Publishes a network table chooser to smart dashboard to select the autonomous command. 
@@ -153,7 +144,7 @@ public class AutoSelector {
   private SequentialCommandGroup right4L3(){
     return new SequentialCommandGroup(
       // setup odometry
-      setStartPosition(7.133, 2.435), // TODO: fix start pos
+      setStartPosition(7.14, 2.240), // TODO: fix start pos
 
       endEffectorFactory.getIndexSequence(),
 
@@ -243,7 +234,7 @@ public class AutoSelector {
   private SequentialCommandGroup left4L3(){
     return new SequentialCommandGroup(
       // setup odometry
-      setStartPosition(7.133, 5.617), // TODO: fix start pos
+      setStartPosition(7.14, 5.8118), // TODO: fix start pos
 
       endEffectorFactory.getIndexSequence(),
 
