@@ -7,7 +7,8 @@ public class OuttakeCommand extends Command {
   private final FloorIntakeSubsystem floorIntakeSubsystem;
 
   /**
-   * runs floor intake rollers outward when command is scheduled
+   * Runs floor intake rollers outward when command is scheduled
+   * Doesn't have end conditions, will continue to run
    * @param floorIntakeSubsystem
    */
   public OuttakeCommand(FloorIntakeSubsystem floorIntakeSubsystem) {

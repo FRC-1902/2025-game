@@ -32,12 +32,14 @@ public class AutoIntakeFactory {
    * @param endEffectorFactory
    * @param led
    */
-  public AutoIntakeFactory(FloorIntakeSubsystem floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem, EndEffectorFactory endEffectorFactory, LEDSubsystem led) {
+  public AutoIntakeFactory(FloorIntakeSubsystem floorIntakeSubsystem, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem, LEDSubsystem led) {
     this.floorIntakeSubsystem = floorIntakeSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
     this.endEffectorSubsystem = endEffectorSubsystem;
     this.endEffectorFactory = endEffectorFactory;
     this.led = led;
+
+    endEffectorFactory = new EndEffectorFactory(endEffectorSubsystem);
   }
 
   /**
