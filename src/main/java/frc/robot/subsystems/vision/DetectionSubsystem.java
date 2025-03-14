@@ -2,7 +2,6 @@ package frc.robot.subsystems.vision;
 
 import java.util.List;
 
-import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -10,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.photonvision.PhotonCamera;
 
 public class DetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
@@ -18,12 +18,6 @@ public class DetectionSubsystem extends SubsystemBase {
   private boolean validTargetVisible;
   private double targetYaw; 
   private double targetPitch; 
-  private double detectionTimeout = 0.5;
-  private double lastValidDetectionTime;
-  
-  private int currentlyTrackedId = -1;
-  private double lastIdSwitchTime = 0;
-  private double idSwitchTimeout = 1.0;
 
 
   public DetectionSubsystem() {}
@@ -41,9 +35,7 @@ public class DetectionSubsystem extends SubsystemBase {
    * @returns if object is visible or not (post filtering)
    */
   public boolean isValidTargetVisible(){
-    double currentTime = Timer.getFPGATimestamp();
-
-    return validTargetVisible || (currentTime - lastValidDetectionTime < detectionTimeout);
+    return validTargetVisible;
   }
 
   /**
@@ -66,7 +58,6 @@ public class DetectionSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-    double currentTime = Timer.getFPGATimestamp();
 
 
     if (!results.isEmpty()) {
@@ -76,73 +67,33 @@ public class DetectionSubsystem extends SubsystemBase {
       if (result.hasTargets()) {
         boolean seenValidTarget = false;
         targetVisible = true;
-        PhotonTrackedTarget bestTarget = null;
 
-        // Checks if there was a previous target
-        if (currentlyTrackedId >= 0) {
-          for (PhotonTrackedTarget target : result.getTargets()) {
-            if (target.getFiducialId() == currentlyTrackedId && target.getPitch() >= -8) {
-              bestTarget = target;
-              seenValidTarget = true;
-              break; // Found our previous target, stop searching
-            }
-          }
-        }
+        int lowestId = Integer.MAX_VALUE; // Track the lowest ID seen
+  
+        // Loop over all targets, finding the one with lowest ID that meets confidence threshold
+        for (PhotonTrackedTarget target : result.getTargets()) {
 
-        // If no previous target get lowest ID
-        if (bestTarget == null) {
-          // Only switch targets after timeout
-          boolean allowNewTarget = 
-            currentlyTrackedId < 0 || (currentTime - lastIdSwitchTime) > idSwitchTimeout;
+          int targetId = target.getFiducialId();
+          double pitch = target.getPitch(); 
           
-          if (allowNewTarget) {
-            int lowestId = Integer.MAX_VALUE;
-            
-            // Find the target with the lowest valid ID
-            for (PhotonTrackedTarget target : result.getTargets()) {
-              int targetId = target.getFiducialId();
-              double pitch = target.getPitch();
-              
-              if (pitch >= -8 && targetId < lowestId) {
-                lowestId = targetId;
-                bestTarget = target;
-                seenValidTarget = true;
-              }
-            }
-            
-            // Update tracked ID
-            if (seenValidTarget && lowestId != currentlyTrackedId) {
-              currentlyTrackedId = lowestId;
-              lastIdSwitchTime = currentTime;
-            }
+          // Only consider targets above the minimum pitch threshold
+          if (pitch >= -8 && targetId < lowestId) {
+            lowestId = targetId;
+
+            targetYaw = target.getYaw() + 2;
+            targetPitch = pitch;
+            seenValidTarget = true;
           }
         }
-
-        // Update valid target
-        if (bestTarget != null) {
-          targetYaw = bestTarget.getYaw() + 2;
-          targetPitch = bestTarget.getPitch();
-          lastValidDetectionTime = currentTime;
-          validTargetVisible = true;
-        }
+        validTargetVisible = seenValidTarget;
       } else {
         targetVisible = false;
         validTargetVisible = false;
       }
     }
 
-    // If tracking times out, reset ID
-    if (currentTime - lastValidDetectionTime > 2.0) {
-      currentlyTrackedId = -1;
-    }
-    
-    // Dashboard telemetry
-    boolean timeoutValid = (currentTime - lastValidDetectionTime < detectionTimeout);
-    SmartDashboard.putBoolean("VisionObjectDetection/RawTargetVisible", targetVisible);
-    SmartDashboard.putBoolean("VisionObjectDetection/ValidTargetVisible", validTargetVisible || timeoutValid);
+    SmartDashboard.putBoolean("VisionObjectDetection/TargetVisible", targetVisible);
+    SmartDashboard.putBoolean("VisionObjectDetection/ValidTargetVisible", validTargetVisible);
     SmartDashboard.putNumber("VisionObjectDetection/TargetYaw", targetYaw);
-    SmartDashboard.putNumber("VisionObjectDetection/TargetPitch", targetPitch);
-    SmartDashboard.putNumber("VisionObjectDetection/CurrentlyTrackedId", currentlyTrackedId);
-    SmartDashboard.putNumber("VisionObjectDetection/TimeSinceLastDetection", currentTime - lastValidDetectionTime);
   }
 }
