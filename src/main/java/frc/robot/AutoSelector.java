@@ -76,14 +76,15 @@ public class AutoSelector {
     led = robotContainer.led;
 
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
+    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
-    autoChooser.addOption("Right 4 L3", right4L3());
-    autoChooser.addOption("Left 4 L3", left4L3());
+    autoChooser.addDefaultOption("Leave", getLeave());
+    autoChooser.addOption("Right 4 L3", getRight4L3());
+    autoChooser.addOption("Left 4 L3", getLeft4L3());
   }
 
   /**
@@ -138,10 +139,20 @@ public class AutoSelector {
    * Auto that doesn't do anything
    */
   private Command getDoNothingAuto() {
-    return setStartPosition(7.150, 0.500);
+    return setStartPosition(7.140, 7.500);
   }
 
-  private SequentialCommandGroup right4L3(){
+  /**
+   * Auto that leaves the starting line
+   */
+  private Command getLeave() {
+    return new SequentialCommandGroup(
+      setStartPosition(7.140, 7.500),
+      swerve.getFollowPathCommand("Leave")
+    );
+  }
+
+  private SequentialCommandGroup getRight4L3(){
     return new SequentialCommandGroup(
       // setup odometry
       setStartPosition(7.14, 2.240), // TODO: fix start pos
@@ -231,7 +242,7 @@ public class AutoSelector {
     );
   }
 
-  private SequentialCommandGroup left4L3(){
+  private SequentialCommandGroup getLeft4L3(){
     return new SequentialCommandGroup(
       // setup odometry
       setStartPosition(7.14, 5.8118), // TODO: fix start pos
