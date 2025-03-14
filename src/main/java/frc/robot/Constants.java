@@ -54,7 +54,7 @@ public final class Constants {
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
 
     // Object detection turn KP
-    public static final double OBJECT_TURN_KP = 5;
+    public static final double OBJECT_TURN_KP = 5.5;
   }
 
   public static final class AlgaeIntake{

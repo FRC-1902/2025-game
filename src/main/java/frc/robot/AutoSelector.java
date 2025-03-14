@@ -24,10 +24,10 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.AlgaeIntakeCommand;
-import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.ContinuousConditionalCommand;
 import frc.robot.commands.ElevatorFactory;
+import frc.robot.commands.algaeIntake.AlgaeIntakeCommand;
+import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.drive.ObjectAlign;
@@ -85,6 +85,7 @@ public class AutoSelector {
     autoChooser.addDefaultOption("Leave", getLeave());
     autoChooser.addOption("Right 4 L3", getRight4L3());
     autoChooser.addOption("Left 4 L3", getLeft4L3());
+    autoChooser.addOption("1 L2", get1L2());
   }
 
   /**
@@ -149,6 +150,27 @@ public class AutoSelector {
     return new SequentialCommandGroup(
       setStartPosition(7.140, 7.500),
       swerve.getFollowPathCommand("Leave")
+    );
+  }
+
+  /**
+   * Auto that leaves the starting line
+   */
+  private Command get1L2() {
+    return new SequentialCommandGroup(
+      setStartPosition(7.182, 4.182),
+
+      endEffectorFactory.getIndexSequence(),
+
+      new ParallelCommandGroup(
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
+        swerve.getFollowPathCommand("1 L2 1"),
+        new AlgaeIntakeCommand(algaeIntake)
+      ),
+      // Place
+      new ScoreCommand(endEffector),
+      swerve.getFollowPathCommand("1 L2 2")
+
     );
   }
 

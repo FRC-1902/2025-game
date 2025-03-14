@@ -186,17 +186,17 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   private double climb() {
     if (!limitSwitchTriggered()) {
+      climbLockTime = Timer.getFPGATimestamp(); // XXX; fix me
       return -0.5; // Move down at half speed
     } else {
       // When limit switch is triggered, lock the elevator
       if (!isLocked()) {
         setLocked(true);
-        climbLockTime = Timer.getFPGATimestamp();
       }
       
       // Continue applying slight downward pressure for a short time after locking
       if (Timer.getFPGATimestamp() - climbLockTime < 0.2) {
-        return -0.2; // Gentle downward pressure
+        return -0.3; // Gentle downward pressure
       } else {
         return 0; // Stop motor after the settling time
       }

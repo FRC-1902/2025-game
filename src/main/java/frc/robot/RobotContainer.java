@@ -19,11 +19,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FloorIntake;
 import frc.robot.FieldConstants.WaypointType;
-import frc.robot.commands.AlgaeIntakeCommand;
-import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.IndexCommand;
+import frc.robot.commands.algaeIntake.AlgaeIntakeCommand;
+import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
+import frc.robot.commands.algaeIntake.AlgaeOuttakeFactory;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
@@ -65,6 +66,7 @@ public class RobotContainer {
   AutoIntakeFactory autoIntakeFactory;
   ElevatorFactory elevatorFactory;
   EndEffectorFactory endEffectorFactory;
+  AlgaeOuttakeFactory algaeOuttakeFactory;
   private final Field2d field;
 
   public RobotContainer() {
@@ -110,6 +112,7 @@ public class RobotContainer {
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
+    algaeOuttakeFactory = new AlgaeOuttakeFactory(algaeIntake);
 
     swerve.setDefaultCommand(closedDrive);
 
@@ -138,7 +141,7 @@ public class RobotContainer {
 
     // Score/Outtake Algae
     controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
-      .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
+      .whileTrue(algaeOuttakeFactory.algaeOuttakeSequence());
 
     // Zero Gyro
     controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)

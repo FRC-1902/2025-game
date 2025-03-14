@@ -36,7 +36,7 @@ public final class FieldConstants {
     private WAYPOINTS() {}; 
     // Reef Waypoints, Lettering goes counterclockwise blue, clockwise red
     // TODO: Set real values
-    public static final Pose2d PROCESSOR = new Pose2d(3.165, 4.195, Rotation2d.fromDegrees(0));
+    public static final Pose2d PROCESSOR = new Pose2d(6.100, 0.780, Rotation2d.fromDegrees(270));
 
     public static final Pose2d[] POLES = {
       // Temp welded

@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.algaeIntake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,8 +19,7 @@ public class AlgaeOuttakeCommand extends Command {
 
   @Override
   public void initialize() {
-    algaeIntakeSubsystem.setSpeed(-0.4);
-    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(50));
+    algaeIntakeSubsystem.setSpeed(-0.6);
   }
 
   @Override
