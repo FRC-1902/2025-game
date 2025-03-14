@@ -13,7 +13,7 @@ public class ContinuousConditionalCommand extends Command {
   BooleanSupplier supplier;
   private boolean flag;
 
-  /* Big broken, big bad */ // TODO: Fix this
+  /* Guys it worked in the SIM tho T R U S T */ // TODO: Fix this
   /*
    * Creates a new ConditionalCommand. This command will run the selected command continuously until the supplier returns true.
    */

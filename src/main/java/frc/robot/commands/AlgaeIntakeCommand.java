@@ -9,7 +9,10 @@ public class AlgaeIntakeCommand extends Command {
   private final AlgaeIntakeSubsystem algaeIntakeSubsystem; 
   private boolean earlyExit; 
   
-  /** Creates a new AlgaeIntakeCommand. */
+  /**
+   * Sets algae intake rollers and pivot angle.
+   * @param algaeIntakeSubsystem
+   */
   public AlgaeIntakeCommand(AlgaeIntakeSubsystem algaeIntakeSubsystem) {
     this.algaeIntakeSubsystem = algaeIntakeSubsystem;  
 
@@ -29,6 +32,9 @@ public class AlgaeIntakeCommand extends Command {
   @Override
   public void execute() {}
 
+  /**
+   * If not interrupted, intake doesn't move back to default and keeps sucking. Otherwise, intake will stop sucking and return back to default angle.
+   */
   @Override
   public void end(boolean interrupted) {
     if (!interrupted) {
@@ -41,6 +47,9 @@ public class AlgaeIntakeCommand extends Command {
     }
   }
 
+  /**
+   * Checks if piece is detected in the intake. Runs check on init and throughout command. 
+   */
   @Override
   public boolean isFinished() {
     return earlyExit || algaeIntakeSubsystem.isPieceSensorActive(); 

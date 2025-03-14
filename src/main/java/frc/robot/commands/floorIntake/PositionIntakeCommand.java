@@ -2,11 +2,9 @@ package frc.robot.commands.floorIntake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Elevator.Position;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 
 public class PositionIntakeCommand extends Command {
@@ -15,13 +13,13 @@ public class PositionIntakeCommand extends Command {
 
   private Rotation2d targetAngle;
 
-  /** Creates a new DeployFloorIntakeCommand. */
-  public PositionIntakeCommand(
-      Rotation2d targetAngle,
-      ElevatorSubsystem elevatorSubsystem, 
-      FloorIntakeSubsystem floorIntakeSubsystem
-    ){
-    
+  /**
+   * Sets floor intake to target angle. If piece detected while moving, sucks in on piece.
+   * @param targetAngle
+   * @param elevatorSubsystem
+   * @param floorIntakeSubsystem
+   */
+  public PositionIntakeCommand(Rotation2d targetAngle, ElevatorSubsystem elevatorSubsystem, FloorIntakeSubsystem floorIntakeSubsystem){
     this.elevatorSubsystem = elevatorSubsystem; 
     this.floorIntakeSubsystem = floorIntakeSubsystem;
     this.targetAngle = targetAngle;
@@ -29,6 +27,9 @@ public class PositionIntakeCommand extends Command {
     addRequirements(floorIntakeSubsystem);
   }
 
+  /**
+   * Checks to make sure that elevator is at the MIN (see constants) position before setting new target angle.
+   */
   @Override
   public void initialize() {
     if(!elevatorSubsystem.isAtPosition(Position.MIN)){

@@ -8,7 +8,10 @@ import frc.robot.subsystems.AlgaeIntakeSubsystem;
 public class AlgaeOuttakeCommand extends Command {
   private final AlgaeIntakeSubsystem algaeIntakeSubsystem; 
   
-  /** Creates a new AlgaeIntakeCommand. */
+  /**
+   * When called spits out until piece is no longer detected.
+   * @param algaeIntakeSubsystem
+   */
   public AlgaeOuttakeCommand(AlgaeIntakeSubsystem algaeIntakeSubsystem) {
     this.algaeIntakeSubsystem = algaeIntakeSubsystem;  
     addRequirements(algaeIntakeSubsystem);
