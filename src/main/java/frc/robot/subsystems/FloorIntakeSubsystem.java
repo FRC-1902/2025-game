@@ -107,6 +107,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @param targetAngle sets the pivot angle
    */
   public void setAngle(Rotation2d targetAngle) {
+
     if (pivotWatchdog.checkWatchdog(targetAngle.getDegrees()) ) {
       DataLogManager.log("Specified input out of bounds on FloorIntake");
       return;
@@ -129,6 +130,14 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    */
   public boolean atSetpoint() {
     return pid.atSetpoint();
+  }
+
+  /**
+   * 
+   * @returns the targeted setpoint of the PID
+   */
+  public double getPIDSetpoint(){
+    return pid.getSetpoint();
   }
 
   // resets the pid
@@ -170,7 +179,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && pid.getSetpoint() < Constants.FloorIntake.ELEVATOR_ANGLE + 0.01){
-     // DataLogManager.log("FloorIntake cannot deploy while elevator is not at MIN");
+      DataLogManager.log("FloorIntake cannot move to DEFAULT_ANGLE since elevator is up");
       setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE));
     }
     

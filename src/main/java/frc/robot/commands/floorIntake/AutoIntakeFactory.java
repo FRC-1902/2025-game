@@ -16,6 +16,7 @@ import frc.robot.commands.endEffector.EndEffectorFactory;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class AutoIntakeFactory {
   FloorIntakeSubsystem floorIntakeSubsystem;
@@ -150,4 +151,62 @@ public class AutoIntakeFactory {
       )
     );
   }
+
+
+public Command getReworkedIntakeSequence(double angle) {
+return new ConditionalCommand(
+  // Move elevator down and intake out to specified deployed position
+
+   new SequentialCommandGroup(
+      new InstantCommand(() -> elevatorSubsystem.setPosition(Constants.Elevator.Position.MIN)),
+      new PositionIntakeCommand(
+        Rotation2d.fromDegrees(angle),
+        elevatorSubsystem, 
+        floorIntakeSubsystem 
+      ),
+    // Intake game piece
+    new IntakeCommand(floorIntakeSubsystem, led)
+  ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).finallyDo((wasCancelled) -> {
+    new ConditionalCommand(
+      // Move floor intake in and index successful intake
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new PositionIntakeCommand(
+            Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), 
+            elevatorSubsystem,
+            floorIntakeSubsystem
+          ),
+          new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN)
+        ),
+      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+      new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem), 
+      endEffectorFactory.getIndexSequence()
+      ),
+      // clean up failed intake
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+        // Runs outtake for .5 seconds before cancelling
+        new ParallelDeadlineGroup(
+          new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
+          new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
+        ), 
+        new OuttakeCommand(floorIntakeSubsystem)
+        ),     
+        // Move floor intake back in after running outtake
+        new PositionIntakeCommand(
+          Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
+          elevatorSubsystem,
+          floorIntakeSubsystem
+        )
+        
+      ), 
+      () -> floorIntakeSubsystem.pieceSensorActive()
+    ).schedule();
+  }),
+  new InstantCommand(), 
+  () -> floorIntakeSubsystem.pieceSensorActive()
+);
 }
+}
+
+
