@@ -21,7 +21,7 @@ public final class FieldConstants {
   public static final double LENGTH = Units.inchesToMeters(690.875); // TODO: Confirm size 
 
   public static final double offset = 0; // TODO: Get offsets
-  public static final double pathOffset = 0.1; // TODO: get path offset
+  public static final double pathOffset = 0.3; // TODO: get path offset
 
   /* Algae Placements
    * A: L3

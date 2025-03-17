@@ -18,6 +18,17 @@ public class AutoDriveFactory {
    * Drives to the waypoint and snaps to it.
    * @return the command
    */
+  public Command snapCommand(WaypointType waypoint) {
+    DataLogManager.log("Auto Driving");
+    return new SequentialCommandGroup(
+      // new PathToWaypoint(() -> swerve.getWaypoint(waypoint, FieldConstants.pathOffset), swerve),
+      new ContinuallySnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, FieldConstants.offset))
+    );
+  }
+  /**
+   * Drives to the waypoint and snaps to it.
+   * @return the command
+   */
   public Command pathAndSnapCommand(WaypointType waypoint) {
     DataLogManager.log("Auto Driving");
     return new SequentialCommandGroup(
@@ -25,4 +36,5 @@ public class AutoDriveFactory {
       new ContinuallySnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, FieldConstants.offset))
     );
   }
+
 }

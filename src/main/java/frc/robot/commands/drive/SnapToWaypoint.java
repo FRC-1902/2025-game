@@ -3,9 +3,11 @@ package frc.robot.commands.drive;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -13,6 +15,8 @@ public class SnapToWaypoint extends Command {
   private final SwerveSubsystem swerve;
   private Supplier<Pose2d> targetPoseSupplier;
   private Pose2d targetPose;
+  private PIDController pidX;
+  private PIDController pidY;
 
   /**
    * snaps to specified targetPose based on currentPose
@@ -22,6 +26,15 @@ public class SnapToWaypoint extends Command {
   public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
     this.swerve = swerve;
     this.targetPoseSupplier = targetPoseSupplier;
+    this.pidX = new PIDController(2.5, 0.002, 0.0);
+    this.pidY = new PIDController(2.5, 0.002, 0.0);
+
+    pidX.reset();
+    pidY.reset();
+
+    // Optionally set tolerance to match isFinished criteria
+    pidX.setTolerance(0.01);
+    pidY.setTolerance(0.01);
 
     addRequirements(swerve);
   }
@@ -34,24 +47,28 @@ public class SnapToWaypoint extends Command {
 
   @Override
   public void execute() {
+     SmartDashboard.putData("PID/SnapToWaypointX", pidX);
+     SmartDashboard.putData("PID/SnapToWaypointY", pidY);
     // Current robot pose
     Pose2d currentPose = swerve.getPose();
 
     // Simple P-controllers for translation and rotation
-    double velocitykP = 3; 
+    // double velocitykP = 3; 
+
+    // Calculate error
+    double xError = targetPose.getX() - currentPose.getX();
+    double yError = targetPose.getY() - currentPose.getY();
+
+    double xVelocity = -pidX.calculate(xError, 0);
+    double yVelocity = -pidY.calculate(yError, 0);
+
+    Translation2d cappedVelocity = new Translation2d(xVelocity, yVelocity);
+
     double rotationkP = 3; 
-
-    Translation2d velocity = targetPose.getTranslation().minus(currentPose.getTranslation()).times(velocitykP);
     Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
-
-    double cappedXVelocity = Math.max(Math.min(velocity.getX(), 1.5), -1.5);
-    double cappedYVelocity = Math.max(Math.min(velocity.getY(), 1.5), -1.5);
-
     double cappedRotation = Math.max(Math.min(rotation.getRadians(), 3), -3);
     
-    Translation2d cappedVelocty = new Translation2d(cappedXVelocity, cappedYVelocity);
-
-    swerve.drive(cappedVelocty, cappedRotation, true);
+    swerve.drive(cappedVelocity, cappedRotation, true);
   }
 
   @Override
