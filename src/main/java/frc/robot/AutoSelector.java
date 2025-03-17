@@ -12,6 +12,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,6 +32,7 @@ import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.drive.ObjectAlign;
+import frc.robot.commands.drive.SnapToWaypoint;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
 import frc.robot.commands.floorIntake.PositionIntakeCommand;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
@@ -47,6 +49,7 @@ import frc.robot.subsystems.vision.DetectionSubsystem;
  */
 public class AutoSelector {
   private LoggedDashboardChooser<Command> autoChooser;
+  private String pushingP = "Auto/EnablePushingP";
 
   SwerveSubsystem swerve;
   AlgaeIntakeSubsystem algaeIntake;
@@ -79,7 +82,11 @@ public class AutoSelector {
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
 
+
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
+    
+    SmartDashboard.putBoolean(pushingP, false);
+    SmartDashboard.setPersistent(pushingP);
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
     autoChooser.addDefaultOption("Leave", getLeave());
@@ -132,7 +139,35 @@ public class AutoSelector {
       ),
       new ObjectAlign(detectionSubsystem, swerve, floorIntake)
     );
-  }  
+  } 
+
+  private Command getPushingPCommand() {
+    return new ParallelRaceGroup(
+      new WaitCommand(2),
+      new SnapToWaypoint(swerve, () -> {
+        // Get current pose
+        Pose2d currentPose = swerve.getPose();
+        
+        double distance = Units.inchesToMeters(-4); 
+        
+        Translation2d backwardsVector = new Translation2d(
+          distance * Math.cos(currentPose.getRotation().getRadians()), 
+          distance * Math.sin(currentPose.getRotation().getRadians())
+        );
+        
+        Translation2d targetTranslation = currentPose.getTranslation().plus(backwardsVector);
+        
+        return new Pose2d(targetTranslation, currentPose.getRotation());
+      })
+    );
+  } 
+
+  /**
+   * Checks if the PushingP SmartDashboard toggle is enabled
+   */
+  private boolean isPushingPEnabled() {
+    return SmartDashboard.getBoolean(pushingP, false);
+  }
 
   // Auto definitions
 
@@ -149,6 +184,11 @@ public class AutoSelector {
   private Command getLeave() {
     return new SequentialCommandGroup(
       setStartPosition(7.140, 7.500),
+      new ConditionalCommand(
+        getPushingPCommand(),
+        new InstantCommand(),
+        this::isPushingPEnabled
+      ),
       swerve.getFollowPathCommand("Leave")
     );
   }
@@ -159,6 +199,12 @@ public class AutoSelector {
   private Command get1L2() {
     return new SequentialCommandGroup(
       setStartPosition(7.182, 4.182),
+
+      new ConditionalCommand(
+        getPushingPCommand(),
+        new InstantCommand(),
+        this::isPushingPEnabled
+      ),
 
       endEffectorFactory.getIndexSequence(),
 
@@ -178,6 +224,12 @@ public class AutoSelector {
     return new SequentialCommandGroup(
       // setup odometry
       setStartPosition(7.14, 2.240), // TODO: fix start pos
+
+      new ConditionalCommand(
+        getPushingPCommand(),
+        new InstantCommand(),
+        this::isPushingPEnabled
+      ),
 
       endEffectorFactory.getIndexSequence(),
 
@@ -267,7 +319,14 @@ public class AutoSelector {
   private SequentialCommandGroup getLeft4L3(){
     return new SequentialCommandGroup(
       // setup odometry
-      setStartPosition(7.14, 5.8118), // TODO: fix start pos
+      setStartPosition(7.14, 5.8118),
+
+      // Pushing P
+      new ConditionalCommand(
+        getPushingPCommand(),
+        new InstantCommand(),
+        this::isPushingPEnabled
+      ),
 
       endEffectorFactory.getIndexSequence(),
 
