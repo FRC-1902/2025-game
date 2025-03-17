@@ -200,11 +200,11 @@ public final class Constants {
 
       CAMERA_THREE(
         "arducamThree",
-        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-10)),
+        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-190)),
         new Translation3d(
+            Units.inchesToMeters(-9.537),
             Units.inchesToMeters(-11),
-            Units.inchesToMeters(-9.997),
-            Units.inchesToMeters(8.561)
+            Units.inchesToMeters(8.525)
         ),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)
