@@ -7,25 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "s1"
+            "pathName": "1 L2 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "s2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "s3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "s4"
+            "pathName": "1 L2 2"
           }
         }
       ]

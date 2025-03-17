@@ -6,20 +6,17 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.FloorIntake;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.Timer;
-
-/**
- * Drives backwards until timer ends
- */
 public class DriveToObject extends Command {
   private final SwerveSubsystem swerveSubsystem;
   private final FloorIntakeSubsystem floorIntakeSubsystem;
-  private double start;
 
+  /**
+   * Drives backwards until piece intook by Floor Intake
+   * @param swerveSubsystem
+   * @param floorIntakeSubsystem
+   */
   public DriveToObject(SwerveSubsystem swerveSubsystem, FloorIntakeSubsystem floorIntakeSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
     this.floorIntakeSubsystem = floorIntakeSubsystem;
@@ -30,7 +27,6 @@ public class DriveToObject extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    start = Timer.getFPGATimestamp();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -48,6 +44,6 @@ public class DriveToObject extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return floorIntakeSubsystem.pieceSensorActive(); //!detectionSubsystem.isTargetVisible()
+    return floorIntakeSubsystem.pieceSensorActive();
   }
 }

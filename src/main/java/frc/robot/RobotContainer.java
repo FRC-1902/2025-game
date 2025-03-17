@@ -19,11 +19,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FloorIntake;
 import frc.robot.FieldConstants.WaypointType;
-import frc.robot.commands.AlgaeIntakeCommand;
-import frc.robot.commands.AlgaeOuttakeCommand;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorFactory;
 import frc.robot.commands.IndexCommand;
+import frc.robot.commands.algaeIntake.AlgaeIntakeCommand;
+import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
+import frc.robot.commands.algaeIntake.AlgaeOuttakeFactory;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
@@ -65,6 +66,7 @@ public class RobotContainer {
   AutoIntakeFactory autoIntakeFactory;
   ElevatorFactory elevatorFactory;
   EndEffectorFactory endEffectorFactory;
+  AlgaeOuttakeFactory algaeOuttakeFactory;
   private final Field2d field;
 
   public RobotContainer() {
@@ -108,8 +110,9 @@ public class RobotContainer {
 
     autoDrive = new AutoDriveFactory(swerve);
     endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, endEffectorFactory, led);
+    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
+    algaeOuttakeFactory = new AlgaeOuttakeFactory(algaeIntake);
 
     swerve.setDefaultCommand(closedDrive);
 
@@ -138,7 +141,7 @@ public class RobotContainer {
 
     // Score/Outtake Algae
     controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
-      .whileTrue(new AlgaeOuttakeCommand(algaeIntake));
+      .whileTrue(algaeOuttakeFactory.algaeOuttakeSequence());
 
     // Zero Gyro
     controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
@@ -184,13 +187,6 @@ public class RobotContainer {
     new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.2)
       // .whileTrue(new IntakeCommand(floorIntake, led));
       .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
-
-    controllers.getTrigger(ControllerName.MANIP, Button.A).debounce(0.05)
-      .whileTrue(new InstantCommand(() -> autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)));
-
-    // HP Intake
-    controllers.getTrigger(ControllerName.MANIP, Button.X).debounce(0.05)
-        .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.HP_ANGLE));
 
     // Algae Intake
     controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)

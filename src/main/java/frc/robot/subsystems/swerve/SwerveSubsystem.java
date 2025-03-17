@@ -69,7 +69,7 @@ public class SwerveSubsystem extends SubsystemBase {
     vision.updatePoseEstimation(getPose());
 
     // Add new vision measurements to the swerve drive odometry if its available
-    if (vision.getEstimatedGlobalPose().isPresent()) {
+    if (vision.getEstimatedGlobalPose().isPresent() && !Double.isNaN(vision.getEstimatedGlobalPose().get().estimatedPose.getX())) {
       swerve.addVisionMeasurement(
         vision.getEstimatedGlobalPose().get().estimatedPose.toPose2d(),
         vision.getEstimatedGlobalPose().get().timestampSeconds);

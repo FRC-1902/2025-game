@@ -5,12 +5,10 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.Constants.FloorIntake;
 import frc.robot.subsystems.vision.DetectionSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -24,8 +22,11 @@ public class ObjectAlign extends Command {
 
   double lastSeen;
 
-  /*
-  * Moves backwards and centers object when detected
+ /**
+  * Aligns and moves towards detected object. Has timeout in case object is no longer detected. Ends with piece being detetected or timeout. 
+  * @param detectionSubsystem
+  * @param swerve
+  * @param floorIntakeSubsystem
   */
   public ObjectAlign(DetectionSubsystem detectionSubsystem, SwerveSubsystem swerve, FloorIntakeSubsystem floorIntakeSubsystem) {
     this.detectionSubsystem = detectionSubsystem;
@@ -51,7 +52,7 @@ public class ObjectAlign extends Command {
 
     if (Timer.getFPGATimestamp() - lastSeen < 1) {
       double turn = -detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP;
-      swerve.drive(new Translation2d(-.9,0), turn, false);
+      swerve.drive(new Translation2d(-1.2,0), turn, false);
     } else {
       swerve.drive(new Translation2d(0,0), 0, false);
     }
@@ -67,6 +68,6 @@ public class ObjectAlign extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return floorIntakeSubsystem.pieceSensorActive(); //!detectionSubsystem.isTargetVisible()
+    return floorIntakeSubsystem.pieceSensorActive(); 
   }
 }

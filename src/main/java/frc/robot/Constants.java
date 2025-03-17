@@ -54,7 +54,7 @@ public final class Constants {
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
 
     // Object detection turn KP
-    public static final double OBJECT_TURN_KP = 5;
+    public static final double OBJECT_TURN_KP = 5.5;
   }
 
   public static final class AlgaeIntake{
@@ -200,11 +200,11 @@ public final class Constants {
 
       CAMERA_THREE(
         "arducamThree",
-        new Rotation3d(0, Units.degreesToRadians(-145), 0),
+        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-10)),
         new Translation3d(
-            Units.inchesToMeters(-4.628),
-            Units.inchesToMeters(-10.687),
-            Units.inchesToMeters(16.129)
+            Units.inchesToMeters(-11),
+            Units.inchesToMeters(-9.997),
+            Units.inchesToMeters(8.561)
         ),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)

@@ -6,12 +6,13 @@ package frc.robot.commands.endEffector;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.EndEffectorSubsystem;
-
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ScoreCommand extends Command {
   private final EndEffectorSubsystem endEffectorSubsystem; 
 
-  /** Creates a new EndEffectorCommand. */
+  /**
+   * creates command to run end effector until piece is no longer detected (spit on it)
+   * @param endEffectorSubsystem
+   */
   public ScoreCommand(EndEffectorSubsystem endEffectorSubsystem) {
     this.endEffectorSubsystem = endEffectorSubsystem; 
 
@@ -20,7 +21,7 @@ public class ScoreCommand extends Command {
 
   @Override
   public void initialize() {
-    endEffectorSubsystem.setSpeed(0.60); // todo: find indexing speed
+    endEffectorSubsystem.setSpeed(0.40);
   }
 
   @Override
