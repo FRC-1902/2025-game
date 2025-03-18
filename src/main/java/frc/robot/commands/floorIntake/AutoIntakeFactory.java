@@ -118,35 +118,21 @@ public class AutoIntakeFactory {
           floorIntakeSubsystem 
         )
       ),
-      new IntakeCommand(floorIntakeSubsystem, led),
-      new ConditionalCommand(
-        // index successful intake
-        new SequentialCommandGroup(
-          new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
-            floorIntakeSubsystem
-          ),
-          new IndexCommand( 
-            floorIntakeSubsystem, 
-            endEffectorSubsystem
-          ),
-          endEffectorFactory.getIndexSequence()
-        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // Gives interuption behavior where it cancels incoming command 
+      new IntakeCommand(floorIntakeSubsystem, led)
+    );
+  }
 
-        // clean up failed intake
-        new SequentialCommandGroup(
-          new ParallelDeadlineGroup(
-            new WaitCommand(.5), 
-            new OuttakeCommand(floorIntakeSubsystem)
-          ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // Gives interuption behavior where it cancels incoming command 
-          
-          new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
-            floorIntakeSubsystem
-          )
-        ),
-        () -> floorIntakeSubsystem.pieceSensorActive()
-      )
+  public Command getAutonomousIndexSequence() {
+    return new SequentialCommandGroup(
+      new PositionIntakeCommand(
+        Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
+        floorIntakeSubsystem
+      ),
+      new IndexCommand( 
+        floorIntakeSubsystem, 
+        endEffectorSubsystem
+      ),
+      endEffectorFactory.getIndexSequence()
     );
   }
 

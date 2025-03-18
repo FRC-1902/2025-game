@@ -26,15 +26,11 @@ public class SnapToWaypoint extends Command {
   public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
     this.swerve = swerve;
     this.targetPoseSupplier = targetPoseSupplier;
-    this.pidX = new PIDController(2.5, 0.002, 0.0);
-    this.pidY = new PIDController(2.5, 0.002, 0.0);
+    this.pidX = new PIDController(2.8, 0.002, 0.0);
+    this.pidY = new PIDController(2.8, 0.002, 0.0);
 
     pidX.reset();
     pidY.reset();
-
-    // Optionally set tolerance to match isFinished criteria
-    pidX.setTolerance(0.01);
-    pidY.setTolerance(0.01);
 
     addRequirements(swerve);
   }
@@ -51,9 +47,6 @@ public class SnapToWaypoint extends Command {
      SmartDashboard.putData("PID/SnapToWaypointY", pidY);
     // Current robot pose
     Pose2d currentPose = swerve.getPose();
-
-    // Simple P-controllers for translation and rotation
-    // double velocitykP = 3; 
 
     // Calculate error
     double xError = targetPose.getX() - currentPose.getX();
@@ -79,8 +72,8 @@ public class SnapToWaypoint extends Command {
   @Override
   public boolean isFinished() {
     // Finish when position and orientation are close enough
-    double distanceThreshold = 0.01; // meters
-    double rotationThreshold = Math.toRadians(.5); // radians
+    double distanceThreshold = 0.05; // meters
+    double rotationThreshold = Math.toRadians(1); // radians
 
     double currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
     double currentRotError = Math.abs(swerve.getPose().getRotation().getRadians() - targetPose.getRotation().getRadians());

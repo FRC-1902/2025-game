@@ -31,6 +31,7 @@ import frc.robot.commands.algaeIntake.AlgaeIntakeCommand;
 import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
+import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.ObjectAlign;
 import frc.robot.commands.drive.SnapToWaypoint;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
@@ -62,6 +63,7 @@ public class AutoSelector {
   AutoIntakeFactory autoIntakeFactory;
   ElevatorFactory elevatorFactory;
   ObjectAlign objectAlign;
+  AutoDriveFactory autoDriveFactory;
 
   ContinuousConditionalCommand continuousConditionalCommand;
   EndEffectorFactory endEffectorFactory;
@@ -81,7 +83,7 @@ public class AutoSelector {
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
-
+    autoDriveFactory = new AutoDriveFactory(swerve);
 
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
     
@@ -90,8 +92,8 @@ public class AutoSelector {
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
     autoChooser.addDefaultOption("Leave", getLeave());
-   // autoChooser.addOption("Right 4 L3", getRight4L3());
-   // autoChooser.addOption("Left 4 L3", getLeft4L3());
+    autoChooser.addOption("Right 4 L3", getRight4L3());
+    autoChooser.addOption("Left 4 L3", getLeft4L3());
     autoChooser.addOption("1 L2", get1L2());
   }
 
@@ -262,8 +264,11 @@ public class AutoSelector {
 
       // Drive to reef
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getPathfindToPathCommand("4 L3 3")
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[4])
       ),
       
       // Place 
@@ -279,8 +284,11 @@ public class AutoSelector {
 
       // Drive to reef & grab algae
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getPathfindToPathCommand("4 L3 5"),
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[1]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
@@ -302,8 +310,11 @@ public class AutoSelector {
 
       // Drive to reef
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getPathfindToPathCommand("4 L3 7")
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[0])
       ),
 
       // Place
@@ -359,7 +370,10 @@ public class AutoSelector {
 
       // Drive to reef
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
         swerve.getPathfindToPathCommand("4 L3 3 Left")
       ),
       
@@ -376,7 +390,10 @@ public class AutoSelector {
 
       // Drive to reef & grab algae
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
         swerve.getPathfindToPathCommand("4 L3 5 Left"),
         new AlgaeIntakeCommand(algaeIntake)
       ),
@@ -399,7 +416,10 @@ public class AutoSelector {
 
       // Drive to reef
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
         swerve.getPathfindToPathCommand("4 L3 7 Left")
       ),
 
