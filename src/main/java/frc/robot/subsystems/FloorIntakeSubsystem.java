@@ -17,6 +17,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -36,6 +37,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private Alert pivotAlert;
   private final ElevatorSubsystem elevatorSubsystem;
   private Watchdog pivotWatchdog;
+  private Debouncer debouncer;
 
   /** Creates a new FloorIntake. */
   public FloorIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
@@ -54,6 +56,8 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
 
     this.elevatorSubsystem = elevatorSubsystem;
+
+    debouncer = new Debouncer(0.1, Debouncer.DebounceType.kFalling);
 
     setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE));
     
@@ -150,7 +154,21 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @returns whether or not a piece is detected
    */
   public boolean pieceSensorActive() {
+    if (debouncer.calculate(pieceSensorActive())) {
+      pieceSensorActive();
+    }
     return !pieceSensor.get();
+  }
+  /**
+   * 
+   * @returns whether or not a piece is detected
+   */
+  public boolean pieceSensorActiveFiltered() {
+    if (debouncer.calculate(pieceSensorActive())) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // checks that the pivot isn't going out of tolerance, will send an alert if it does

@@ -99,7 +99,7 @@ public final class Constants {
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
     public static final double FLOOR_ANGLE = 180.0;
-    public static final double ELEVATOR_ANGLE = 75.0;
+    public static final double ELEVATOR_ANGLE = 70.0;
     public static final double CLIMB_ANGLE = 90.0;
     public static final double DEFAULT_ANGLE = 5.5;
   } 

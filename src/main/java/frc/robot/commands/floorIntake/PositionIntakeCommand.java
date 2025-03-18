@@ -45,7 +45,9 @@ public class PositionIntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    floorIntakeSubsystem.setSpeed(0);
+    if (floorIntakeSubsystem.pieceSensorActive()) {
+      floorIntakeSubsystem.setSpeed(0);
+    }
   }
 
   @Override

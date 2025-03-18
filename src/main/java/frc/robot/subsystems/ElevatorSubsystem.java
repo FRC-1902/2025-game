@@ -196,7 +196,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       
       // Continue applying slight downward pressure for a short time after locking
       if (Timer.getFPGATimestamp() - climbLockTime < 0.2) {
-        return -0.3; // Gentle downward pressure
+        return -0.35; // Gentle downward pressure
       } else {
         return 0; // Stop motor after the settling time
       }
