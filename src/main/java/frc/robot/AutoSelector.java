@@ -90,8 +90,8 @@ public class AutoSelector {
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
     autoChooser.addDefaultOption("Leave", getLeave());
-    autoChooser.addOption("Right 4 L3", getRight4L3());
-    autoChooser.addOption("Left 4 L3", getLeft4L3());
+   // autoChooser.addOption("Right 4 L3", getRight4L3());
+   // autoChooser.addOption("Left 4 L3", getLeft4L3());
     autoChooser.addOption("1 L2", get1L2());
   }
 
@@ -125,21 +125,21 @@ public class AutoSelector {
     );
   }
 
-  /**
-   * Aligns and drives to coral and ends once intaken
-   * <b><h1>Gussy likes to call this "get verified"</h1></b>
-   * @param pathName
-   * @return
-   */
-  private Command getCoralWithDetection(){
-    return new ParallelDeadlineGroup(
-      new ParallelRaceGroup(
-        new WaitCommand(7),
-        autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)
-      ),
-      new ObjectAlign(detectionSubsystem, swerve, floorIntake)
-    );
-  } 
+  // /**
+  //  * Aligns and drives to coral and ends once intaken
+  //  * <b><h1>Gussy likes to call this "get verified"</h1></b>
+  //  * @param pathName
+  //  * @return
+  //  */
+  // private Command getCoralWithDetection(){
+  //   return new ParallelDeadlineGroup(
+  //     new ParallelRaceGroup(
+  //       new WaitCommand(7),
+  //       autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)
+  //     ),
+  //     new ObjectAlign(detectionSubsystem, swerve, floorIntake)
+  //   );
+  // } 
 
   private Command getPushingPCommand() {
     return new ParallelRaceGroup(
@@ -220,196 +220,197 @@ public class AutoSelector {
     );
   }
 
-  private SequentialCommandGroup getRight4L3(){
-    return new SequentialCommandGroup(
-      // setup odometry
-      setStartPosition(7.14, 2.240), // TODO: fix start pos
+//   private SequentialCommandGroup getRight4L3(){
+//     return new SequentialCommandGroup(
+//       // setup odometry
+//       setStartPosition(7.14, 2.240), // TODO: fix start pos
 
-      new ConditionalCommand(
-        getPushingPCommand(),
-        new InstantCommand(),
-        this::isPushingPEnabled
-      ),
+//       new ConditionalCommand(
+//         getPushingPCommand(),
+//         new InstantCommand(),
+//         this::isPushingPEnabled
+//       ),
 
-      endEffectorFactory.getIndexSequence(),
+//       endEffectorFactory.getIndexSequence(),
 
-      // Drive to reef and grab algae
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("4 L3 1"),
-        new AlgaeIntakeCommand(algaeIntake)
-      ),
-      // Place
-      new ScoreCommand(endEffector),
+//       // Drive to reef and grab algae
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+//         swerve.getFollowPathCommand("4 L3 1"),
+//         new AlgaeIntakeCommand(algaeIntake)
+//       ),
+//       // Place
+//       new ScoreCommand(endEffector),
 
-      // END OF CYCLE ONE
+//       // END OF CYCLE ONE
 
-      // Drive to HP
+//       // Drive to HP
 
-      // drive far enough away to get rid of algae
+//       // drive far enough away to get rid of algae
 
-      // drive, while outaking algae, intaking, and looking for a piece
+//       // drive, while outaking algae, intaking, and looking for a piece
 
-      new ParallelCommandGroup(
-        swerve.getFollowPathCommand("4 L3 2"),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new AlgaeOuttakeCommand(algaeIntake),
-          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-        )
-      ),
-      getCoralWithDetection(),
+//       new ParallelCommandGroup(
+//         swerve.getFollowPathCommand("4 L3 2"),
+//         new SequentialCommandGroup(
+//           new WaitCommand(1),
+//           new AlgaeOuttakeCommand(algaeIntake),
+//           elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+//         )
+//       ),
+//       getCoralWithDetection(),
 
-      // Drive to reef
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getPathfindToPathCommand("4 L3 3")
-      ),
+//       // Drive to reef
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+//         swerve.getPathfindToPathCommand("4 L3 3")
+//       ),
       
-      // Place 
-      new ScoreCommand(endEffector),
+//       // Place 
+//       new ScoreCommand(endEffector),
 
-      // END OF CYCLE TWO
+//       // END OF CYCLE TWO
 
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
-        swerve.getFollowPathCommand("4 L3 4")
-      ),
-      getCoralWithDetection(),
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
+//         swerve.getFollowPathCommand("4 L3 4")
+//       ),
+//       getCoralWithDetection(),
 
-      // Drive to reef & grab algae
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getPathfindToPathCommand("4 L3 5"),
-        new AlgaeIntakeCommand(algaeIntake)
-      ),
-      // Place
-      new ScoreCommand(endEffector),
+//       // Drive to reef & grab algae
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+//         swerve.getPathfindToPathCommand("4 L3 5"),
+//         new AlgaeIntakeCommand(algaeIntake)
+//       ),
+//       // Place
+//       new ScoreCommand(endEffector),
 
-      // END OF CYCLE THREE
+//       // END OF CYCLE THREE
 
-      // Drive to get coral
-      new ParallelCommandGroup(
-        swerve.getFollowPathCommand("4 L3 6"),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new AlgaeOuttakeCommand(algaeIntake),
-          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-        )
-      ),
+//       // Drive to get coral
+//       new ParallelCommandGroup(
+//         swerve.getFollowPathCommand("4 L3 6"),
+//         new SequentialCommandGroup(
+//           new WaitCommand(1),
+//           new AlgaeOuttakeCommand(algaeIntake),
+//           elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+//         )
+//       ),
       
-      getCoralWithDetection(),
+//       getCoralWithDetection(),
 
-      // Drive to reef
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getPathfindToPathCommand("4 L3 7")
-      ),
+//       // Drive to reef
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+//         swerve.getPathfindToPathCommand("4 L3 7")
+//       ),
 
-      // Place
-      new ScoreCommand(endEffector),
+//       // Place
+//       new ScoreCommand(endEffector),
 
-      // END OF CYCLE FOUR
-      elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+//       // END OF CYCLE FOUR
+//       elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
 
-      // End of Auto
-    );
-  }
+//       // End of Auto
+//     );
+//   }
 
-  private SequentialCommandGroup getLeft4L3(){
-    return new SequentialCommandGroup(
-      // setup odometry
-      setStartPosition(7.14, 5.8118),
+//   private SequentialCommandGroup getLeft4L3(){
+//     return new SequentialCommandGroup(
+//       // setup odometry
+//       setStartPosition(7.14, 5.8118),
 
-      // Pushing P
-      new ConditionalCommand(
-        getPushingPCommand(),
-        new InstantCommand(),
-        this::isPushingPEnabled
-      ),
+//       // Pushing P
+//       new ConditionalCommand(
+//         getPushingPCommand(),
+//         new InstantCommand(),
+//         this::isPushingPEnabled
+//       ),
 
-      endEffectorFactory.getIndexSequence(),
+//       endEffectorFactory.getIndexSequence(),
 
-      // Drive to reef and grab algae
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("4 L3 1 Left"),
-        new AlgaeIntakeCommand(algaeIntake)
-      ),
-      // Place
-      new ScoreCommand(endEffector),
+//       // Drive to reef and grab algae
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+//         swerve.getFollowPathCommand("4 L3 1 Left"),
+//         new AlgaeIntakeCommand(algaeIntake)
+//       ),
+//       // Place
+//       new ScoreCommand(endEffector),
 
-      // END OF CYCLE ONE
+//       // END OF CYCLE ONE
 
-      // Drive to HP
+//       // Drive to HP
 
-      // drive far enough away to get rid of algae
+//       // drive far enough away to get rid of algae
 
-      // drive, while outaking algae, intaking, and looking for a piece
+//       // drive, while outaking algae, intaking, and looking for a piece
 
-      new ParallelCommandGroup(
-        swerve.getFollowPathCommand("4 L3 2 Left"),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new AlgaeOuttakeCommand(algaeIntake),
-          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-        )
-      ),
-      getCoralWithDetection(),
+//       new ParallelCommandGroup(
+//         swerve.getFollowPathCommand("4 L3 2 Left"),
+//         new SequentialCommandGroup(
+//           new WaitCommand(1),
+//           new AlgaeOuttakeCommand(algaeIntake),
+//           elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+//         )
+//       ),
+//       getCoralWithDetection(),
 
-      // Drive to reef
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getPathfindToPathCommand("4 L3 3 Left")
-      ),
+//       // Drive to reef
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+//         swerve.getPathfindToPathCommand("4 L3 3 Left")
+//       ),
       
-      // Place 
-      new ScoreCommand(endEffector),
+//       // Place 
+//       new ScoreCommand(endEffector),
 
-      // END OF CYCLE TWO
+//       // END OF CYCLE TWO
 
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
-        swerve.getFollowPathCommand("4 L3 4 Left")
-      ),
-      getCoralWithDetection(),
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
+//         swerve.getFollowPathCommand("4 L3 4 Left")
+//       ),
+//       getCoralWithDetection(),
 
-      // Drive to reef & grab algae
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getPathfindToPathCommand("4 L3 5 Left"),
-        new AlgaeIntakeCommand(algaeIntake)
-      ),
-      // Place
-      new ScoreCommand(endEffector),
+//       // Drive to reef & grab algae
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+//         swerve.getPathfindToPathCommand("4 L3 5 Left"),
+//         new AlgaeIntakeCommand(algaeIntake)
+//       ),
+//       // Place
+//       new ScoreCommand(endEffector),
 
-      // END OF CYCLE THREE
+//       // END OF CYCLE THREE
 
-      // Drive to get coral
-      new ParallelCommandGroup(
-        swerve.getFollowPathCommand("4 L3 6 Left"),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new AlgaeOuttakeCommand(algaeIntake),
-          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-        )
-      ),
+//       // Drive to get coral
+//       new ParallelCommandGroup(
+//         swerve.getFollowPathCommand("4 L3 6 Left"),
+//         new SequentialCommandGroup(
+//           new WaitCommand(1),
+//           new AlgaeOuttakeCommand(algaeIntake),
+//           elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+//         )
+//       ),
       
-      getCoralWithDetection(),
+//       getCoralWithDetection(),
 
-      // Drive to reef
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getPathfindToPathCommand("4 L3 7 Left")
-      ),
+//       // Drive to reef
+//       new ParallelCommandGroup(
+//         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+//         swerve.getPathfindToPathCommand("4 L3 7 Left")
+//       ),
 
-      // Place
-      new ScoreCommand(endEffector),
+//       // Place
+//       new ScoreCommand(endEffector),
 
-      // END OF CYCLE FOUR
-      elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+//       // END OF CYCLE FOUR
+//       elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
 
-      // End of Auto
-    );
-  }
+//       // End of Auto
+//     );
+//   }
+// }
 }

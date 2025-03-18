@@ -14,7 +14,7 @@ public class OuttakeCommand extends Command {
   public OuttakeCommand(FloorIntakeSubsystem floorIntakeSubsystem) {
     this.floorIntakeSubsystem = floorIntakeSubsystem;
 
-    addRequirements(floorIntakeSubsystem);
+    addRequirements();
   }
 
   @Override

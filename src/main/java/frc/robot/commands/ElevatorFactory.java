@@ -39,7 +39,11 @@ public class ElevatorFactory {
    */
   public Command getElevatorCommand(Position targetPosition){
     return new SequentialCommandGroup(
-      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+      new ConditionalCommand(
+        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem),
+        new InstantCommand(),
+        () -> (floorIntakeSubsystem.getAngle().getDegrees() <= (Constants.FloorIntake.ELEVATOR_ANGLE + 10))
+      ),
       new ConditionalCommand(
         endEffectorFactory.getIndexSequence(),  
         new InstantCommand(),
@@ -55,16 +59,18 @@ public class ElevatorFactory {
   public Command getElevatorDownCommand(){
     return new SequentialCommandGroup(
       endEffectorFactory.getIndexSequence(),
-      new ElevatorCommand(elevatorSubsystem, Position.MIN),
-      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), elevatorSubsystem, floorIntakeSubsystem)
-    ).finallyDo(() -> {
-      elevatorSubsystem.setPosition(Constants.Elevator.Position.MIN);
-    });
+      new ElevatorCommand(elevatorSubsystem, Position.MIN)
+      // new ConditionalCommand(
+      //   new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
+      //   new InstantCommand(),
+      //   () -> (floorIntakeSubsystem.getAngle().getDegrees() <= (Constants.FloorIntake.ELEVATOR_ANGLE + 10))
+      // )
+    );
   }
 
   public SequentialCommandGroup getClimberUpSequence(){
     return new SequentialCommandGroup(
-      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), elevatorSubsystem, floorIntakeSubsystem),
+      new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntakeSubsystem),
       new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.CLIMB_UP)
     );
   }

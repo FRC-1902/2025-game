@@ -178,10 +178,10 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && pid.getSetpoint() < Constants.FloorIntake.ELEVATOR_ANGLE + 0.01){
-      DataLogManager.log("FloorIntake cannot move to DEFAULT_ANGLE since elevator is up");
-      setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE));
-    }
+    // if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && pid.getSetpoint() < Constants.FloorIntake.ELEVATOR_ANGLE + 4){
+    //   DataLogManager.log("FloorIntake cannot move to DEFAULT_ANGLE since elevator is up");
+    //   setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE));
+    // }
     
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(4).getRadians());

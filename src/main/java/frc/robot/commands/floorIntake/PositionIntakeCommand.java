@@ -9,7 +9,6 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 
 public class PositionIntakeCommand extends Command {
-  private final ElevatorSubsystem elevatorSubsystem;
   private final FloorIntakeSubsystem floorIntakeSubsystem;
 
   private Rotation2d targetAngle;
@@ -17,11 +16,9 @@ public class PositionIntakeCommand extends Command {
   /**
    * Sets floor intake to target angle. If piece detected while moving, sucks in on piece.
    * @param targetAngle
-   * @param elevatorSubsystem
    * @param floorIntakeSubsystem
    */
-  public PositionIntakeCommand(Rotation2d targetAngle, ElevatorSubsystem elevatorSubsystem, FloorIntakeSubsystem floorIntakeSubsystem){
-    this.elevatorSubsystem = elevatorSubsystem; 
+  public PositionIntakeCommand(Rotation2d targetAngle, FloorIntakeSubsystem floorIntakeSubsystem){
     this.floorIntakeSubsystem = floorIntakeSubsystem;
     this.targetAngle = targetAngle;
 
