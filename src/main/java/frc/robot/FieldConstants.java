@@ -13,7 +13,7 @@ public final class FieldConstants {
   public enum WaypointType {
     REEF,
     PROCESSOR,
-    CAGE
+    TROUGH
   }
 
   // TODO: Adjust for each field type
@@ -23,13 +23,13 @@ public final class FieldConstants {
   public static final double offset = 0; // TODO: Get offsets
   public static final double pathOffset = 0.5; // TODO: get path offset
 
-  /* Algae Placements
-   * A: L3
-   * B: L2
-   * C: L3
-   * D: L2
-   * E: L3
-   * F: L2
+  /* Algae Placements, Counter Clockwise, Start from DS closest face
+   * 1: L3
+   * 2: L2
+   * 3: L3
+   * 4: L2
+   * 5: L3
+   * 6: L2
    */
 
   public static final class WAYPOINTS {
@@ -52,7 +52,22 @@ public final class FieldConstants {
       new Pose2d(5.000, 5.250, Rotation2d.fromDegrees(240)), // J
       new Pose2d(3.970, 5.250, Rotation2d.fromDegrees(300)), // K
       new Pose2d(3.685, 5.090, Rotation2d.fromDegrees(300)) // L
+    };
 
+    public static final Pose2d[] TROUGH = {
+      // Temp welded
+      new Pose2d(3.030, 3.930, Rotation2d.fromDegrees(30)), // A
+      new Pose2d(3.030, 4.100, Rotation2d.fromDegrees(330)), // B
+      new Pose2d(3.850, 2.700, Rotation2d.fromDegrees(90)), // C
+      new Pose2d(3.650, 2.850, Rotation2d.fromDegrees(30)), // D
+      new Pose2d(5.370, 2.870, Rotation2d.fromDegrees(150)), // E
+      new Pose2d(5.100, 2.700, Rotation2d.fromDegrees(90)), // F
+      new Pose2d(5.940, 4.100, Rotation2d.fromDegrees(210)), // G
+      new Pose2d(5.940, 3.930, Rotation2d.fromDegrees(150)), // H
+      new Pose2d(5.100, 5.340, Rotation2d.fromDegrees(270)), // I
+      new Pose2d(5.370, 5.200, Rotation2d.fromDegrees(210)), // E
+      new Pose2d(3.650, 5.200, Rotation2d.fromDegrees(330)), // K
+      new Pose2d(3.850, 5.340, Rotation2d.fromDegrees(270)) // L
     };
 
     private static Pose2d getOffsetPose(Pose2d pose, double offsetDistance) {

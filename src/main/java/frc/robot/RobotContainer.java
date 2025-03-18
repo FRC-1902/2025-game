@@ -155,6 +155,10 @@ public class RobotContainer {
     controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
       .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
 
+    // Align to L1
+    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+    .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
+
     // Align with Coral TODO: Change when Align PR is merged
     //  controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
     //        .whileTrue(new ObjectAlign(detectionSubsystem, swerve));

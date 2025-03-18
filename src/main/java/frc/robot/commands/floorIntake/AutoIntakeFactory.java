@@ -170,7 +170,7 @@ public class AutoIntakeFactory {
               new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
               new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
             ), 
-            new OuttakeCommand(floorIntakeSubsystem)
+            new OuttakeCommand(floorIntakeSubsystem) // XXX: Will not spit if elevator is already down
           ),     
           // Move floor intake back in after running outtake
           new PositionIntakeCommand(

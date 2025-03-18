@@ -59,12 +59,12 @@ public class ElevatorFactory {
   public Command getElevatorDownCommand(){
     return new SequentialCommandGroup(
       endEffectorFactory.getIndexSequence(),
-      new ElevatorCommand(elevatorSubsystem, Position.MIN)
-      // new ConditionalCommand(
-      //   new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
-      //   new InstantCommand(),
-      //   () -> (floorIntakeSubsystem.getAngle().getDegrees() <= (Constants.FloorIntake.ELEVATOR_ANGLE + 10))
-      // )
+      new ElevatorCommand(elevatorSubsystem, Position.MIN),
+      new ConditionalCommand(
+        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
+        new InstantCommand(),
+        () -> (floorIntakeSubsystem.getAngle().getDegrees() <= (Constants.FloorIntake.ELEVATOR_ANGLE + 10))
+      )
     );
   }
 

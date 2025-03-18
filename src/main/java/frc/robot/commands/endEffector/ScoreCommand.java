@@ -21,7 +21,7 @@ public class ScoreCommand extends Command {
 
   @Override
   public void initialize() {
-    endEffectorSubsystem.setSpeed(0.40);
+    endEffectorSubsystem.setSpeed(1.0);
   }
 
   @Override
