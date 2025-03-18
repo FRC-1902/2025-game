@@ -13,9 +13,13 @@ import frc.robot.Constants;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.IndexCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
+
+import java.util.TimerTask;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -147,40 +151,47 @@ public class AutoIntakeFactory {
       new IntakeCommand(floorIntakeSubsystem, led),
       new InstantCommand(()-> DataLogManager.log("Intake Command Ended"))
     ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).finallyDo((wasCancelled) -> {
-      new ConditionalCommand(
-        // Move floor intake in and index successful intake
-        new SequentialCommandGroup(
-          new InstantCommand(()-> DataLogManager.log("Good finish Started")),
-          new ParallelDeadlineGroup(
-            new PositionIntakeCommand(
-              Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), 
-              floorIntakeSubsystem
-            ),
-            new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN)
-          ),
-          new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
-          new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem), 
-          endEffectorFactory.getIndexSequence()
-        ),
-        // clean up failed intake
-        new SequentialCommandGroup(
-          new InstantCommand(()-> DataLogManager.log("Bad finish Started")),
-          new ParallelDeadlineGroup(
+      DataLogManager.log("After finally do");
+      Timer timer = new Timer();
+      timer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+        new ConditionalCommand(
+          // Move floor intake in and index successful intake
+          new SequentialCommandGroup(
+            new InstantCommand(()-> DataLogManager.log("Good finish Started")),
             new ParallelDeadlineGroup(
-              new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
-              new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
-            ), 
-            new OuttakeCommand(floorIntakeSubsystem) // XXX: Will not spit if elevator is already down
-          ),     
-          // Move floor intake back in after running outtake
-          new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
-            floorIntakeSubsystem
-          )
-        ), 
-        () -> floorIntakeSubsystem.pieceSensorActive()
-      ).schedule();
-    });
+              new PositionIntakeCommand(
+                Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), 
+                floorIntakeSubsystem
+              ),
+              new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN)
+            ),
+            new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
+            new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem), 
+            endEffectorFactory.getIndexSequence()
+          ),
+          // clean up failed intake
+          new SequentialCommandGroup(
+            new InstantCommand(()-> DataLogManager.log("Bad finish Started")),
+            new ParallelDeadlineGroup(
+              new ParallelDeadlineGroup(
+                new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
+                new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
+              ), 
+              new OuttakeCommand(floorIntakeSubsystem)
+            ),     
+            // Move floor intake back in after running outtake
+            new PositionIntakeCommand(
+              Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
+              floorIntakeSubsystem
+            )
+          ), 
+          () -> floorIntakeSubsystem.pieceSensorActive()
+        ).schedule();
+      }
+    }, 0); // 0 ms delay - executes immediately but in a separate thread
+  });
   }
 }
 
