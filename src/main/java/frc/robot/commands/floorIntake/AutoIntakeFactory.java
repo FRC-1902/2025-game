@@ -106,112 +106,96 @@ public class AutoIntakeFactory {
    * @param angle referring to deploying angle
    * @returns intake sequence specifically for auto. 
    */
-  // public Command getAutonomousIntakeSequence(double angle) {
-  //   return new SequentialCommandGroup(
-  //     new ParallelCommandGroup(
-  //       new ElevatorCommand(
-  //         elevatorSubsystem, 
-  //         Constants.Elevator.Position.MIN
-  //       ),
-  //       new PositionIntakeCommand(
-  //         Rotation2d.fromDegrees(angle),
-  //         elevatorSubsystem, 
-  //         floorIntakeSubsystem 
-  //       )
-  //     ),
-  //     new IntakeCommand(floorIntakeSubsystem, led),
-
-  //     new ConditionalCommand(
-  //       // index successful intake
-  //       new SequentialCommandGroup(
-  //         new PositionIntakeCommand(
-  //           Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
-  //           elevatorSubsystem,
-  //           floorIntakeSubsystem
-  //         ),
-  //         new IndexCommand( 
-  //           floorIntakeSubsystem, 
-  //           endEffectorSubsystem
-  //         ),
-  //         endEffectorFactory.getIndexSequence()
-  //       ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // Gives interuption behavior where it cancels incoming command 
-
-  //       // clean up failed intake
-  //       new SequentialCommandGroup(
-  //         new ParallelDeadlineGroup(
-  //           new WaitCommand(.5), 
-  //           new OuttakeCommand(floorIntakeSubsystem)
-  //         ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // Gives interuption behavior where it cancels incoming command 
-          
-  //         new PositionIntakeCommand(
-  //           Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
-  //           elevatorSubsystem,
-  //           floorIntakeSubsystem
-  //         )
-  //       ),
-  //       () -> floorIntakeSubsystem.pieceSensorActive()
-  //     )
-  //   );
-  // }
-
-
-public Command getIntakeSequence(double angle) {
-  return new ConditionalCommand(
-  // Move elevator down and intake out to specified deployed position
-
-   new SequentialCommandGroup(
-      new InstantCommand(() -> elevatorSubsystem.setPosition(Constants.Elevator.Position.MIN)),
-      new PositionIntakeCommand(
-        Rotation2d.fromDegrees(angle),
-        floorIntakeSubsystem 
+  public Command getAutonomousIntakeSequence(double angle) {
+    return new SequentialCommandGroup(
+      new ParallelCommandGroup(
+        new ElevatorCommand(
+          elevatorSubsystem, 
+          Constants.Elevator.Position.MIN
+        ),
+        new PositionIntakeCommand(
+          Rotation2d.fromDegrees(angle),
+          floorIntakeSubsystem 
+        )
       ),
-    // Intake game piece
-    new InstantCommand(()-> DataLogManager.log("Intake Command Started")),
-    new IntakeCommand(floorIntakeSubsystem, led),
-    new InstantCommand(()-> DataLogManager.log("Intake Command Endeedddddd"))
-  )
-  .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-  .finallyDo((wasCancelled) -> {
-    new ConditionalCommand(
-      // Move floor intake in and index successful intake
-      new SequentialCommandGroup(
-        new InstantCommand(()-> DataLogManager.log("Good finish Started")),
-        new ParallelDeadlineGroup(
+      new IntakeCommand(floorIntakeSubsystem, led),
+      new ConditionalCommand(
+        // index successful intake
+        new SequentialCommandGroup(
           new PositionIntakeCommand(
-            Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), 
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
             floorIntakeSubsystem
           ),
-          new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN)
+          new IndexCommand( 
+            floorIntakeSubsystem, 
+            endEffectorSubsystem
+          ),
+          endEffectorFactory.getIndexSequence()
+        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // Gives interuption behavior where it cancels incoming command 
+
+        // clean up failed intake
+        new SequentialCommandGroup(
+          new ParallelDeadlineGroup(
+            new WaitCommand(.5), 
+            new OuttakeCommand(floorIntakeSubsystem)
+          ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // Gives interuption behavior where it cancels incoming command 
+          
+          new PositionIntakeCommand(
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
+            floorIntakeSubsystem
+          )
         ),
-        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
-        new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem), 
-        endEffectorFactory.getIndexSequence()
-      ),
-      // clean up failed intake
-      new SequentialCommandGroup(
-        new InstantCommand(()-> DataLogManager.log("Bad finish Started")),
-        new ParallelDeadlineGroup(
-        // Runs outtake for .5 seconds before cancelling
-        new ParallelDeadlineGroup(
-          new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
-          new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
+        () -> floorIntakeSubsystem.pieceSensorActive()
+      )
+    );
+  }
+
+
+  public Command getIntakeSequence(double angle) {
+    // Move elevator down and intake out to specified deployed position
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> elevatorSubsystem.setPosition(Constants.Elevator.Position.MIN)),
+      new PositionIntakeCommand(Rotation2d.fromDegrees(angle),floorIntakeSubsystem),
+      // Intake game piece
+      new InstantCommand(()-> DataLogManager.log("Intake Command Started")),
+      new IntakeCommand(floorIntakeSubsystem, led),
+      new InstantCommand(()-> DataLogManager.log("Intake Command Ended"))
+    ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).finallyDo((wasCancelled) -> {
+      new ConditionalCommand(
+        // Move floor intake in and index successful intake
+        new SequentialCommandGroup(
+          new InstantCommand(()-> DataLogManager.log("Good finish Started")),
+          new ParallelDeadlineGroup(
+            new PositionIntakeCommand(
+              Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), 
+              floorIntakeSubsystem
+            ),
+            new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN)
+          ),
+          new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
+          new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem), 
+          endEffectorFactory.getIndexSequence()
+        ),
+        // clean up failed intake
+        new SequentialCommandGroup(
+          new InstantCommand(()-> DataLogManager.log("Bad finish Started")),
+          new ParallelDeadlineGroup(
+            new ParallelDeadlineGroup(
+              new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
+              new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
+            ), 
+            new OuttakeCommand(floorIntakeSubsystem)
+          ),     
+          // Move floor intake back in after running outtake
+          new PositionIntakeCommand(
+            Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
+            floorIntakeSubsystem
+          )
         ), 
-        new OuttakeCommand(floorIntakeSubsystem)
-        ),     
-        // Move floor intake back in after running outtake
-        new PositionIntakeCommand(
-          Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), 
-          floorIntakeSubsystem
-        )
-        
-      ), 
-      () -> floorIntakeSubsystem.pieceSensorActive()
-    ).schedule();
-  }),
-  new InstantCommand(), 
-  () -> !floorIntakeSubsystem.pieceSensorActive()
-);
-}
+        () -> floorIntakeSubsystem.pieceSensorActive()
+      ).schedule();
+    });
+  }
 }
 
 
