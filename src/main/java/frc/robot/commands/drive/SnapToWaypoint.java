@@ -39,23 +39,29 @@ public class SnapToWaypoint extends Command {
   @Override
   public void initialize() {
     targetPose = targetPoseSupplier.get();
+    pidX.reset();
+    pidY.reset();
   }
 
   @Override
   public void execute() {
-     SmartDashboard.putData("PID/SnapToWaypointX", pidX);
-     SmartDashboard.putData("PID/SnapToWaypointY", pidY);
+    SmartDashboard.putData("PID/SnapToWaypointX", pidX);
+    SmartDashboard.putData("PID/SnapToWaypointY", pidY);
+    double maxVelocity = 4.0;
+
     // Current robot pose
     Pose2d currentPose = swerve.getPose();
 
-    // Calculate error
-    double xError = targetPose.getX() - currentPose.getX();
-    double yError = targetPose.getY() - currentPose.getY();
+    double xVelocity = -pidX.calculate(targetPose.getX(), currentPose.getX());
+    double yVelocity = -pidY.calculate(targetPose.getY(), currentPose.getY());
 
-    double xVelocity = -pidX.calculate(xError, 0);
-    double yVelocity = -pidY.calculate(yError, 0);
+    Translation2d velocity = new Translation2d(xVelocity, yVelocity);
+    Translation2d cappedVelocity = velocity;
 
-    Translation2d cappedVelocity = new Translation2d(xVelocity, yVelocity);
+    double v = velocity.getDistance(Translation2d.kZero);
+    if (v > maxVelocity) {
+      cappedVelocity = cappedVelocity.times(1.0 / v).times(maxVelocity);
+    }
 
     double rotationkP = 3; 
     Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
@@ -72,14 +78,14 @@ public class SnapToWaypoint extends Command {
   @Override
   public boolean isFinished() {
     // Finish when position and orientation are close enough
-    double distanceThreshold = 0.05; // meters
-    double rotationThreshold = Math.toRadians(1); // radians
+    double distanceError = 0.05; // meters
+    double rotationError = Math.toRadians(1); // radians
 
     double currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
     double currentRotError = Math.abs(swerve.getPose().getRotation().getRadians() - targetPose.getRotation().getRadians());
 
-    boolean positionReached = (currentDistance < distanceThreshold);
-    boolean rotationReached = (currentRotError < rotationThreshold);
+    boolean positionReached = (currentDistance < distanceError);
+    boolean rotationReached = (currentRotError < rotationError);
 
     return positionReached && rotationReached;
   }
