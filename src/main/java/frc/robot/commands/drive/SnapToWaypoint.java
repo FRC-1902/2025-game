@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.ControllerSubsystem;
+import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class SnapToWaypoint extends Command {
@@ -17,6 +19,10 @@ public class SnapToWaypoint extends Command {
   private Pose2d targetPose;
   private PIDController pidX;
   private PIDController pidY;
+  private double distanceError = 0.08; // meters
+  private double rotationError = Math.toRadians(2); // degrees
+  private double currentDistance;
+  private double currentRotError;
 
   /**
    * snaps to specified targetPose based on currentPose
@@ -49,6 +55,10 @@ public class SnapToWaypoint extends Command {
     SmartDashboard.putData("PID/SnapToWaypointY", pidY);
     double maxVelocity = 4.0;
 
+    // Finish when position and orientation are close enough
+    currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
+    currentRotError = Math.abs(swerve.getPose().getRotation().getRadians() - targetPose.getRotation().getRadians());
+
     // Current robot pose
     Pose2d currentPose = swerve.getPose();
 
@@ -68,6 +78,10 @@ public class SnapToWaypoint extends Command {
     double cappedRotation = Math.max(Math.min(rotation.getRadians(), 3), -3);
     
     swerve.drive(cappedVelocity, cappedRotation, true);
+
+    if ((currentDistance < distanceError) && (currentRotError < rotationError)) {
+      ControllerSubsystem.getInstance().vibrate(ControllerName.DRIVE, 100, 1);
+    }
   }
 
   @Override
@@ -77,13 +91,6 @@ public class SnapToWaypoint extends Command {
 
   @Override
   public boolean isFinished() {
-    // Finish when position and orientation are close enough
-    double distanceError = 0.08; // meters
-    double rotationError = Math.toRadians(1); // radians
-
-    double currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
-    double currentRotError = Math.abs(swerve.getPose().getRotation().getRadians() - targetPose.getRotation().getRadians());
-
     boolean positionReached = (currentDistance < distanceError);
     boolean rotationReached = (currentRotError < rotationError);
 

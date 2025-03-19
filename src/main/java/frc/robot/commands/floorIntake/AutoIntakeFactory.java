@@ -165,7 +165,7 @@ public class AutoIntakeFactory {
               new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
             ),
             new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
-            new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // XXX: check if this breaks things
+            new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem),
             endEffectorFactory.getIndexSequence()
           ),
           // clean up failed intake
