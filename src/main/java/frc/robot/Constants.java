@@ -97,11 +97,11 @@ public final class Constants {
   
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(350.5);
 
-    public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
-    public static final double FLOOR_ANGLE = 180.0;
-    public static final double ELEVATOR_ANGLE = 75.0;
-    public static final double CLIMB_ANGLE = 90.0;
-    public static final double DEFAULT_ANGLE = 5.5;
+    public static final Rotation2d HP_ANGLE = Rotation2d.fromDegrees(120.0);  // TODO: Find optimal angle
+    public static final Rotation2d FLOOR_ANGLE = Rotation2d.fromDegrees(180.0);
+    public static final Rotation2d ELEVATOR_ANGLE = Rotation2d.fromDegrees(75);
+    public static final Rotation2d CLIMB_ANGLE = Rotation2d.fromDegrees(90);
+    public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(5.5);
   } 
 
   public static final class LED{

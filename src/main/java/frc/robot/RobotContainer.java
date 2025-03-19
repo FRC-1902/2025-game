@@ -49,6 +49,7 @@ import frc.robot.subsystems.vision.VisionReal;
 import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.commands.drive.ObjectAlign;
+import frc.robot.util.IntakeFSM;
 
 public class RobotContainer {
 
@@ -61,6 +62,7 @@ public class RobotContainer {
   LEDSubsystem led;
   ControllerSubsystem controllers;
   DetectionSubsystem detectionSubsystem;
+  IntakeFSM intakeFSM;
 
   AutoDriveFactory autoDrive;
   AutoIntakeFactory autoIntakeFactory;
@@ -81,6 +83,8 @@ public class RobotContainer {
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
 
     detectionSubsystem = new DetectionSubsystem();
+
+    intakeFSM = new IntakeFSM(floorIntake, elevator);
 
     // Path Planner logging
     field = new Field2d();

@@ -124,7 +124,9 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+      robotContainer.intakeFSM.eventHandler(null);
+    }
 
     @Override
     public void teleopExit() {}
