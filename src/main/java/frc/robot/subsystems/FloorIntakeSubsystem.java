@@ -126,6 +126,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    */
   public void setSpeed(double targetSpeed) {
     rollerMotor.set(targetSpeed);
+    SmartDashboard.putNumber("FloorIntake/Roller Speed", targetSpeed);
   }
 
   /**

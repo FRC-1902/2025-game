@@ -281,13 +281,11 @@ public class AutoSelector {
         swerve.getFollowPathCommand("4 L3 4")
       ),
       getCoralWithDetection(),
+      autoIntakeFactory.getAutonomousIndexSequence(),
 
       // Drive to reef & grab algae
       new ParallelCommandGroup(
-        new SequentialCommandGroup(
-          autoIntakeFactory.getAutonomousIndexSequence(),
-          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
-        ),
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
         autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[1]),
         new AlgaeIntakeCommand(algaeIntake)
       ),

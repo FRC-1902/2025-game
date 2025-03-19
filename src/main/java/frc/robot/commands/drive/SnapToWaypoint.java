@@ -26,8 +26,8 @@ public class SnapToWaypoint extends Command {
   public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
     this.swerve = swerve;
     this.targetPoseSupplier = targetPoseSupplier;
-    this.pidX = new PIDController(2.8, 0.002, 0.0);
-    this.pidY = new PIDController(2.8, 0.002, 0.0);
+    this.pidX = new PIDController(2, 0.0, 0.0);
+    this.pidY = new PIDController(2, 0.0, 0.0);
 
     pidX.reset();
     pidY.reset();
@@ -78,7 +78,7 @@ public class SnapToWaypoint extends Command {
   @Override
   public boolean isFinished() {
     // Finish when position and orientation are close enough
-    double distanceError = 0.05; // meters
+    double distanceError = 0.08; // meters
     double rotationError = Math.toRadians(1); // radians
 
     double currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());

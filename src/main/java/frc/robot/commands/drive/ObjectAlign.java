@@ -52,7 +52,7 @@ public class ObjectAlign extends Command {
 
     if (Timer.getFPGATimestamp() - lastSeen < 1) {
       double turn = -detectionSubsystem.getTargetYaw().getRadians() * Constants.Swerve.OBJECT_TURN_KP;
-      swerve.drive(new Translation2d(-1.2,0), turn, false);
+      swerve.drive(new Translation2d(-1.8,0), turn, false);
     } else {
       swerve.drive(new Translation2d(0,0), 0, false);
     }
