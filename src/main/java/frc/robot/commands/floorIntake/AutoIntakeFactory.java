@@ -182,7 +182,7 @@ public class AutoIntakeFactory {
               new OuttakeCommand(floorIntakeSubsystem)
             )     
           ), 
-          () -> floorIntakeSubsystem.pieceSensorActive()
+          () -> floorIntakeSubsystem.pieceSensorActiveFiltered()
         ).schedule();
       }
     }, 5); // 0 ms delay - executes immediately but in a separate thread

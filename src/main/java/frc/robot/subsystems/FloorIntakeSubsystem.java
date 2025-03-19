@@ -57,7 +57,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
     this.elevatorSubsystem = elevatorSubsystem;
 
-    debouncer = new Debouncer(0.1, Debouncer.DebounceType.kFalling);
+    debouncer = new Debouncer(0.2, Debouncer.DebounceType.kFalling);
 
     setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE));
     
@@ -154,21 +154,17 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @returns whether or not a piece is detected
    */
   public boolean pieceSensorActive() {
-    if (debouncer.calculate(pieceSensorActive())) {
-      pieceSensorActive();
-    }
-    return !pieceSensor.get();
+    Boolean pieceSensorState = !pieceSensor.get();
+    debouncer.calculate(pieceSensorState);
+    return pieceSensorState;
   }
+
   /**
    * 
    * @returns whether or not a piece is detected
    */
   public boolean pieceSensorActiveFiltered() {
-    if (debouncer.calculate(pieceSensorActive())) {
-      return true;
-    } else {
-      return false;
-    }
+    return debouncer.calculate(!pieceSensor.get());
   }
 
   // checks that the pivot isn't going out of tolerance, will send an alert if it does
@@ -186,6 +182,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     SmartDashboard.putData("PID/FloorIntake", pid); // TODO: Remove after tuning
     SmartDashboard.putNumber("FloorIntake/Current Angle", getAngle().getDegrees());
     SmartDashboard.putBoolean("FloorIntake/Piece Sensor", pieceSensorActive());
+    SmartDashboard.putBoolean("FloorIntake/Piece Sensor Filtered", pieceSensorActiveFiltered());
     SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
     SmartDashboard.putNumber("FloorIntake/power", pivotMotor.get());
 
