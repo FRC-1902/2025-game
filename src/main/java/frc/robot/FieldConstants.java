@@ -21,7 +21,7 @@ public final class FieldConstants {
   public static final double LENGTH = Units.inchesToMeters(690.875); // TODO: Confirm size 
 
   public static final double offset = 0; // TODO: Get offsets
-  public static final double pathOffset = 1; // TODO: get path offset
+  public static final double pathOffset = .5; // TODO: get path offset
 
   /* Algae Placements, Counter Clockwise, Start from DS closest face
    * 1: L3
@@ -70,7 +70,7 @@ public final class FieldConstants {
       new Pose2d(3.850, 5.340, Rotation2d.fromDegrees(270)) // L
     };
 
-    private static Pose2d getOffsetPose(Pose2d pose, double offsetDistance) {
+    public static Pose2d getOffsetPose(Pose2d pose, double offsetDistance) {
       double offsetX = pose.getX() - offsetDistance * Math.cos(pose.getRotation().getRadians());
       double offsetY = pose.getY() - offsetDistance * Math.sin(pose.getRotation().getRadians());
       return new Pose2d(offsetX, offsetY, pose.getRotation());

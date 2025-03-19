@@ -165,7 +165,7 @@ public class AutoIntakeFactory {
               new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
             ),
             new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
-            new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem), 
+            new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem).withInterruptBehavior(InterruptionBehavior.kCancelIncoming), // XXX: check if this breaks things
             endEffectorFactory.getIndexSequence()
           ),
           // clean up failed intake
@@ -185,7 +185,7 @@ public class AutoIntakeFactory {
           () -> floorIntakeSubsystem.pieceSensorActiveFiltered()
         ).schedule();
       }
-    }, 5); // 0 ms delay - executes immediately but in a separate thread
+    }, 5);
   });
   }
 }
