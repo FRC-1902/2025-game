@@ -2,7 +2,7 @@
   {
     "name": "/SmartDashboard/Auto/EnablePushingP",
     "type": "boolean",
-    "value": false,
+    "value": true,
     "properties": {
       "persistent": true
     }

@@ -274,7 +274,7 @@ public class SwerveSubsystem extends SubsystemBase {
         waypoints = allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(offset));
         break;
       case TROUGH:
-        waypoints = allianceFlip(FieldConstants.WAYPOINTS.TROUGH);
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getTroughPositions());
         break;
       case PROCESSOR:
         return allianceFlip(FieldConstants.WAYPOINTS.PROCESSOR);

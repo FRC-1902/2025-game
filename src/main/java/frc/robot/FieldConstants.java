@@ -22,6 +22,7 @@ public final class FieldConstants {
 
   public static final double offset = 0; // TODO: Get offsets
   public static final double pathOffset = .5; // TODO: get path offset
+  public static final double TROUGH_OFFSET = 0.2; // TODO: get trough offset
 
   /* Algae Placements, Counter Clockwise, Start from DS closest face
    * 1: L3
@@ -56,18 +57,18 @@ public final class FieldConstants {
 
     public static final Pose2d[] TROUGH = {
       // Temp welded
-      new Pose2d(3.030, 3.930, Rotation2d.fromDegrees(30)), // A
-      new Pose2d(3.030, 4.100, Rotation2d.fromDegrees(330)), // B
-      new Pose2d(3.850, 2.700, Rotation2d.fromDegrees(90)), // C
-      new Pose2d(3.650, 2.850, Rotation2d.fromDegrees(30)), // D
-      new Pose2d(5.370, 2.870, Rotation2d.fromDegrees(150)), // E
-      new Pose2d(5.100, 2.700, Rotation2d.fromDegrees(90)), // F
-      new Pose2d(5.940, 4.100, Rotation2d.fromDegrees(210)), // G
-      new Pose2d(5.940, 3.930, Rotation2d.fromDegrees(150)), // H
-      new Pose2d(5.100, 5.340, Rotation2d.fromDegrees(270)), // I
-      new Pose2d(5.370, 5.200, Rotation2d.fromDegrees(210)), // E
-      new Pose2d(3.650, 5.200, Rotation2d.fromDegrees(330)), // K
-      new Pose2d(3.850, 5.340, Rotation2d.fromDegrees(270)) // L
+      new Pose2d(3.165, 4.195, Rotation2d.fromDegrees(0)), // A
+      new Pose2d(3.165, 3.860, Rotation2d.fromDegrees(0)), // B
+      new Pose2d(3.685, 2.960, Rotation2d.fromDegrees(60)), // C
+      new Pose2d(3.970, 2.803, Rotation2d.fromDegrees(60)), // D
+      new Pose2d(5.010, 2.800, Rotation2d.fromDegrees(120)), // E
+      new Pose2d(5.290, 2.965, Rotation2d.fromDegrees(120)), // F
+      new Pose2d(5.810, 3.860, Rotation2d.fromDegrees(180)), // G
+      new Pose2d(5.810, 4.185, Rotation2d.fromDegrees(180)), // H
+      new Pose2d(5.290, 5.090, Rotation2d.fromDegrees(240)), // I
+      new Pose2d(5.000, 5.250, Rotation2d.fromDegrees(240)), // J
+      new Pose2d(3.970, 5.250, Rotation2d.fromDegrees(300)), // K
+      new Pose2d(3.685, 5.090, Rotation2d.fromDegrees(300)) // L
     };
 
     public static Pose2d getOffsetPose(Pose2d pose, double offsetDistance) {
@@ -83,6 +84,42 @@ public final class FieldConstants {
           reefPositions[i] = getOffsetPose(POLES[i], offset);
       }
       return reefPositions;
+    }
+
+    /**
+     * Gets a pose that's offset perpendicular to the facing direction
+     * @param pose The original pose
+     * @param offsetDistance Distance to offset
+     * @param toRight If true, offset to the right of facing direction; if false, offset to the left
+     * @return The offset pose
+     */
+    public static Pose2d getPerpendicularOffsetPose(Pose2d pose, double offsetDistance, boolean toRight) {
+      double angle = pose.getRotation().getRadians();
+      double perpAngle = angle + (toRight ? -Math.PI/2 : Math.PI/2); // +90° for left, -90° for right
+      
+      double offsetX = pose.getX() + offsetDistance * Math.cos(perpAngle);
+      double offsetY = pose.getY() + offsetDistance * Math.sin(perpAngle);
+      
+      return new Pose2d(offsetX, offsetY, pose.getRotation());
+    }
+    
+    /**
+     * Gets trough positions with alternating left/right offsets based on position in the hexagon
+     * @return Array of offset trough positions
+     */
+    public static Pose2d[] getTroughPositions() {
+      Pose2d[] offsetPositions = new Pose2d[TROUGH.length];
+      
+      for (int i = 0; i < TROUGH.length; i++) {
+        // Determine if this should be offset left or right based on position
+        // A,C,E,G,I,K offset to left (even indices: 0,2,4,6,8,10)
+        // B,D,F,H,J,L offset to right (odd indices: 1,3,5,7,9,11)
+        boolean offsetToRight = (i % 2 != 0);
+        
+        offsetPositions[i] = getPerpendicularOffsetPose(TROUGH[i], TROUGH_OFFSET, offsetToRight);
+      }
+      
+      return offsetPositions;
     }
   }
 }
