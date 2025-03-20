@@ -17,10 +17,10 @@ public class SnapToWaypoint extends Command {
   private final SwerveSubsystem swerve;
   private Supplier<Pose2d> targetPoseSupplier;
   private Pose2d targetPose;
-  private PIDController pidX;
-  private PIDController pidY;
-  private double distanceError = 0.08; // meters
-  private double rotationError = Math.toRadians(2); // degrees
+  private final PIDController pidX;
+  private final PIDController pidY;
+  private final double distanceErrorTolerance = 0.08; // meters
+  private final double rotationErrorTolerance = Math.toRadians(2); // degrees
   private double currentDistance;
   private double currentRotError;
 
@@ -62,8 +62,8 @@ public class SnapToWaypoint extends Command {
     // Current robot pose
     Pose2d currentPose = swerve.getPose();
 
-    double xVelocity = -pidX.calculate(targetPose.getX(), currentPose.getX());
-    double yVelocity = -pidY.calculate(targetPose.getY(), currentPose.getY());
+    double xVelocity = pidX.calculate(currentPose.getX(), targetPose.getX());
+    double yVelocity = pidY.calculate(currentPose.getY(), targetPose.getY());
 
     Translation2d velocity = new Translation2d(xVelocity, yVelocity);
     Translation2d cappedVelocity = velocity;
@@ -79,7 +79,7 @@ public class SnapToWaypoint extends Command {
     
     swerve.drive(cappedVelocity, cappedRotation, true);
 
-    if ((currentDistance < distanceError) && (currentRotError < rotationError)) {
+    if ((currentDistance < distanceErrorTolerance) && (currentRotError < rotationErrorTolerance)) {
       ControllerSubsystem.getInstance().vibrate(ControllerName.DRIVE, 100, 1);
     }
   }
@@ -91,8 +91,8 @@ public class SnapToWaypoint extends Command {
 
   @Override
   public boolean isFinished() {
-    boolean positionReached = (currentDistance < distanceError);
-    boolean rotationReached = (currentRotError < rotationError);
+    boolean positionReached = (currentDistance < distanceErrorTolerance);
+    boolean rotationReached = (currentRotError < rotationErrorTolerance);
 
     return positionReached && rotationReached;
   }

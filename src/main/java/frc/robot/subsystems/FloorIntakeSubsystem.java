@@ -155,7 +155,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @returns whether or not a piece is detected
    */
   public boolean pieceSensorActive() {
-    Boolean pieceSensorState = !pieceSensor.get();
+    boolean pieceSensorState = !pieceSensor.get();
     debouncer.calculate(pieceSensorState);
     return pieceSensorState;
   }

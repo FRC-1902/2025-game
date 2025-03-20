@@ -33,8 +33,11 @@ public class AutoDriveFactory {
    */
   public Command pathAndSnapCommand(Pose2d waypoint) {
     DataLogManager.log("Auto Driving");
+
+    Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.pathOffset);
+
     return new SequentialCommandGroup(
-      new PathToWaypoint(() -> FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.pathOffset), swerve),
+      new PathToWaypoint(() -> offsetWaypoint, swerve),
       new SnapToWaypoint(swerve, () -> waypoint)
     );
   }

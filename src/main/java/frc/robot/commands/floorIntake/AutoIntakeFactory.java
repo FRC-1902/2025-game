@@ -154,38 +154,38 @@ public class AutoIntakeFactory {
       DataLogManager.log("After finally do");
       Timer timer = new Timer();
       timer.schedule(new TimerTask() {
-      @Override
-      public void run() {
-        new ConditionalCommand(
-          // Move floor intake in and index successful intake
-          new SequentialCommandGroup(
-            new InstantCommand(()-> DataLogManager.log("Good finish Started")),
-            new ParallelDeadlineGroup(
-              new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN),
-              new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
-            ),
-            new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
-            new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem),
-            endEffectorFactory.getIndexSequence()
-          ),
-          // clean up failed intake
-          new SequentialCommandGroup(
-            new InstantCommand(()-> DataLogManager.log("Bad finish Started")),
-            new ParallelDeadlineGroup(
-              new SequentialCommandGroup(
-                new ParallelDeadlineGroup(
-                  new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
-                  new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
-                ), 
-                new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem)
+        @Override
+        public void run() {
+          new ConditionalCommand(
+            // Move floor intake in and index successful intake
+            new SequentialCommandGroup(
+              new InstantCommand(()-> DataLogManager.log("Good finish Started")),
+              new ParallelDeadlineGroup(
+                new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN),
+                new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
               ),
-              new OuttakeCommand(floorIntakeSubsystem)
-            )     
-          ), 
-          () -> floorIntakeSubsystem.pieceSensorActiveFiltered()
-        ).schedule();
-      }
-    }, 5);
+              new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
+              new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem),
+              endEffectorFactory.getIndexSequence()
+            ),
+            // clean up failed intake
+            new SequentialCommandGroup(
+              new InstantCommand(()-> DataLogManager.log("Bad finish Started")),
+              new ParallelDeadlineGroup(
+                new SequentialCommandGroup(
+                  new ParallelDeadlineGroup(
+                    new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
+                    new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
+                  ), 
+                  new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem)
+                ),
+                new OuttakeCommand(floorIntakeSubsystem)
+              )     
+            ), 
+            () -> floorIntakeSubsystem.pieceSensorActiveFiltered()
+          ).schedule();
+        }
+      }, 5);
   });
   }
 }

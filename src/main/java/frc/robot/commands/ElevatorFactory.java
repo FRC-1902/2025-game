@@ -39,6 +39,7 @@ public class ElevatorFactory {
    */
   public Command getElevatorCommand(Position targetPosition){
     return new SequentialCommandGroup(
+      // Prevents the intake from retracting if the angle is past the Elevator Angle
       new ConditionalCommand(
         new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem),
         new InstantCommand(),
@@ -60,6 +61,7 @@ public class ElevatorFactory {
     return new SequentialCommandGroup(
       endEffectorFactory.getIndexSequence(),
       new ElevatorCommand(elevatorSubsystem, Position.MIN),
+      // Prevents the intake from retracting if the angle is past the Elevator Angle
       new ConditionalCommand(
         new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
         new InstantCommand(),
