@@ -7,6 +7,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ControllerSubsystem;
@@ -19,8 +20,8 @@ public class SnapToWaypoint extends Command {
   private Pose2d targetPose;
   private final PIDController pidX;
   private final PIDController pidY;
-  private final double distanceErrorTolerance = 0.08; // meters
-  private final double rotationErrorTolerance = Math.toRadians(2); // degrees
+  private final double distanceErrorTolerance = 0.04; // meters
+  private final double rotationErrorTolerance = Math.toRadians(3); // degrees
   private double currentDistance;
   private double currentRotError;
 
@@ -32,8 +33,8 @@ public class SnapToWaypoint extends Command {
   public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
     this.swerve = swerve;
     this.targetPoseSupplier = targetPoseSupplier;
-    this.pidX = new PIDController(2, 0.0, 0.0);
-    this.pidY = new PIDController(2, 0.0, 0.0);
+    this.pidX = new PIDController(2.5, 0.02, 0.0);
+    this.pidY = new PIDController(2.5, 0.02, 0.0);
 
     pidX.reset();
     pidY.reset();
@@ -58,6 +59,9 @@ public class SnapToWaypoint extends Command {
     // Finish when position and orientation are close enough
     currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
     currentRotError = Math.abs(swerve.getPose().getRotation().getRadians() - targetPose.getRotation().getRadians());
+
+    SmartDashboard.putNumber("Auto/Snap Distance", currentDistance);
+    SmartDashboard.putNumber("Auto/Snap Rot", currentRotError);
 
     // Current robot pose
     Pose2d currentPose = swerve.getPose();
@@ -93,7 +97,6 @@ public class SnapToWaypoint extends Command {
   public boolean isFinished() {
     boolean positionReached = (currentDistance < distanceErrorTolerance);
     boolean rotationReached = (currentRotError < rotationErrorTolerance);
-
     return positionReached && rotationReached;
   }
 }

@@ -22,7 +22,7 @@ public final class FieldConstants {
 
   public static final double offset = 0; // TODO: Get offsets
   public static final double pathOffset = .5; // TODO: get path offset
-  public static final double TROUGH_OFFSET = 0.2; // TODO: get trough offset
+  public static final double TROUGH_OFFSET = Units.inchesToMeters(13); // TODO: get trough offset
 
   /* Algae Placements, Counter Clockwise, Start from DS closest face
    * 1: L3

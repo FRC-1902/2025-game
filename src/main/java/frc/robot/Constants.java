@@ -54,7 +54,7 @@ public final class Constants {
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
 
     // Object detection turn KP
-    public static final double OBJECT_TURN_KP = 5.5;
+    public static final double OBJECT_TURN_KP = 5;
   }
 
   public static final class AlgaeIntake{
@@ -73,7 +73,7 @@ public final class Constants {
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(100); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(20); 
 
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(57.3); 
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(51.5); 
 
     public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(90);
   }
@@ -131,7 +131,7 @@ public final class Constants {
 
     public enum Position{ 
       // center carriage to floor 9.375 inches, 0.23825 meters, in meters
-      L1(0.34), 
+      L1(0.35), 
       L2(0.58), 
       L3(0.96), 
       CLIMB_UP(.3), // TODO: Set height

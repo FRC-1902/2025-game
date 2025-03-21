@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.292312842247307,
-        "y": 5.07691072115353
+        "x": 5.287931286600034,
+        "y": 2.968118997225146
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.4831090504887,
-        "y": 5.740271440131663
+        "x": 5.309925441107362,
+        "y": 2.719088362227145
       },
       "isLocked": false,
-      "linkedName": "J"
+      "linkedName": "F"
     },
     {
       "anchor": {
-        "x": 4.351536885245903,
-        "y": 6.074897540983606
+        "x": 4.5699099652556985,
+        "y": 2.0245487098951833
       },
       "prevControl": {
-        "x": 4.60121504129845,
-        "y": 6.062216121891104
+        "x": 5.380635499837339,
+        "y": 1.9539492766896829
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "JK HP"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 2.0,
-    "rotation": -25.0
+    "rotation": 22.24902365721242
   },
   "reversed": false,
-  "folder": "4 L3 Piece Left",
+  "folder": "2 piece",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 119.99999999999999
   },
   "useDefaultConstraints": true
 }

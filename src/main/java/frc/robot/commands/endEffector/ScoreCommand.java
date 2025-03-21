@@ -17,13 +17,13 @@ public class ScoreCommand extends Command {
    */
   public ScoreCommand(EndEffectorSubsystem endEffectorSubsystem) {
     this.endEffectorSubsystem = endEffectorSubsystem; 
-    SmartDashboard.putNumber("EndEffector/Roller Speed", 0.5); // TODO: remove, here for tuning during match
+    SmartDashboard.putNumber("EndEffector/Roller Speed", 0.4); // TODO: remove, here for tuning during match
     addRequirements(endEffectorSubsystem);
   }
 
   @Override
   public void initialize() {
-    double speed = SmartDashboard.getNumber("EndEffector/Roller Speed", 0.5); // TODO: remove, here for tuning during match
+    double speed = SmartDashboard.getNumber("EndEffector/Roller Speed", 0.4); // TODO: remove, here for tuning during match
     endEffectorSubsystem.setSpeed(speed);
   }
 

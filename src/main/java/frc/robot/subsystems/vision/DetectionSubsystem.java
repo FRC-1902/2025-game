@@ -77,7 +77,7 @@ public class DetectionSubsystem extends SubsystemBase {
           double pitch = target.getPitch(); 
           
           // Only consider targets above the minimum pitch threshold
-          if (pitch >= -8 && targetId < lowestId) {
+          if (pitch >= -10 && targetId < lowestId) {
             lowestId = targetId;
 
             targetYaw = target.getYaw() + 2;
