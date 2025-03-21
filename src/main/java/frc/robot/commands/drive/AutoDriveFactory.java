@@ -37,9 +37,8 @@ public class AutoDriveFactory {
     Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.pathOffset);
 
     return new SequentialCommandGroup(
-      new PathToWaypoint(() -> offsetWaypoint, swerve),
-      new SnapToWaypoint(swerve, () -> waypoint)
+      new PathToWaypoint(() -> swerve.allianceFlip(offsetWaypoint), swerve),
+      new SnapToWaypoint(swerve, () -> swerve.allianceFlip(waypoint))
     );
   }
-
 }

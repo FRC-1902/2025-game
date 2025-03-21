@@ -536,7 +536,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(swerve.allianceFlip(FieldConstants.WAYPOINTS.POLES[9])),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[9]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       
