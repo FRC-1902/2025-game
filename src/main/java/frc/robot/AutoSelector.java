@@ -97,7 +97,7 @@ public class AutoSelector {
     autoChooser.addOption("Right 4 L3", getRight4L3());
     autoChooser.addOption("Left 4 L3", getLeft4L3());
     autoChooser.addOption("1 L2", get1L2());
-    autoChooser.addOption("Test", test());
+    // autoChooser.addOption("Test", test());
   }
 
   /**
@@ -269,7 +269,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(swerve.allianceFlip(FieldConstants.WAYPOINTS.POLES[1])),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[1]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       
@@ -292,7 +292,7 @@ public class AutoSelector {
       // Drive to reef & grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(swerve.allianceFlip(FieldConstants.WAYPOINTS.POLES[0])),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[0]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
@@ -357,7 +357,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(swerve.allianceFlip(FieldConstants.WAYPOINTS.POLES[0])),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[0]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       
@@ -380,7 +380,7 @@ public class AutoSelector {
       // Drive to reef & grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(swerve.allianceFlip(FieldConstants.WAYPOINTS.POLES[1])),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[1]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
@@ -444,7 +444,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(swerve.allianceFlip(FieldConstants.WAYPOINTS.POLES[4])),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[4]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       
@@ -504,38 +504,6 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(swerve.allianceFlip(FieldConstants.WAYPOINTS.POLES[9])),
-        new AlgaeIntakeCommand(algaeIntake)
-      ),
-      
-      // Place 
-      new ScoreCommand(endEffector),
-
-      // END OF CYCLE TWO
-
-      // Clean Up
-      elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-
-      // End of Auto
-    );
-  }
-
-  private SequentialCommandGroup test(){
-    return new SequentialCommandGroup(
-      // setup odometry
-      setStartPosition(7.14, 5.8118),
-
-      new ConditionalCommand(
-        getPushingPCommand(),
-        new InstantCommand(),
-        this::isPushingPEnabled
-      ),
-
-      endEffectorFactory.getIndexSequence(),
-
-      // Drive to reef
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
         autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[9]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
@@ -551,5 +519,37 @@ public class AutoSelector {
       // End of Auto
     );
   }
+
+  // private SequentialCommandGroup test(){
+  //   return new SequentialCommandGroup(
+  //     // setup odometry
+  //     setStartPosition(7.14, 5.8118),
+
+  //     new ConditionalCommand(
+  //       getPushingPCommand(),
+  //       new InstantCommand(),
+  //       this::isPushingPEnabled
+  //     ),
+
+  //     endEffectorFactory.getIndexSequence(),
+
+  //     // Drive to reef
+  //     new ParallelCommandGroup(
+  //       elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+  //       autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[9]),
+  //       new AlgaeIntakeCommand(algaeIntake)
+  //     ),
+      
+  //     // Place 
+  //     new ScoreCommand(endEffector),
+
+  //     // END OF CYCLE TWO
+
+  //     // Clean Up
+  //     elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+
+  //     // End of Auto
+  //   );
+  // }
 }
 
