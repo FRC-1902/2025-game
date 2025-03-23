@@ -33,7 +33,7 @@ public class DriveCommand extends Command {
     this.heading = heading;
     this.dpad = dpad;
 
-    rotationMultiplier = 0.35;
+    rotationMultiplier = 0.40;
 
     addRequirements(swerve);
   }
@@ -62,7 +62,7 @@ public class DriveCommand extends Command {
     if (dpad.getAsInt() == 90) {
       rotationMultiplier = 1.0;
     } else {
-      rotationMultiplier = 0.35;
+      rotationMultiplier = 0.40;
     }
     double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
 

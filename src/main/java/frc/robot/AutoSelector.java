@@ -435,7 +435,8 @@ public class AutoSelector {
         new SequentialCommandGroup(
           new WaitCommand(1),
           new AlgaeOuttakeCommand(algaeIntake),
-          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
+          new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake)
         )
       ),
       getCoralWithDetection(),
@@ -444,8 +445,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[4]),
-        new AlgaeIntakeCommand(algaeIntake)
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[4])
       ),
       
       // Place 
@@ -495,7 +495,8 @@ public class AutoSelector {
         new SequentialCommandGroup(
           new WaitCommand(1),
           new AlgaeOuttakeCommand(algaeIntake),
-          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
+          new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake)
         )
       ),
       getCoralWithDetection(),
@@ -504,8 +505,7 @@ public class AutoSelector {
       // Drive to reef
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[9]),
-        new AlgaeIntakeCommand(algaeIntake)
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[9])
       ),
       
       // Place 
