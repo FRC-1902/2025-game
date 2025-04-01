@@ -31,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.FieldConstants.WaypointType;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.math.SwerveMath;
@@ -51,7 +50,7 @@ public class SwerveSubsystem extends SubsystemBase {
     this.swerve = swerve;
 
     try {
-      this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+      this.aprilTagFieldLayout = FieldConstants.aprilTagLayout;
     } catch (Exception e) {
       throw new RuntimeException("Failed to load AprilTag field layout", e);
     }
