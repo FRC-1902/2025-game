@@ -124,6 +124,7 @@ public class RobotContainer {
     led.registerPattern(() -> { return elevator.isAtPosition() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
     led.registerPattern(algaeIntake::isPieceSensorActive, greenPattern);
 
+    
     bindButtons();
   }
 

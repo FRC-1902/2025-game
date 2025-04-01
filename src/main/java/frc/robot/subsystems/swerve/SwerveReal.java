@@ -52,6 +52,8 @@ public class SwerveReal implements SwerveBase {
     // Configure SwerveDrive settings TODO: Maybe adjust if needed
     swerveDrive.setHeadingCorrection(false);
     swerveDrive.setCosineCompensator(false);
+    
+    // TODO: Tune Coeff value before worlds 
     swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
     swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
     swerveDrive.setChassisDiscretization(true, 0.02);
