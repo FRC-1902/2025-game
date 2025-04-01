@@ -57,6 +57,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     swerve.setupPathPlanner(this);
+    
   }
 
   /**
@@ -272,6 +273,9 @@ public class SwerveSubsystem extends SubsystemBase {
     switch (type) {
       case REEF:
         waypoints = allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(offset));
+        break;
+      case TROUGH:
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getTroughPositions());
         break;
       case PROCESSOR:
         return allianceFlip(FieldConstants.WAYPOINTS.PROCESSOR);

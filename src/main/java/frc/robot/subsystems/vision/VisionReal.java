@@ -165,7 +165,8 @@ public class VisionReal implements VisionBase {
     Map<Constants.Vision.Camera, EstimatedRobotPose> estimates) {
     double weightedX = 0;
     double weightedY = 0;
-    double weightedRot = 0;
+    double weightedSin = 0;
+    double weightedCos = 0;
     double totalWeightX = 0;
     double totalWeightY = 0;
     double totalWeightRot = 0;
@@ -184,7 +185,10 @@ public class VisionReal implements VisionBase {
       Pose3d pose = estimate.estimatedPose;
       weightedX += pose.getX() * weightX;
       weightedY += pose.getY() * weightY;
-      weightedRot += pose.getRotation().getZ() * weightRot;
+
+      double angle = pose.getRotation().getZ();
+      weightedSin += Math.sin(angle) * weightRot;
+      weightedCos += Math.cos(angle) * weightRot;
 
       totalWeightX += weightX;
       totalWeightY += weightY;
@@ -193,7 +197,8 @@ public class VisionReal implements VisionBase {
 
     double finalX = weightedX / totalWeightX;
     double finalY = weightedY / totalWeightY;
-    double finalRot = weightedRot / totalWeightRot;
+
+    double finalRot = Math.atan2(weightedSin / totalWeightRot, weightedCos / totalWeightRot);
 
     Pose3d combinedPose =
       new Pose3d(new Translation3d(finalX, finalY, 0), new Rotation3d(0, 0, finalRot));

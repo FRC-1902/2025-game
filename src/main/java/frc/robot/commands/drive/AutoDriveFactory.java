@@ -1,5 +1,6 @@
 package frc.robot.commands.drive;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -18,11 +19,26 @@ public class AutoDriveFactory {
    * Drives to the waypoint and snaps to it.
    * @return the command
    */
-  public Command pathAndSnapCommand(WaypointType waypoint) {
+  public Command snapCommand(WaypointType waypoint) {
     DataLogManager.log("Auto Driving");
     return new SequentialCommandGroup(
-      new PathToWaypoint(() -> swerve.getWaypoint(waypoint, FieldConstants.pathOffset), swerve),
+      // new PathToWaypoint(() -> swerve.getWaypoint(waypoint, FieldConstants.pathOffset), swerve),
       new ContinuallySnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, FieldConstants.offset))
+    );
+  }
+
+  /**
+   * Drives to specified waypoint and snaps to it.
+   * @return the command
+   */
+  public Command pathAndSnapCommand(Pose2d waypoint) {
+    DataLogManager.log("Auto Driving");
+
+    Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.pathOffset);
+
+    return new SequentialCommandGroup(
+      new PathToWaypoint(() -> swerve.allianceFlip(offsetWaypoint), swerve),
+      new SnapToWaypoint(swerve, () -> swerve.allianceFlip(waypoint))
     );
   }
 }

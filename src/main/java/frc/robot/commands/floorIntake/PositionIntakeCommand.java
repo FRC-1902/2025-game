@@ -3,12 +3,12 @@ package frc.robot.commands.floorIntake;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.Constants.Elevator.Position;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 
 public class PositionIntakeCommand extends Command {
-  private final ElevatorSubsystem elevatorSubsystem;
   private final FloorIntakeSubsystem floorIntakeSubsystem;
 
   private Rotation2d targetAngle;
@@ -16,11 +16,9 @@ public class PositionIntakeCommand extends Command {
   /**
    * Sets floor intake to target angle. If piece detected while moving, sucks in on piece.
    * @param targetAngle
-   * @param elevatorSubsystem
    * @param floorIntakeSubsystem
    */
-  public PositionIntakeCommand(Rotation2d targetAngle, ElevatorSubsystem elevatorSubsystem, FloorIntakeSubsystem floorIntakeSubsystem){
-    this.elevatorSubsystem = elevatorSubsystem; 
+  public PositionIntakeCommand(Rotation2d targetAngle, FloorIntakeSubsystem floorIntakeSubsystem){
     this.floorIntakeSubsystem = floorIntakeSubsystem;
     this.targetAngle = targetAngle;
 
@@ -32,10 +30,6 @@ public class PositionIntakeCommand extends Command {
    */
   @Override
   public void initialize() {
-    if(!elevatorSubsystem.isAtPosition(Position.MIN)){
-      DataLogManager.log("IntakeCommand shouldn't start");
-      return;
-    }
     floorIntakeSubsystem.setAngle(targetAngle);
   }
   
@@ -44,14 +38,16 @@ public class PositionIntakeCommand extends Command {
    */
   @Override
   public void execute() {
-    if (floorIntakeSubsystem.pieceSensorActive()) {
+    if (floorIntakeSubsystem.pieceSensorActiveFiltered()) {
       floorIntakeSubsystem.setSpeed(1); // Runs intake to keep coral in the intake while rotating intake.
     }
   }
 
   @Override
   public void end(boolean interrupted) {
-    floorIntakeSubsystem.setSpeed(0);
+    if (floorIntakeSubsystem.pieceSensorActiveFiltered()) {
+      floorIntakeSubsystem.setSpeed(0);
+    }
   }
 
   @Override

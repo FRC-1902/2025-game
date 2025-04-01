@@ -49,8 +49,8 @@ public final class Constants {
     public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
     // Auto Speeds
-    public static final double AUTO_MAX_SPEED = 2; // ft/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = 1; // ft/s^2 TODO: Adjust later
+    public static final double AUTO_MAX_SPEED = 3; // ft/s TODO: Adjust later
+    public static final double AUTO_MAX_ACCELERATION = 2; // ft/s^2 TODO: Adjust later
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
 
     // Object detection turn KP
@@ -73,7 +73,7 @@ public final class Constants {
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(100); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(20); 
 
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(57.3); 
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(51.5); 
 
     public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(90);
   }
@@ -99,9 +99,9 @@ public final class Constants {
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
     public static final double FLOOR_ANGLE = 180.0;
-    public static final double ELEVATOR_ANGLE = 75.0;
+    public static final double ELEVATOR_ANGLE = 70.0;
     public static final double CLIMB_ANGLE = 90.0;
-    public static final double DEFAULT_ANGLE = 5.5;
+    public static final double DEFAULT_ANGLE = 3.5;
   } 
 
   public static final class LED{
@@ -131,7 +131,7 @@ public final class Constants {
 
     public enum Position{ 
       // center carriage to floor 9.375 inches, 0.23825 meters, in meters
-      L1(0.34), 
+      L1(0.35), 
       L2(0.58), 
       L3(0.96), 
       CLIMB_UP(.3), // TODO: Set height
@@ -200,16 +200,15 @@ public final class Constants {
 
       CAMERA_THREE(
         "arducamThree",
-        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-10)),
+        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-190)),
         new Translation3d(
-            Units.inchesToMeters(-11),
-            Units.inchesToMeters(-9.997),
-            Units.inchesToMeters(8.561)
+            Units.inchesToMeters(-9.537),
+            Units.inchesToMeters(-10.806),
+            Units.inchesToMeters(8.525)
         ),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)
       );
-
 
       public final String camName;
       public final Rotation3d rotation;

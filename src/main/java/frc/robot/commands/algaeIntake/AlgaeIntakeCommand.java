@@ -26,7 +26,7 @@ public class AlgaeIntakeCommand extends Command {
       return;
     }
     algaeIntakeSubsystem.setSpeed(.9);
-    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(20)); 
+    algaeIntakeSubsystem.setAngle(Rotation2d.fromDegrees(26)); 
   }
 
   @Override

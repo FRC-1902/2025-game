@@ -3,15 +3,17 @@
   "robotLength": 0.876,
   "holonomicMode": true,
   "pathFolders": [
+    "1 L2",
+    "2 piece",
     "4 L3 Piece",
     "4 L3 Piece Left",
-    "1 L2"
+    "2 piece left"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 2.0,
-  "defaultMaxAccel": 1.0,
-  "defaultMaxAngVel": 400.0,
-  "defaultMaxAngAccel": 300.0,
+  "defaultMaxVel": 3.0,
+  "defaultMaxAccel": 2.0,
+  "defaultMaxAngVel": 500.0,
+  "defaultMaxAngAccel": 400.0,
   "defaultNominalVoltage": 12.0,
   "robotMass": 56.699,
   "robotMOI": 6.883,
