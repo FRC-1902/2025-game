@@ -45,8 +45,7 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.DetectionSubsystem;
-import frc.robot.subsystems.vision.VisionReal;
-import frc.robot.subsystems.vision.VisionSim;
+import frc.robot.subsystems.vision.VisionCamera;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.commands.drive.ObjectAlign;
 
@@ -71,8 +70,12 @@ public class RobotContainer {
 
   public RobotContainer() {
     controllers = ControllerSubsystem.getInstance();
-    vision = new VisionSubsystem(Robot.isSimulation() ? new VisionSim() : new VisionReal());
-    swerve = new SwerveSubsystem(vision, new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+    swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+		vision = new VisionSubsystem(
+      swerve::addVisionMeasurement, 
+      new VisionCamera(Constants.Vision.CAMERA_ONE, Constants.Vision.CAMERA_ONE_POS), 
+      new VisionCamera(Constants.Vision.CAMERA_TWO, Constants.Vision.CAMERA_TWO_POS)
+    );
 
     endEffector = new EndEffectorSubsystem();
     elevator = new ElevatorSubsystem();

@@ -1,10 +1,13 @@
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -162,77 +165,89 @@ public final class Constants {
   }
 
   public static final class Vision {
-    // Maximum allowed ambiguity for the cameras
-    public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
+    // AprilTag layout
+    public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
-    // Camera Configs
-    // TODO: Set real values
-    public enum Camera {
-      CAMERA_ONE(
-        "arducamOne",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-20), Math.toRadians(42)),
-        new Translation3d(
-          // Units.inchesToMeters(11.233), 
-          // Units.inchesToMeters(9.691),
-          // Units.inchesToMeters(8.513920)
-          Units.inchesToMeters(10.),
-          Units.inchesToMeters(-12),
-          Units.inchesToMeters(8.563)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
+    // Left Camera
+    public static String CAMERA_ONE = "arducamOne";
+    public static Transform3d CAMERA_ONE_POS = new Transform3d(
+      new Translation3d( // X (red), Y (green), Z (height)
+        Units.inchesToMeters(10.),
+        Units.inchesToMeters(-12),
+        Units.inchesToMeters(8.563)
       ),
+      new Rotation3d(
+        Math.toRadians(0), 
+        Math.toRadians(-20), 
+        Math.toRadians(42)
+      )
+    );
 
-      CAMERA_TWO(
-        "arducamFour",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-20), Math.toRadians(-42)),
-        new Translation3d(
-          // Units.inchesToMeters(-11.233), 
-          // Units.inchesToMeters(9.691), 
-          // Units.inchesToMeters(8.513920)
-          Units.inchesToMeters(10),
-          Units.inchesToMeters(12),
-          Units.inchesToMeters(8.563)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
+    // Right Camera
+    public static String CAMERA_TWO = "arducamFour";
+    public static Transform3d CAMERA_TWO_POS = new Transform3d(
+      new Translation3d( // X (red), Y (green), Z (height)
+        Units.inchesToMeters(10.),
+        Units.inchesToMeters(12),
+        Units.inchesToMeters(8.563)
       ),
+      new Rotation3d(
+        Math.toRadians(0), 
+        Math.toRadians(-20), 
+        Math.toRadians(-42)
+      )
+    );
 
-      CAMERA_THREE(
-        "arducamThree",
-        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-190)),
-        new Translation3d(
-            Units.inchesToMeters(-9.537),
-            Units.inchesToMeters(-10.806),
-            Units.inchesToMeters(8.525)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
-      );
+    // Back Camera
+    public static String CAMERA_THREE = "arducamThree";
+    public static Transform3d CAMERA_THREE_POS = new Transform3d(
+      new Translation3d( // X (red), Y (green), Z (height)
+        Units.inchesToMeters(-9.537),
+        Units.inchesToMeters(-10.806),
+        Units.inchesToMeters(8.525)
+      ),
+      new Rotation3d(
+        Math.toRadians(0), 
+        Math.toRadians(-20), 
+        Math.toRadians(-190)
+      )
+    );
 
-      public final String camName;
-      public final Rotation3d rotation;
-      public final Translation3d translation;
-      public final Matrix<N3, N1> singleTagStdDevs;
-      public final Matrix<N3, N1> multiTagStdDevs;
+    // Object Camera
+    public static String CAMERA_OBJECT = "colorCam";
+    public static Transform3d CAMERA_OBJECT_POS = new Transform3d(
+      new Translation3d( // X (red), Y (green), Z (height)
+        Units.inchesToMeters(-9.537),
+        Units.inchesToMeters(-10.806),
+        Units.inchesToMeters(8.525)
+      ),
+      new Rotation3d(
+        Math.toRadians(0), 
+        Math.toRadians(-20), 
+        Math.toRadians(-190)
+      )
+    );
 
-      Camera(
-      String camName,
-      Rotation3d rotation,
-      Translation3d translation,
-      Matrix<N3, N1> singleTagStdDevs,
-      Matrix<N3, N1> multiTagStdDevs) {
-        this.camName = camName;
-        this.rotation = rotation;
-        this.translation = translation;
-        this.singleTagStdDevs = singleTagStdDevs;
-        this.multiTagStdDevs = multiTagStdDevs;
-      }
-    }
-    public static final Pose3d[] CAMERA_POSITIONS = {
-      new Pose3d(Camera.CAMERA_ONE.translation, Camera.CAMERA_ONE.rotation),
-      new Pose3d(Camera.CAMERA_TWO.translation, Camera.CAMERA_TWO.rotation),
-      new Pose3d(Camera.CAMERA_THREE.translation, Camera.CAMERA_THREE.rotation),
+    // Basic filtering thresholds
+    public static double maxAmbiguity = 0.3;
+    public static double maxZError = 0.75;
+
+    // Standard deviation baselines, for 1 meter distance and 1 tag
+    // (Adjusted automatically based on distance and # of tags)
+    public static double linearStdDevBaseline = 0.02; // Meters
+    public static double angularStdDevBaseline = 0.06; // Radians
+
+    // Standard deviation multipliers for each camera
+    // (Adjust to trust some cameras more than others)
+    public static double[] cameraStdDevFactors = new double[] {
+        1.0, // Camera 0 (Front Camera)
+        1.0, // Camera 1 (Back Camera)
+        1.0, // Camera 2 (Front Left Camera)
+        1.0 // Camera 3 (Front Right Camera)
     };
+
+    // Multipliers to apply for MegaTag 2 observations
+    public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
+    public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
   }
 }
