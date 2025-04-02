@@ -3,7 +3,6 @@ package frc.robot.commands.floorIntake;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -15,7 +14,12 @@ public class IntakeCommand extends Command {
   private double endTime = 0;
   private final LEDPattern color = LEDPattern.solid(new Color(0, 255, 0)).atBrightness(Percent.of(50)); // Green color
 
-  /** Creates a new IntakeFloorIntakeCommand. */
+  /**
+   * runs floor intake rollers inward until piece is detected.
+   * <p>the rollers will stay on for a successful intake for other compositions to handle it</p>
+   * @param floorIntakeSubsystem
+   * @param led
+   */
   public IntakeCommand(FloorIntakeSubsystem floorIntakeSubsystem, LEDSubsystem led) {
     this.floorIntakeSubsystem = floorIntakeSubsystem; 
     this.led = led;
@@ -35,12 +39,14 @@ public class IntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-  floorIntakeSubsystem.setSpeed(0);
-  endTime = Timer.getFPGATimestamp();
-}
+    if (interrupted)
+      floorIntakeSubsystem.setSpeed(0);
+    
+    endTime = Timer.getFPGATimestamp();
+  }
 
   @Override
   public boolean isFinished() {
-    return floorIntakeSubsystem.pieceSensorActive();
+    return floorIntakeSubsystem.pieceSensorActiveFiltered();
   }
 }

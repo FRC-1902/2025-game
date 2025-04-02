@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.292312842247307,
+        "y": 5.07691072115353
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.4831090504887,
+        "y": 5.740271440131663
+      },
+      "isLocked": false,
+      "linkedName": "J"
+    },
+    {
+      "anchor": {
+        "x": 4.351536885245903,
+        "y": 6.074897540983606
+      },
+      "prevControl": {
+        "x": 4.60121504129845,
+        "y": 6.062216121891104
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "JK HP"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 400.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 2.0,
+    "rotation": -25.0
+  },
+  "reversed": false,
+  "folder": "4 L3 Piece Left",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -119.99999999999999
+  },
+  "useDefaultConstraints": true
+}

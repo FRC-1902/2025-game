@@ -4,26 +4,30 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import java.util.function.BooleanSupplier;
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ContinuousConditionalCommand extends Command {
   Command incomingCommand, baseCommand;
   BooleanSupplier supplier;
   private boolean flag;
-  /** Creates a new ContinuousConditionalCommand. */
+
+  /* Guys it worked in the SIM tho T R U S T */ // TODO: Fix this
+  /*
+   * Creates a new ConditionalCommand. This command will run the selected command continuously until the supplier returns true.
+   */
   public ContinuousConditionalCommand(Command baseCommand, Command incomingCommand, BooleanSupplier supplier) {
-  this.supplier = supplier;
-  this.incomingCommand = incomingCommand;
-  this.baseCommand = baseCommand;
-  flag = false;
-    // Use addRequirements() here to declare subsystem dependencies.
+    this.supplier = supplier;
+    this.incomingCommand = incomingCommand;
+    this.baseCommand = baseCommand;
+    flag = false;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    DataLogManager.log("Starting ContinuousConditionalCommand");
     baseCommand.schedule();
   }
 
@@ -33,6 +37,7 @@ public class ContinuousConditionalCommand extends Command {
     if(!flag && supplier.getAsBoolean()){
       baseCommand.cancel();
       incomingCommand.schedule();
+      DataLogManager.log("Switching to incoming command");
       flag = true;
     }
   }
@@ -42,6 +47,7 @@ public class ContinuousConditionalCommand extends Command {
   public void end(boolean interrupted) {
     baseCommand.cancel();
     incomingCommand.cancel();
+    DataLogManager.log("Ending ContinuousConditionalCommand");
   }
 
   // Returns true when the command should end.

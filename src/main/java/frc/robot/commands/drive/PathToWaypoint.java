@@ -4,8 +4,6 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -15,7 +13,11 @@ public class PathToWaypoint extends Command {
   private Supplier<Pose2d> targetPose;
   private Command pathCommand;
 
-  /** Creates a new PathToWaypoint. */
+  /**
+   * creates cancellable path based on inputed targetPose as a Pose2d
+   * @param targetPose
+   * @param swerve
+   */
   public PathToWaypoint(Supplier<Pose2d> targetPose, SwerveSubsystem swerve) {
     this.targetPose = targetPose;
 
@@ -31,7 +33,7 @@ public class PathToWaypoint extends Command {
 
   @Override
   public void initialize() {
-    pathCommand = AutoBuilder.pathfindToPose(targetPose.get(), constraints, 1);
+    pathCommand = AutoBuilder.pathfindToPose(targetPose.get(), constraints, .3);
     pathCommand.initialize();
   }
 
@@ -48,7 +50,6 @@ public class PathToWaypoint extends Command {
 
   @Override
   public boolean isFinished() {
-    // TODO: ends prematurely
     return pathCommand.isFinished();
   }
 }

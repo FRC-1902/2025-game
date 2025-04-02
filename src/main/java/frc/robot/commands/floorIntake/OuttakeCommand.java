@@ -6,16 +6,20 @@ import frc.robot.subsystems.FloorIntakeSubsystem;
 public class OuttakeCommand extends Command {
   private final FloorIntakeSubsystem floorIntakeSubsystem;
 
-  /** Creates a new OuttakeFloorIntakeCommand. */
+  /**
+   * Runs floor intake rollers outward when command is scheduled
+   * Doesn't have end conditions, will continue to run
+   * @param floorIntakeSubsystem
+   */
   public OuttakeCommand(FloorIntakeSubsystem floorIntakeSubsystem) {
     this.floorIntakeSubsystem = floorIntakeSubsystem;
 
-    addRequirements(floorIntakeSubsystem);
+    addRequirements();
   }
 
   @Override
   public void initialize() {
-    floorIntakeSubsystem.setSpeed(-0.7); // todo: find outtake speed
+    floorIntakeSubsystem.setSpeed(-0.7); 
   }
 
   @Override

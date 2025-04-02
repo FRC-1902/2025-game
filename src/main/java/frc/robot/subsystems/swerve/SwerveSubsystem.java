@@ -9,6 +9,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +17,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
@@ -29,7 +32,6 @@ import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.FieldConstants.WaypointType;
 import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.math.SwerveMath;
@@ -37,27 +39,25 @@ import swervelib.parser.SwerveDriveConfiguration;
 
 public class SwerveSubsystem extends SubsystemBase {
   private final SwerveBase swerve;
-  private final VisionSubsystem vision;
 
   private final SwerveBase.SwerveInputs inputs = new SwerveBase.SwerveInputs();
   private final AprilTagFieldLayout aprilTagFieldLayout;
 
   /**
    * Creates a SwerveSubsystem with a vision system and swerve base.
-   * @param vision
    * @param swerve
    */
-  public SwerveSubsystem(VisionSubsystem vision, SwerveBase swerve) {
+  public SwerveSubsystem(SwerveBase swerve) {
     this.swerve = swerve;
-    this.vision = vision;
 
     try {
-      this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+      this.aprilTagFieldLayout = FieldConstants.aprilTagLayout;
     } catch (Exception e) {
       throw new RuntimeException("Failed to load AprilTag field layout", e);
     }
 
     swerve.setupPathPlanner(this);
+    
   }
 
   /**
@@ -65,49 +65,20 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   @Override
   public void periodic() {
-
-    // Update vision with current swerve pose
-    vision.updatePoseEstimation(getPose());
-
-    // Add new vision measurements to the swerve drive odometry if its available
-    if (vision.getEstimatedGlobalPose().isPresent()) {
-      swerve.addVisionMeasurement(
-        vision.getEstimatedGlobalPose().get().estimatedPose.toPose2d(),
-        vision.getEstimatedGlobalPose().get().timestampSeconds);
-
-        // Record estimated pose output
-      Logger.recordOutput(
-        "Vision/CurrentEstimatedPose", vision.getEstimatedGlobalPose().get().estimatedPose);
-    }
-
-    // Convert Pose2d to Pose3d for camera position transformation
-    Pose3d robotPose3d = new Pose3d(inputs.robotPose);
-
-    // Transform camera positions to global coordinate system
-    Pose3d[] globalCameraPositions = new Pose3d[Constants.Vision.CAMERA_POSITIONS.length];
-    for (int i = 0; i < Constants.Vision.CAMERA_POSITIONS.length; i++) {
-      globalCameraPositions[i] = robotPose3d.transformBy(
-        new Transform3d(
-          Constants.Vision.CAMERA_POSITIONS[i].getTranslation(),
-          Constants.Vision.CAMERA_POSITIONS[i].getRotation()
-        )
-      );
-    }
-
-    /* 
-      Record camera positions in global coordinate system In AScope set camera positions to cone object, 
-      and the pointy end is where the camera is looking at If you want to calibrate the postion set camera 
-      positions to transform object instead
-    */
-    Logger.recordOutput("CameraPositions", globalCameraPositions);
-
-      // Update inputs
     swerve.updateInputs(inputs);
-
     Logger.processInputs("Swerve", inputs);
     
     // TODO: this is temp
     SmartDashboard.putNumber("Swerve/Velocity", Math.sqrt(Math.pow(swerve.getRobotVelocity().vxMetersPerSecond, 2) + Math.pow(swerve.getRobotVelocity().vyMetersPerSecond, 2)));
+  }
+
+  /** Adds a new timestamped vision measurement. */
+  public void addVisionMeasurement(
+    Pose2d visionRobotPoseMeters,
+    double timestampSeconds,
+    Matrix<N3, N1> visionMeasurementStdDevs
+    ) {
+    swerve.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
   // /**
@@ -198,10 +169,10 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveToPose(Pose2d pose) {
     PathConstraints constraints =
       new PathConstraints(
-        getMaximumVelocity(), 
-        4.0, 
-        getMaximumAngularVelocity(), 
-        Units.degreesToRadians(720)
+        Constants.Swerve.AUTO_MAX_SPEED, 
+        Constants.Swerve.AUTO_MAX_ACCELERATION, 
+        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRadians(), 
+        Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRadians()
       );
 
     return AutoBuilder.pathfindToPose(pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
@@ -217,6 +188,25 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     return AutoBuilder.followPath(path);
+  }
+
+  public Command getPathfindToPathCommand(String pathName) {
+    PathPlannerPath path;
+    PathConstraints constraints =
+    new PathConstraints(
+      Constants.Swerve.AUTO_MAX_SPEED, 
+      Constants.Swerve.AUTO_MAX_ACCELERATION, 
+      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRadians(), 
+      Constants.Swerve.AUTO_MAX_ROTATION_SPEED.getRadians() 
+    );
+    try {
+      path = PathPlannerPath.fromPathFile(pathName);
+      
+      return AutoBuilder.pathfindThenFollowPath(path, constraints);
+    } catch (Exception e) {
+      DataLogManager.log("ERROR: Failed to load path: " + pathName);
+      return new InstantCommand();
+    }
   }
 
   public Pose2d allianceFlip(Pose2d pose) {
@@ -254,6 +244,12 @@ public class SwerveSubsystem extends SubsystemBase {
     switch (type) {
       case REEF:
         waypoints = allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(offset));
+        break;
+      case TROUGH:
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getTroughPositions());
+        break;
+      case BARGE:
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.BARGE);
         break;
       case PROCESSOR:
         return allianceFlip(FieldConstants.WAYPOINTS.PROCESSOR);

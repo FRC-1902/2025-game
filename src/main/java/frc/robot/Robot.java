@@ -41,7 +41,7 @@ public class Robot extends LoggedRobot {
       case REAL:
         Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs")); // Log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        new PowerDistribution(Constants.PDH_ID, ModuleType.kRev); // Enables power distribution logging
         break;
 
       case SIM:

@@ -17,6 +17,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -36,6 +37,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
   private Alert pivotAlert;
   private final ElevatorSubsystem elevatorSubsystem;
   private Watchdog pivotWatchdog;
+  private Debouncer debouncer;
 
   /** Creates a new FloorIntake. */
   public FloorIntakeSubsystem(ElevatorSubsystem elevatorSubsystem) {
@@ -54,6 +56,8 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     pivotWatchdog = new Watchdog(Constants.FloorIntake.MIN_PIVOT.getDegrees(), Constants.FloorIntake.MAX_PIVOT.getDegrees(), () -> getAngle().getDegrees());
 
     this.elevatorSubsystem = elevatorSubsystem;
+
+    debouncer = new Debouncer(0.2, Debouncer.DebounceType.kFalling);
 
     setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE));
     
@@ -107,6 +111,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @param targetAngle sets the pivot angle
    */
   public void setAngle(Rotation2d targetAngle) {
+
     if (pivotWatchdog.checkWatchdog(targetAngle.getDegrees()) ) {
       DataLogManager.log("Specified input out of bounds on FloorIntake");
       return;
@@ -121,6 +126,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    */
   public void setSpeed(double targetSpeed) {
     rollerMotor.set(targetSpeed);
+    SmartDashboard.putNumber("FloorIntake/Roller Speed", targetSpeed);
   }
 
   /**
@@ -129,6 +135,14 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    */
   public boolean atSetpoint() {
     return pid.atSetpoint();
+  }
+
+  /**
+   * 
+   * @returns the targeted setpoint of the PID
+   */
+  public double getPIDSetpoint(){
+    return pid.getSetpoint();
   }
 
   // resets the pid
@@ -141,7 +155,17 @@ public class FloorIntakeSubsystem extends SubsystemBase {
    * @returns whether or not a piece is detected
    */
   public boolean pieceSensorActive() {
-    return !pieceSensor.get();
+    boolean pieceSensorState = !pieceSensor.get();
+    debouncer.calculate(pieceSensorState);
+    return pieceSensorState;
+  }
+
+  /**
+   * 
+   * @returns whether or not a piece is detected
+   */
+  public boolean pieceSensorActiveFiltered() {
+    return debouncer.calculate(!pieceSensor.get());
   }
 
   // checks that the pivot isn't going out of tolerance, will send an alert if it does
@@ -159,6 +183,7 @@ public class FloorIntakeSubsystem extends SubsystemBase {
     SmartDashboard.putData("PID/FloorIntake", pid); // TODO: Remove after tuning
     SmartDashboard.putNumber("FloorIntake/Current Angle", getAngle().getDegrees());
     SmartDashboard.putBoolean("FloorIntake/Piece Sensor", pieceSensorActive());
+    SmartDashboard.putBoolean("FloorIntake/Piece Sensor Filtered", pieceSensorActiveFiltered());
     SmartDashboard.putBoolean("FloorIntake/atSetpoint", pid.atSetpoint());
     SmartDashboard.putNumber("FloorIntake/power", pivotMotor.get());
 
@@ -169,16 +194,18 @@ public class FloorIntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && getAngle().getDegrees() < Constants.FloorIntake.ELEVATOR_ANGLE){
-      DataLogManager.log("FloorIntake cannot deploy while elevator is not at MIN");
-      setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE)); // TODO: Re-Enable
+    if(!elevatorSubsystem.isAtPosition(Constants.Elevator.Position.MIN) && pid.getSetpoint() < Constants.FloorIntake.ELEVATOR_ANGLE - 0.01){
+      DataLogManager.log("FloorIntake cannot move to DEFAULT_ANGLE since elevator is up");
+      setAngle(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE));
     }
     
     double power = pid.calculate(getAngle().getDegrees())
         + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(4).getRadians());
 
-
+    // compensate for friction if not near tolerance
+    if (Math.abs(pid.getSetpoint() - getAngle().getDegrees()) > Constants.FloorIntake.TOLERANCE.getDegrees() / 2)
+      power += Constants.FloorIntake.PIVOT_F * Math.signum(pid.getSetpoint() - getAngle().getDegrees());
+    
     setupLogging();
 
     if (pivotWatchdog()) {

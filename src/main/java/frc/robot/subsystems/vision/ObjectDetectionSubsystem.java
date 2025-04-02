@@ -38,14 +38,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.Vision.ObjectDetection;
+import frc.robot.Constants.Vision;
+import frc.robot.Constants.Vision.CAMERA_OBJECT;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-
-
-
 public class ObjectDetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
-  private final PhotonCamera camera = new PhotonCamera(ObjectDetection.CAMERA_NAME);
+  private final PhotonCamera camera = new PhotonCamera(CAMERA_OBJECT.CAMERA_NAME);
   private final SwerveSubsystem swerveSubsystem;
 
   private Optional<Matrix<N3, N3>> cameraMatrixOpt = Optional.empty();
@@ -139,11 +137,11 @@ private static final double CALIBRATION_RETRY_INTERVAL = 1.0; // seconds
     // Average the x values
     double x = sumX / cornersList.length;
     
-    x = Math.max(0, Math.min(x, ObjectDetection.HORIZONTAL_RES));
-    y = Math.max(0, Math.min(y, ObjectDetection.VERTICAL_RES));
+    x = Math.max(0, Math.min(x, CAMERA_OBJECT.HORIZONTAL_RES));
+    y = Math.max(0, Math.min(y, CAMERA_OBJECT.VERTICAL_RES));
 
-    double normX = x/ObjectDetection.HORIZONTAL_RES;
-    double normY = (ObjectDetection.VERTICAL_RES - y)/ObjectDetection.VERTICAL_RES;
+    double normX = x/CAMERA_OBJECT.HORIZONTAL_RES;
+    double normY = (CAMERA_OBJECT.VERTICAL_RES - y)/CAMERA_OBJECT.VERTICAL_RES;
 
     return new Point(normX, normY);
   }
@@ -158,13 +156,13 @@ private static final double CALIBRATION_RETRY_INTERVAL = 1.0; // seconds
     double angleOffset = point.y - .5;
 
     // Calculate the pitch in degrees
-    double pitchDeg =  angleOffset * (ObjectDetection.VERTICAL_FOV).getDegrees(); 
+    double pitchDeg =  angleOffset * (CAMERA_OBJECT.VERTICAL_FOV).getDegrees(); 
 
-    double totalAngleDeg = (ObjectDetection.ANGLE).getDegrees() + pitchDeg;
+    double totalAngleDeg = Units.radiansToDegrees(CAMERA_OBJECT.CAMERA_ROTATION.getY()) + pitchDeg;
     double totalAngleRad = Math.toRadians(totalAngleDeg);
 
     // Horizontal distance to the object on the floor
-    double distance = ObjectDetection.HEIGHT * Math.tan(totalAngleRad);  
+    double distance = CAMERA_OBJECT.CAMERA_TRANSLATION.getZ() * Math.tan(totalAngleRad);  
 
     return distance;
   }
@@ -178,7 +176,7 @@ private static final double CALIBRATION_RETRY_INTERVAL = 1.0; // seconds
     // Calculate the angle offset from the center of the camera
     double angleOffset = point.x - .5;
     
-    Rotation2d yaw = Rotation2d.fromDegrees(-angleOffset * (ObjectDetection.HORIZONTAL_FOV).getDegrees());
+    Rotation2d yaw = Rotation2d.fromDegrees(-angleOffset * (CAMERA_OBJECT.HORIZONTAL_FOV).getDegrees());
     
     return yaw;
   }
@@ -205,7 +203,7 @@ private static final double CALIBRATION_RETRY_INTERVAL = 1.0; // seconds
     );
 
     Pose2d robotPose = swerveSubsystem.getPose();
-    Pose2d cameraPose = robotPose.transformBy(Constants.Vision.ObjectDetection.CAMERA_POSE);
+    Pose2d cameraPose = robotPose.transformBy(CAMERA_OBJECT.CAMERA_POSE);
     Pose2d objectPose = cameraPose.transformBy(cameraToObject);
     return objectPose;
   }

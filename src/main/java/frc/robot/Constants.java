@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -7,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -27,6 +30,8 @@ public final class Constants {
   // Battery Voltage Warnings
   public static final double BATTERY_VOLTAGE_CRITICAL = 11.5; // Volts TODO: Adjust later
   public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts TODO: Adjust later
+
+  public static final int PDH_ID = 22; // TODO: Find can ID
 
   public static final class Controller{
     private Controller() {}
@@ -51,12 +56,12 @@ public final class Constants {
     public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
     // Auto Speeds
-    public static final double AUTO_MAX_SPEED = Units.feetToMeters(5); // ft/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = Units.feetToMeters(5); // ft/s^2 TODO: Adjust later
-    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(3); // TODO: Adjust later
+    public static final double AUTO_MAX_SPEED = 3; // ft/s TODO: Adjust later
+    public static final double AUTO_MAX_ACCELERATION = 2; // ft/s^2 TODO: Adjust later
+    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(4); // TODO: Adjust later
 
-    // todo: figure out magic ##
-    public static final double OBJECT_TURN_KP = 4; // describes how much gas to give the robot to turn
+    // Object detection turn KP
+    public static final double OBJECT_TURN_KP = 5.5;
   }
 
   public static final class AlgaeIntake{
@@ -66,7 +71,7 @@ public final class Constants {
     public static final int PIVOT_MOTOR_ID = 12; 
     public static final int PIECE_SENSOR_ID = 5; 
 
-    public static final double kP = 0.0125; 
+    public static final double kP = 0.0125;
     public static final double kI = 0; 
     public static final double kD = 0; 
     public static final double kG = 0.01;
@@ -75,7 +80,7 @@ public final class Constants {
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(100); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(20); 
 
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(57.3); 
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(51.5); 
 
     public static final Rotation2d DEFAULT_ANGLE = Rotation2d.fromDegrees(90);
   }
@@ -87,22 +92,23 @@ public final class Constants {
     public static final int PIECE_SENSOR_ID = 8; 
     public static final int PIVOT_ENCODER_ID = 20; 
 
-    public static final double PIVOT_P = 0.0125; 
-    public static final double PIVOT_I = 0.0035; 
-    public static final double PIVOT_D = 0.00005; 
-    public static final double PIVOT_G = 0.022; //.022 
+    public static final double PIVOT_P = 0.013;// 0.0125; 
+    public static final double PIVOT_I = 0.003;// 0.0035; 
+    public static final double PIVOT_D = 0.0002;// 0.00005; 
+    public static final double PIVOT_G = 0.022;// 0.022;
+    public static final double PIVOT_F = 0.03;// 0.022;
 
     public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(3); 
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(350); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(190); 
   
-    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(349.53);
+    public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(350.5);
 
     public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
-    public static final double FLOOR_ANGLE = 178.0;
-    public static final double ELEVATOR_ANGLE = 80.0;
+    public static final double FLOOR_ANGLE = 180.0;
+    public static final double ELEVATOR_ANGLE = 70.0;
     public static final double CLIMB_ANGLE = 90.0;
-    public static final double DEFAULT_ANGLE = 5;
+    public static final double DEFAULT_ANGLE = 3.5;
   } 
 
   public static final class LED{
@@ -127,12 +133,12 @@ public final class Constants {
 
     public static final double TOLERANCE = 0.015; // In meters
     public static final double CONVERSION_FACTOR = 0.0193145; // converts to meters 
-    public static final double LOCK_ANGLE = 166; // In degrees
-    public static final double UNLOCK_ANGLE = 150.0;  
+    public static final double LOCK_ANGLE = 90; // In degrees
+    public static final double UNLOCK_ANGLE = 50.0;  
 
     public enum Position{ 
       // center carriage to floor 9.375 inches, 0.23825 meters, in meters
-      L1(0.34), 
+      L1(0.35), 
       L2(0.58), 
       L3(0.96), 
       CLIMB_UP(.3), // TODO: Set height
@@ -163,90 +169,102 @@ public final class Constants {
   }
 
   public static final class Vision {
-    // Maximum allowed ambiguity for the cameras
-    public static final double MAXIMUM_AMBIGUITY = 0.25; // TODO: Adjust later
+    // AprilTag layout
+    public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
-    public static final class ObjectDetection {
-      public static final String CAMERA_NAME = "colorCam2";
+    // Left Camera
+    public static String CAMERA_ONE = "arducamOne";
+    public static Transform3d CAMERA_ONE_POS = new Transform3d(
+      new Translation3d( // X (red), Y (green), Z (height)
+        Units.inchesToMeters(10.),
+        Units.inchesToMeters(-12),
+        Units.inchesToMeters(8.563)
+      ),
+      new Rotation3d(
+        Math.toRadians(0), 
+        Math.toRadians(-20), 
+        Math.toRadians(42)
+      )
+    );
+
+    // Right Camera
+    public static String CAMERA_TWO = "arducamFour";
+    public static Transform3d CAMERA_TWO_POS = new Transform3d(
+      new Translation3d( // X (red), Y (green), Z (height)
+        Units.inchesToMeters(10.),
+        Units.inchesToMeters(12),
+        Units.inchesToMeters(8.563)
+      ),
+      new Rotation3d(
+        Math.toRadians(0), 
+        Math.toRadians(-20), 
+        Math.toRadians(-42)
+      )
+    );
+
+    // Back Camera
+    public static String CAMERA_THREE = "arducamThree";
+    public static Transform3d CAMERA_THREE_POS = new Transform3d(
+      new Translation3d( // X (red), Y (green), Z (height)
+        Units.inchesToMeters(-9.537),
+        Units.inchesToMeters(-10.806),
+        Units.inchesToMeters(8.525)
+      ),
+      new Rotation3d(
+        Math.toRadians(0), 
+        Math.toRadians(-20), 
+        Math.toRadians(-190)
+      )
+    );
+
+    // Object Detection Camera
+    public static final class CAMERA_OBJECT {
+      public static final String CAMERA_NAME = "colorCam";
+
       public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
-      public static final Rotation2d ANGLE = Rotation2d.fromDegrees(90-32); // TODO: Change to real value
-      public static final double HEIGHT = Units.inchesToMeters(28); // TODO: Change to real value
+
       public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(65); // TODO: Change to real value
       public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(53); // TODO: Change to real value
       public static final double HORIZONTAL_RES = 1920;
       public static final double VERTICAL_RES = 1080;
+      
+      public static final Transform3d CAMERA_OBJECT_POS = new Transform3d(
+      new Translation3d( // X (red), Y (green), Z (height)
+        Units.inchesToMeters(0),
+        Units.inchesToMeters(5),
+        Units.inchesToMeters(28)
+      ),
+      new Rotation3d(
+        Math.toRadians(0), 
+        Math.toRadians(90-32), 
+        Math.toRadians(0)
+      )
+    );
       public static final Translation3d CAMERA_TRANSLATION = new Translation3d(0, 0, 0);
       public static final Rotation3d CAMERA_ROTATION = new Rotation3d(0, 0, 0);
       public static final Transform2d CAMERA_POSE = new Transform2d(new Translation2d(0.102, 0.0),Rotation2d.fromDegrees(180.0));
     }
 
-    // Camera Configs
-    public enum Camera {
-      CAMERA_ONE(
-        "arducamOne",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(38)),
-        new Translation3d(
-          // Units.inchesToMeters(11.233), 
-          // Units.inchesToMeters(9.691),
-          // Units.inchesToMeters(8.513920)
-          Units.inchesToMeters(9.883),
-          Units.inchesToMeters(-11.103),
-          Units.inchesToMeters(8.069)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
-      ),
+    // Basic filtering thresholds
+    public static double maxAmbiguity = 0.3;
+    public static double maxZError = 0.75;
 
-      CAMERA_TWO(
-        "arducamFour",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(-22), Math.toRadians(-38)),
-        new Translation3d(
-          // Units.inchesToMeters(-11.233), 
-          // Units.inchesToMeters(9.691), 
-          // Units.inchesToMeters(8.513920)
-          Units.inchesToMeters(9.883),
-          Units.inchesToMeters(11.103),
-          Units.inchesToMeters(8.069)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
-      ),
+    // Standard deviation baselines, for 1 meter distance and 1 tag
+    // (Adjusted automatically based on distance and # of tags)
+    public static double linearStdDevBaseline = 0.02; // Meters
+    public static double angularStdDevBaseline = 0.06; // Radians
 
-      CAMERA_THREE(
-        "arducamThree",
-        new Rotation3d(0, Units.degreesToRadians(-145), 0),
-        new Translation3d(
-            Units.inchesToMeters(-4.628),
-            Units.inchesToMeters(-10.687),
-            Units.inchesToMeters(16.129)
-        ),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)
-      );
-
-      public final String camName;
-      public final Rotation3d rotation;
-      public final Translation3d translation;
-      public final Matrix<N3, N1> singleTagStdDevs;
-      public final Matrix<N3, N1> multiTagStdDevs;
-
-      Camera(
-      String camName,
-      Rotation3d rotation,
-      Translation3d translation,
-      Matrix<N3, N1> singleTagStdDevs,
-      Matrix<N3, N1> multiTagStdDevs) {
-        this.camName = camName;
-        this.rotation = rotation;
-        this.translation = translation;
-        this.singleTagStdDevs = singleTagStdDevs;
-        this.multiTagStdDevs = multiTagStdDevs;
-      }
-    }
-    public static final Pose3d[] CAMERA_POSITIONS = {
-      new Pose3d(Camera.CAMERA_ONE.translation, Camera.CAMERA_ONE.rotation),
-      new Pose3d(Camera.CAMERA_TWO.translation, Camera.CAMERA_TWO.rotation),
-      new Pose3d(Camera.CAMERA_THREE.translation, Camera.CAMERA_THREE.rotation),
+    // Standard deviation multipliers for each camera
+    // (Adjust to trust some cameras more than others)
+    public static double[] cameraStdDevFactors = new double[] {
+        1.0, // Camera 0 (Front Camera)
+        1.0, // Camera 1 (Back Camera)
+        1.0, // Camera 2 (Front Left Camera)
+        1.0 // Camera 3 (Front Right Camera)
     };
+
+    // Multipliers to apply for MegaTag 2 observations
+    public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
+    public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
   }
 }

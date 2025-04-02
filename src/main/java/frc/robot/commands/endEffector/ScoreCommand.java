@@ -4,23 +4,27 @@
 
 package frc.robot.commands.endEffector;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.EndEffector;
 import frc.robot.subsystems.EndEffectorSubsystem;
-
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ScoreCommand extends Command {
   private final EndEffectorSubsystem endEffectorSubsystem; 
 
-  /** Creates a new EndEffectorCommand. */
+  /**
+   * creates command to run end effector until piece is no longer detected (spit on it)
+   * @param endEffectorSubsystem
+   */
   public ScoreCommand(EndEffectorSubsystem endEffectorSubsystem) {
     this.endEffectorSubsystem = endEffectorSubsystem; 
-
+    SmartDashboard.putNumber("EndEffector/Roller Speed", 0.4); // TODO: remove, here for tuning during match
     addRequirements(endEffectorSubsystem);
   }
 
   @Override
   public void initialize() {
-    endEffectorSubsystem.setSpeed(0.50); // todo: find indexing speed
+    double speed = SmartDashboard.getNumber("EndEffector/Roller Speed", 0.4); // TODO: remove, here for tuning during match
+    endEffectorSubsystem.setSpeed(speed);
   }
 
   @Override

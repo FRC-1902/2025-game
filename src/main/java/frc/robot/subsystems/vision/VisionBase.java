@@ -1,37 +1,36 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import java.util.Optional;
+import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
-import org.photonvision.EstimatedRobotPose;
 
 public interface VisionBase {
-  @AutoLog
-  public static class VisionInputs {
-    public double timestamp;
+	@AutoLog
+	public static class VisionIOInputs {
+		public boolean connected = false;
+		public TargetObservation latestTargetObservation =
+				new TargetObservation(new Rotation2d(), new Rotation2d());
+		public PoseObservation[] poseObservations = new PoseObservation[0];
+		public int[] tagIds = new int[0];
+	}
 
-    // If a camera can see a target
-    public boolean arducamOne = false;
-    public boolean arducamTwo = false;
-    public boolean arducamThree = false;
+	/** Represents the angle to a simple target, not used for pose estimation. */
+	public static record TargetObservation(Rotation2d tx, Rotation2d ty) {}
 
-    // Camera latencies in milliseconds
-    public double arducamOneLatencyMS = 0.0;
-    public double arducamTwoLatencyMS = 0.0;
-    public double arducamThreeLatencyMS = 0.0;
+	/** Represents a robot pose sample used for pose estimation. */
+	public static record PoseObservation(
+			double timestamp,
+			Pose3d pose,
+			double ambiguity,
+			int tagCount,
+			double averageTagDistance,
+			PoseObservationType type) {}
 
-    // Gets the best target ID from somewhere
-    public double arducamOneBestTargetID = -1.0;
-    public double arducamTwoBestTargetID = -1.0;
-    public double arducamThreeBestTargetID = -1.0;
+	public static enum PoseObservationType {
+		MEGATAG_1,
+		MEGATAG_2,
+		PHOTONVISION
+	}
 
-    public Pose3d[] visibleTagPoses = new Pose3d[0];
-  }
-
-  public void updateInputs(VisionInputs inputs);
-
-  public void updatePoseEstimation(Pose2d currentPose);
-
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose();
+	public default void updateInputs(VisionIOInputs inputs) {}
 }

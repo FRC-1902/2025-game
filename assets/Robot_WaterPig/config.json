@@ -14,10 +14,10 @@
         "name": "Arducam1",
         "rotations": [
           { "axis": "x", "degrees": 0 },
-          { "axis": "y", "degrees": -22.75 },
-          { "axis": "z", "degrees": 40 }
+          { "axis": "y", "degrees": -20 },
+          { "axis": "z", "degrees": 42 }
         ],
-        "position": [0.2461514, -0.2853182, 0.216253568],
+        "position": [0.254, -0.3048, 0.2175002],
         "resolution": [1280, 800],
         "fov": 70
       },
@@ -25,10 +25,10 @@
         "name": "Arducam2",
         "rotations": [
           { "axis": "x", "degrees": 0 },
-          { "axis": "y", "degrees": -22.75 },
-          { "axis": "z", "degrees": -40 }
+          { "axis": "y", "degrees": -20 },
+          { "axis": "z", "degrees": -42 }
         ],
-        "position": [0.2461514, 0.2853182, 0.216253568],
+        "position": [0.254, 0.3048, 0.2175002],
         "resolution": [1280, 800],
         "fov": 70
       },

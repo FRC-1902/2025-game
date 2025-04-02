@@ -2,18 +2,13 @@ package frc.robot.commands.drive;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class DriveCommand extends Command {
@@ -38,7 +33,7 @@ public class DriveCommand extends Command {
     this.heading = heading;
     this.dpad = dpad;
 
-    rotationMultiplier = 0.35;
+    rotationMultiplier = 0.40;
 
     addRequirements(swerve);
   }
@@ -67,7 +62,7 @@ public class DriveCommand extends Command {
     if (dpad.getAsInt() == 90) {
       rotationMultiplier = 1.0;
     } else {
-      rotationMultiplier = 0.35;
+      rotationMultiplier = 0.40;
     }
     double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
 
@@ -93,6 +88,8 @@ public class DriveCommand extends Command {
     return false;
   }
 
+  // Functions specifically for controller inputs
+  
   // y = .8 * x + .2 * x^3
   public double scaleInputsOne(double input){
     return (.8 * input + .2 * Math.pow(input, 3));
