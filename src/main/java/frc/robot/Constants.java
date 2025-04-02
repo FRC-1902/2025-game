@@ -29,6 +29,8 @@ public final class Constants {
   public static final double BATTERY_VOLTAGE_CRITICAL = 11.5; // Volts TODO: Adjust later
   public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts TODO: Adjust later
 
+  public static final int PDH_ID = 22; // TODO: Find can ID
+
   public static final class Controller{
     private Controller() {}
     // Controller Ports
