@@ -88,7 +88,7 @@ public class AutoSelector {
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
-    // autoDriveFactory = new AutoDriveFactory(swerve);
+    autoDriveFactory = new AutoDriveFactory(swerve, detectionSubsystem);
 
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
     

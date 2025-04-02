@@ -60,18 +60,35 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private static final double MAX_TRACKING_AGE = 0.5; // Maximum time to track an object without seeing it (seconds)
   private static final double MIN_TRACKING_CONFIDENCE = 0.7; // Minimum confidence to report an object
   private static final double POSITION_MATCH_THRESHOLD = 0.5; // Maximum distance in meters to consider the same object
+  private static final double OBJECT_PERSISTENCE_TIME = 0.5; // seconds
+  private Map<Integer, PersistentObject> persistentObjects = new HashMap<>();
+  private int nextPersistentId = 0;
+  private static final double MATCH_THRESHOLD = 0.3; // meters
 
   private double lastCalibrationAttempt = 0;
-private static final double CALIBRATION_RETRY_INTERVAL = 1.0; // seconds
+  private static final double CALIBRATION_RETRY_INTERVAL = 1.0; // seconds
 
 
   // Map to track objects over time - key is a unique ID, value is tracked object data
   private Map<Integer, TrackedObject> trackedObjects = new HashMap<>();
   private int nextObjectId = 0;
 
+  private static class PersistentObject {
+    public Pose2d pose;
+    public double lastSeenTime;
+    
+    public PersistentObject(Pose2d pose, double time) {
+        this.pose = pose;
+        this.lastSeenTime = time;
+    }
+  }
 
   public ObjectDetectionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
+
+    edu.wpi.first.cscore.CvSink cvSink = new edu.wpi.first.cscore.CvSink("temp");
+    cvSink.close(); // We don't actually need to use it
+
     getCameraCalibrationData();
   }
 
@@ -328,20 +345,16 @@ private void updateTracking(List<Pose2d> currentObjects, double currentTime) {
     }
   }
 
-  @Override
-  public void periodic() {
+  // Replace your periodic method with this simplified version
+@Override
+public void periodic() {
     double currentTime = Timer.getFPGATimestamp();
     
-    // Try to get calibration data if needed, with rate limiting
+    // Try to get calibration data if needed
     if (!calibrationInitialized && 
-        (currentTime - lastCalibrationAttempt) > CALIBRATION_RETRY_INTERVAL) {
+            (currentTime - lastCalibrationAttempt) > CALIBRATION_RETRY_INTERVAL) {
         lastCalibrationAttempt = currentTime;
         getCameraCalibrationData();
-        
-        // If we still don't have calibration, skip the rest of processing
-        if (!calibrationInitialized) {
-            return;
-        }
     }
     
     // Skip vision processing if we don't have calibration
@@ -349,60 +362,69 @@ private void updateTracking(List<Pose2d> currentObjects, double currentTime) {
         return;
     }
       
-      List<Pose2d> currentFrameObjects = new ArrayList<>();
-      
-      // Process new detections
-      List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-      if (!results.isEmpty()) {
-          // Get the most recent frame
-          PhotonPipelineResult result = results.get(results.size() - 1);
-          if (result.hasTargets()) {
-              // Process each target
-              for (PhotonTrackedTarget target : result.getTargets()) {
-                  // Skip low-confidence detections
-                  if (target.getDetectedObjectConfidence() < 0.5) {
-                      continue;
-                  }
-                  
-                  // Convert target to a "bottom-center" point, then to a field Pose2d
-                  Point point = getTargetPoint(target);
-                  if (point == null) continue;
-                  
-                  Pose2d objectPose = getObjectPose(point);
-                  if (objectPose == null) continue;
-                  
-                  currentFrameObjects.add(objectPose);
-              }
-          }
-      }
-      
-      // Update tracking based on current frame detections
-      updateTracking(currentFrameObjects, currentTime);
-      
-      // Generate filtered output array
-      List<Pose2d> filteredPoses = new ArrayList<>();
-      for (TrackedObject obj : trackedObjects.values()) {
-          // Only include objects that have sufficient confidence
-          if (obj.confidence >= MIN_TRACKING_CONFIDENCE) {
-              filteredPoses.add(obj.pose);
-          }
-      }
-      
-      // Update the objects array
-      objects = filteredPoses.toArray(new Pose2d[0]);
-      
-      // Update target visibility state
-      targetVisible = objects.length > 0;
-      if (targetVisible) {
-          // Find the closest object for targeting
-          Pose2d closest = getClosestObject();
-          // Update current object (keeping it simple for now)
-          // In a more sophisticated system, you'd track each object individually
-      }
-      
-      // Log to dashboard
-      SmartDashboard.putNumberArray("Vision/Object Poses", 
-          Arrays.stream(objects).mapToDouble(pose -> pose.getTranslation().getX()).toArray());
-      SmartDashboard.putNumber("Vision/Object Count", objects.length);
-  }
+    // Process new detections
+    List<PhotonPipelineResult> results = camera.getAllLatestResults();
+    if (results.hasTargets()) {
+        for (PhotonTrackedTarget target : results.getTargets()) {
+            // Lower the confidence threshold initially for testing
+            if (target.getDetectedObjectConfidence() < 0.3) {
+                continue;
+            }
+            
+            Point point = getTargetPoint(target);
+            if (point == null) continue;
+            
+            Pose2d objectPose = getObjectPose(point);
+            if (objectPose == null) continue;
+            
+            // Check if this object is already being tracked
+            boolean matched = false;
+            for (Map.Entry<Integer, PersistentObject> entry : persistentObjects.entrySet()) {
+                PersistentObject existingObj = entry.getValue();
+                double distance = existingObj.pose.getTranslation()
+                    .getDistance(objectPose.getTranslation());
+                
+                if (distance < MATCH_THRESHOLD) {
+                    existingObj.pose = objectPose; // Update the position
+                    existingObj.lastSeenTime = currentTime;
+                    matched = true;
+                    break;
+                }
+            }
+            
+            // If no match, add as new object
+            if (!matched) {
+                persistentObjects.put(nextPersistentId++, 
+                    new PersistentObject(objectPose, currentTime));
+            }
+        }
+    }
+    
+    // Remove stale objects
+    persistentObjects.entrySet().removeIf(entry -> 
+        (currentTime - entry.getValue().lastSeenTime) > OBJECT_PERSISTENCE_TIME);
+    
+    // Update the output array
+    objects = persistentObjects.values().stream()
+        .map(obj -> obj.pose)
+        .toArray(Pose2d[]::new);
+    
+    targetVisible = objects.length > 0;
+    
+    // Logging
+    SmartDashboard.putNumber("Vision/Object Count", objects.length);
+    SmartDashboard.putString("Vision/Calibration Status", 
+        calibrationInitialized ? "Initialized" : "Waiting");
+    
+    // Debug - log positions of all objects
+    if (objects.length > 0) {
+        double[] xValues = new double[objects.length];
+        double[] yValues = new double[objects.length];
+        for (int i = 0; i < objects.length; i++) {
+            xValues[i] = objects[i].getX();
+            yValues[i] = objects[i].getY();
+        }
+        SmartDashboard.putNumberArray("Vision/Object X", xValues);
+        SmartDashboard.putNumberArray("Vision/Object Y", yValues);
+    }
 }

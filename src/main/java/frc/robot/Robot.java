@@ -117,7 +117,7 @@ public class Robot extends LoggedRobot {
           autonomousCommand.cancel();
       }
 
-      Elastic.selectTab("TeleOp");
+      Elastic.selectTab("Teleoperated");
 
       // Check battery voltage at teleop start
       checkBatteryVoltage();
