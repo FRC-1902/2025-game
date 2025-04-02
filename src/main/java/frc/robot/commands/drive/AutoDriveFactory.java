@@ -20,10 +20,20 @@ public class AutoDriveFactory {
    * @return the command
    */
   public Command snapCommand(WaypointType waypoint) {
-    DataLogManager.log("Auto Driving");
     return new SequentialCommandGroup(
       // new PathToWaypoint(() -> swerve.getWaypoint(waypoint, FieldConstants.pathOffset), swerve),
-      new ContinuallySnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, FieldConstants.offset))
+      new ContinuallySnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, FieldConstants.OFFSET))
+    );
+  }
+
+  /**
+   * Drives to the waypoint and snaps to it.
+   * @return the command
+   */
+  public Command bargeAlignCommand(WaypointType waypoint) {
+    return new SequentialCommandGroup(
+      new PathToWaypoint( ()-> FieldConstants.WAYPOINTS.getOffsetPose(swerve.getWaypoint(waypoint, 0), -FieldConstants.BARGE_OFFSET), swerve),
+      new SnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, 0), 1)
     );
   }
 
@@ -32,9 +42,7 @@ public class AutoDriveFactory {
    * @return the command
    */
   public Command pathAndSnapCommand(Pose2d waypoint) {
-    DataLogManager.log("Auto Driving");
-
-    Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.pathOffset);
+    Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.PATH_OFFSET);
 
     return new SequentialCommandGroup(
       new PathToWaypoint(() -> swerve.allianceFlip(offsetWaypoint), swerve),

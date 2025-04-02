@@ -22,25 +22,33 @@ public class SnapToWaypoint extends Command {
   private final PIDController pidY;
   private final double distanceErrorTolerance = 0.04; // meters
   private final double rotationErrorTolerance = Math.toRadians(3); // degrees
+  private final double maxVelocity;
   private double currentDistance;
   private double currentRotError;
+
+  public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
+    this(swerve, targetPoseSupplier, 4.0); // Default max velocity is 4.0 m/s
+  }
 
   /**
    * snaps to specified targetPose based on currentPose
    * @param swerve
    * @param targetPoseSupplier
    */
-  public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
+  public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier, double maxVelocity) {
     this.swerve = swerve;
     this.targetPoseSupplier = targetPoseSupplier;
-    this.pidX = new PIDController(2.5, 0.02, 0.0);
-    this.pidY = new PIDController(2.5, 0.02, 0.0);
+    this.pidX = new PIDController(3.5, 0.02, 0.0);
+    this.pidY = new PIDController(3.5, 0.02, 0.0);
+    this.maxVelocity = maxVelocity;
 
     pidX.reset();
     pidY.reset();
 
     addRequirements(swerve);
   }
+
+
 
 
   @Override
@@ -54,7 +62,6 @@ public class SnapToWaypoint extends Command {
   public void execute() {
     SmartDashboard.putData("PID/SnapToWaypointX", pidX);
     SmartDashboard.putData("PID/SnapToWaypointY", pidY);
-    double maxVelocity = 4.0;
 
     // Finish when position and orientation are close enough
     currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
