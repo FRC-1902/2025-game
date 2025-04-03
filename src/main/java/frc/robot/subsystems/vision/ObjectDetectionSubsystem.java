@@ -308,6 +308,21 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
         closestObject = objectPose;
       }
     }
+
+    if (closestObject != null) {
+      // Calculate angle from robot to coral
+      Translation2d coralTranslation = closestObject.getTranslation();
+      double dx = coralTranslation.getX() - robotTranslation.getX();
+      double dy = coralTranslation.getY() - robotTranslation.getY();
+      double angleRad = Math.atan2(dy, dx) + Math.PI;
+      
+      // Create new Pose2d with correct rotation
+      closestObject = new Pose2d(
+        closestObject.getX(),
+        closestObject.getY(),
+        new Rotation2d(angleRad)
+      );
+    }
     
     return closestObject;
   }
