@@ -1,12 +1,6 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems.vision;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
@@ -39,47 +34,90 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Vision;
-import frc.robot.Constants.Vision.CAMERA_OBJECT;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+
 public class ObjectDetectionSubsystem extends SubsystemBase {
+  // Configuration for object tracking
+  private static final double POSITION_MATCH_THRESHOLD = 0.2;  // meters
+  private static final double CONFIDENCE_GAIN = 0.1;  // How quickly confidence increases
+  private static final double CONFIDENCE_DECAY = 0.5;  // How quickly confidence decreases per second
+  private static final double MIN_CONFIDENCE = 0.1;  // Minimum confidence to keep tracking
+  private static final double DISPLAY_CONFIDENCE = 0.3;  // Minimum confidence to display object
+  private static final double MAX_AGE = 1.0;  // Maximum time to track without seeing
+  private static final double FILTER_WEIGHT = 0.3;  // Weight for new measurements (0-1)
+  private static final double MIN_VELOCITY = 0.05;  // Minimum velocity to consider object moving (m/s)
+  
   /** Creates a new DetectionSubsystem. */
-  private final PhotonCamera camera = new PhotonCamera(CAMERA_OBJECT.CAMERA_NAME);
+  private final PhotonCamera camera = new PhotonCamera(Vision.CAMERA_OBJECT.CAMERA_NAME);
   private final SwerveSubsystem swerveSubsystem;
 
   private Optional<Matrix<N3, N3>> cameraMatrixOpt = Optional.empty();
   private Optional<Matrix<N8, N1>> distCoeffsOpt = Optional.empty();
 
-  private boolean targetVisible = false;
-  private PhotonTrackedTarget currentObject;
-
+  // Array to store detected objects
   public Pose2d[] objects = new Pose2d[0];
-
-  private Point targetPoint = null;
+  
+  // Camera calibration state
   private boolean calibrationInitialized = false;
-
-  private static final double MAX_TRACKING_AGE = 0.5; // Maximum time to track an object without seeing it (seconds)
-  private static final double MIN_TRACKING_CONFIDENCE = 0.7; // Minimum confidence to report an object
-  private static final double POSITION_MATCH_THRESHOLD = 0.5; // Maximum distance in meters to consider the same object
-  private static final double OBJECT_PERSISTENCE_TIME = 0.5; // seconds
-  private Map<Integer, PersistentObject> persistentObjects = new HashMap<>();
-  private int nextPersistentId = 0;
-  private static final double MATCH_THRESHOLD = 0.3; // meters
-
   private double lastCalibrationAttempt = 0;
   private static final double CALIBRATION_RETRY_INTERVAL = 1.0; // seconds
-
-
-  // Map to track objects over time - key is a unique ID, value is tracked object data
+  
+  // Storage for tracked objects
   private Map<Integer, TrackedObject> trackedObjects = new HashMap<>();
-  private int nextObjectId = 0;
+  private int nextTrackId = 0;
 
-  private static class PersistentObject {
+  // Class to represent a tracked object with filtering
+  private static class TrackedObject {
     public Pose2d pose;
-    public double lastSeenTime;
+    private Translation2d filteredTranslation;
+    private Translation2d velocity;  // Velocity vector
+    public double lastSeenTimestamp;
+    public double confidence;
+    private boolean isMoving;
     
-    public PersistentObject(Pose2d pose, double time) {
-        this.pose = pose;
-        this.lastSeenTime = time;
+    public TrackedObject(Pose2d pose, double timestamp) {
+      this.pose = pose;
+      this.filteredTranslation = pose.getTranslation();
+      this.velocity = new Translation2d();  // Zero velocity initially
+      this.lastSeenTimestamp = timestamp;
+      this.confidence = 0.5;  // Initial confidence
+      this.isMoving = false;
+    }
+    
+    public void updatePose(Pose2d newPose, double currentTime, double filterWeight) {
+      // Calculate time delta
+      double dt = currentTime - lastSeenTimestamp;
+      if (dt <= 0) dt = 0.02;  // Avoid division by zero
+      
+      // Previous position
+      Translation2d oldPosition = filteredTranslation;
+      
+      // Apply position filter
+      double newX = filteredTranslation.getX() * (1-filterWeight) + newPose.getX() * filterWeight;
+      double newY = filteredTranslation.getY() * (1-filterWeight) + newPose.getY() * filterWeight;
+      filteredTranslation = new Translation2d(newX, newY);
+      
+      // Track velocity for debugging but simplified
+      if (dt > 0) {
+        double vx = (filteredTranslation.getX() - oldPosition.getX()) / dt;
+        double vy = (filteredTranslation.getY() - oldPosition.getY()) / dt;
+        velocity = new Translation2d(vx, vy);
+        
+        // Flag as moving if velocity exceeds threshold
+        isMoving = velocity.getNorm() > MIN_VELOCITY;
+      }
+      
+      // Create new pose with filtered position but use rotation from new pose
+      pose = new Pose2d(filteredTranslation, newPose.getRotation());
+      lastSeenTimestamp = currentTime;
+    }
+    
+    public boolean isMoving() {
+      return isMoving;
+    }
+    
+    public double getSpeed() {
+      return velocity.getNorm();
     }
   }
 
@@ -102,13 +140,13 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     
     boolean hasCalibrationData = cameraMatrixOpt.isPresent() && distCoeffsOpt.isPresent();
     if (!hasCalibrationData) {
-        System.err.println("Camera calibration data not available yet");
-        // Don't set calibrationInitialized - we need to keep trying
-        return false;
+      System.err.println("Camera calibration data not available yet");
+      // Don't set calibrationInitialized - we need to keep trying
+      return false;
     } else {
-        System.out.println("Camera calibration data successfully loaded");
-        calibrationInitialized = true; // Only set to true when we have data
-        return true;
+      System.out.println("Camera calibration data successfully loaded");
+      calibrationInitialized = true; // Only set to true when we have data
+      return true;
     }
   }
 
@@ -154,11 +192,11 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     // Average the x values
     double x = sumX / cornersList.length;
     
-    x = Math.max(0, Math.min(x, CAMERA_OBJECT.HORIZONTAL_RES));
-    y = Math.max(0, Math.min(y, CAMERA_OBJECT.VERTICAL_RES));
+    x = Math.max(0, Math.min(x, Vision.CAMERA_OBJECT.HORIZONTAL_RES));
+    y = Math.max(0, Math.min(y, Vision.CAMERA_OBJECT.VERTICAL_RES));
 
-    double normX = x/CAMERA_OBJECT.HORIZONTAL_RES;
-    double normY = (CAMERA_OBJECT.VERTICAL_RES - y)/CAMERA_OBJECT.VERTICAL_RES;
+    double normX = x/Vision.CAMERA_OBJECT.HORIZONTAL_RES;
+    double normY = (Vision.CAMERA_OBJECT.VERTICAL_RES - y)/Vision.CAMERA_OBJECT.VERTICAL_RES;
 
     return new Point(normX, normY);
   }
@@ -173,13 +211,13 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     double angleOffset = point.y - .5;
 
     // Calculate the pitch in degrees
-    double pitchDeg =  angleOffset * (CAMERA_OBJECT.VERTICAL_FOV).getDegrees(); 
+    double pitchDeg = angleOffset * (Vision.CAMERA_OBJECT.VERTICAL_FOV).getDegrees(); 
 
-    double totalAngleDeg = Units.radiansToDegrees(CAMERA_OBJECT.CAMERA_ROTATION.getY()) + pitchDeg;
+    double totalAngleDeg = Units.radiansToDegrees(Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS.getRotation().getY()) + pitchDeg;
     double totalAngleRad = Math.toRadians(totalAngleDeg);
 
     // Horizontal distance to the object on the floor
-    double distance = CAMERA_OBJECT.CAMERA_TRANSLATION.getZ() * Math.tan(totalAngleRad);  
+    double distance = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS.getZ() * Math.tan(totalAngleRad);  
 
     return distance;
   }
@@ -193,7 +231,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     // Calculate the angle offset from the center of the camera
     double angleOffset = point.x - .5;
     
-    Rotation2d yaw = Rotation2d.fromDegrees(-angleOffset * (CAMERA_OBJECT.HORIZONTAL_FOV).getDegrees());
+    Rotation2d yaw = Rotation2d.fromDegrees(-angleOffset * (Vision.CAMERA_OBJECT.HORIZONTAL_FOV).getDegrees());
     
     return yaw;
   }
@@ -214,40 +252,36 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     double xCamera = depth * Math.cos(yawRad);
     double yCamera = depth * Math.sin(yawRad);
 
-    Transform2d cameraToObject = new Transform2d(
-      new Translation2d(xCamera, yCamera), // in meters
-      new Rotation2d()
+    // Create a 3D transform from camera to object
+    Transform3d cameraToObject = new Transform3d(
+      new Translation3d(xCamera, yCamera, 0), // Object is on floor
+      new Rotation3d(0, 0, 0)
     );
 
+    // Get robot's position from odometry
     Pose2d robotPose = swerveSubsystem.getPose();
-    Pose2d cameraPose = robotPose.transformBy(CAMERA_OBJECT.CAMERA_POSE);
-    Pose2d objectPose = cameraPose.transformBy(cameraToObject);
-    return objectPose;
+    Pose3d robotPose3d = new Pose3d(
+      robotPose.getX(), 
+      robotPose.getY(), 
+      0.0, 
+      new Rotation3d(0, 0, robotPose.getRotation().getRadians())
+    );
+    
+    // Apply transforms to get object position
+    Pose3d objectPose3d = robotPose3d
+      .transformBy(Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS)
+      .transformBy(cameraToObject);
+    
+    // Project back to 2D for navigation
+    return new Pose2d(
+      objectPose3d.getX(),
+      objectPose3d.getY(),
+      new Rotation2d(objectPose3d.getRotation().getZ())
+    );
   }
 
   public boolean isTargetVisible() {
-    return targetVisible;
-  }
-
-  public PhotonTrackedTarget getCurrentObject() {
-    return currentObject;
-  }
-
-  public Pose2d[] objects() {
-    return objects;
-  }
-
-  // Class to track object data over time
-  private static class TrackedObject {
-    public Pose2d pose;
-    public double lastSeenTimestamp;
-    public double confidence;
-    
-    public TrackedObject(Pose2d pose, double timestamp, double initialConfidence) {
-        this.pose = pose;
-        this.lastSeenTimestamp = timestamp;
-        this.confidence = initialConfidence;
-    }
+    return objects != null && objects.length > 0;
   }
 
   /**
@@ -279,152 +313,207 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   }
 
   /**
- * Updates object tracking based on current detections
- */
-private void updateTracking(List<Pose2d> currentObjects, double currentTime) {
-    // First, match current detections to existing tracks
+   * Updates object tracking with new detections
+   * @param newDetections List of newly detected object poses
+   * @param currentTime Current timestamp
+   */
+  private void updateTracking(List<Pose2d> newDetections, double currentTime) {
+    // Match detections to existing tracks
     Set<Integer> matchedTracks = new HashSet<>();
-    Set<Pose2d> unmatchedDetections = new HashSet<>(currentObjects);
     
-    // Try to match each detection to an existing track
-    for (Pose2d detection : currentObjects) {
-        int bestMatchId = -1;
-        double bestDistance = POSITION_MATCH_THRESHOLD;
-        
-        // Find the closest tracked object
-        for (Map.Entry<Integer, TrackedObject> entry : trackedObjects.entrySet()) {
-            int id = entry.getKey();
-            TrackedObject obj = entry.getValue();
-            
-            // Skip already matched tracks
-            if (matchedTracks.contains(id)) continue;
-            
-            // Calculate distance between detection and tracked object
-            double distance = detection.getTranslation().getDistance(obj.pose.getTranslation());
-            if (distance < bestDistance) {
-                bestDistance = distance;
-                bestMatchId = id;
-            }
-        }
-        
-        // Update the matched track
-        if (bestMatchId != -1) {
-            TrackedObject obj = trackedObjects.get(bestMatchId);
-            // Update position (could use a Kalman filter for better smoothing)
-            obj.pose = detection;
-            obj.lastSeenTimestamp = currentTime;
-            obj.confidence = Math.min(1.0, obj.confidence + 0.2); // Increase confidence
-            
-            matchedTracks.add(bestMatchId);
-            unmatchedDetections.remove(detection);
-        }
-    }
-    
-    // Create new tracks for unmatched detections
-    for (Pose2d detection : unmatchedDetections) {
-        TrackedObject newObj = new TrackedObject(detection, currentTime, 0.5);
-        trackedObjects.put(nextObjectId++, newObj);
-    }
-    
-    // Update confidence for unmatched tracks and remove old ones
-    Iterator<Map.Entry<Integer, TrackedObject>> it = trackedObjects.entrySet().iterator();
-    while (it.hasNext()) {
-        Map.Entry<Integer, TrackedObject> entry = it.next();
+    for (Pose2d detection : newDetections) {
+      int bestMatchId = -1;
+      double bestDistance = POSITION_MATCH_THRESHOLD;
+      
+      // Find closest existing track - simplified matching
+      for (Map.Entry<Integer, TrackedObject> entry : trackedObjects.entrySet()) {
+        int id = entry.getKey();
         TrackedObject obj = entry.getValue();
         
-        if (!matchedTracks.contains(entry.getKey())) {
-            // Decrease confidence for objects not seen in this frame
-            double timeSinceLastSeen = currentTime - obj.lastSeenTimestamp;
-            obj.confidence -= timeSinceLastSeen * 2.0; // Decrease faster for longer unseen objects
-            
-            // Remove if too old or confidence too low
-            if (timeSinceLastSeen > MAX_TRACKING_AGE || obj.confidence <= 0) {
-                it.remove();
-            }
+        double distance = obj.pose.getTranslation().getDistance(detection.getTranslation());
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestMatchId = id;
         }
+      }
+      
+      if (bestMatchId != -1) {
+        // Update existing track
+        TrackedObject obj = trackedObjects.get(bestMatchId);
+        obj.updatePose(detection, currentTime, FILTER_WEIGHT);
+        obj.confidence = Math.min(1.0, obj.confidence + CONFIDENCE_GAIN);
+        matchedTracks.add(bestMatchId);
+      } else {
+        // Create new track
+        trackedObjects.put(nextTrackId, new TrackedObject(detection, currentTime));
+        matchedTracks.add(nextTrackId);
+        nextTrackId++;
+      }
     }
+    
+    // Update unmatched tracks
+    Iterator<Map.Entry<Integer, TrackedObject>> it = trackedObjects.entrySet().iterator();
+    
+    // Count objects by type (for debugging)
+    int movingCount = 0;
+    int stationaryCount = 0;
+    
+    while (it.hasNext()) {
+      Map.Entry<Integer, TrackedObject> entry = it.next();
+      TrackedObject obj = entry.getValue();
+      
+      if (!matchedTracks.contains(entry.getKey())) {
+        double timeSinceLastSeen = currentTime - obj.lastSeenTimestamp;
+        
+        // Decrease confidence over time
+        obj.confidence -= timeSinceLastSeen * CONFIDENCE_DECAY;
+        
+        // Remove if confidence too low or too old
+        if (obj.confidence < MIN_CONFIDENCE || timeSinceLastSeen > MAX_AGE) {
+          it.remove();
+          continue;
+        }
+      }
+      
+      // Keep tracking motion stats for debugging
+      if (obj.isMoving()) {
+        movingCount++;
+      } else {
+        stationaryCount++;
+      }
+    }
+    
+    // Log counts
+    SmartDashboard.putNumber("Vision/MovingObjects", movingCount);
+    SmartDashboard.putNumber("Vision/StationaryObjects", stationaryCount);
   }
 
-  // Replace your periodic method with this simplified version
-@Override
-public void periodic() {
+  @Override
+  public void periodic() {
     double currentTime = Timer.getFPGATimestamp();
+
+    // Basic debugging
+    SmartDashboard.putBoolean("Vision/CalibrationInitialized", calibrationInitialized);
     
     // Try to get calibration data if needed
     if (!calibrationInitialized && 
-            (currentTime - lastCalibrationAttempt) > CALIBRATION_RETRY_INTERVAL) {
-        lastCalibrationAttempt = currentTime;
-        getCameraCalibrationData();
+        (currentTime - lastCalibrationAttempt) > CALIBRATION_RETRY_INTERVAL) {
+      lastCalibrationAttempt = currentTime;
+      getCameraCalibrationData();
     }
     
     // Skip vision processing if we don't have calibration
     if (!calibrationInitialized) {
-        return;
+      return;
     }
       
+    List<Pose2d> detectedObjects = new ArrayList<>();
+      
     // Process new detections
-    List<PhotonPipelineResult> results = camera.getAllLatestResults();
-    if (results.hasTargets()) {
-        for (PhotonTrackedTarget target : results.getTargets()) {
-            // Lower the confidence threshold initially for testing
-            if (target.getDetectedObjectConfidence() < 0.3) {
-                continue;
-            }
-            
-            Point point = getTargetPoint(target);
-            if (point == null) continue;
-            
-            Pose2d objectPose = getObjectPose(point);
-            if (objectPose == null) continue;
-            
-            // Check if this object is already being tracked
-            boolean matched = false;
-            for (Map.Entry<Integer, PersistentObject> entry : persistentObjects.entrySet()) {
-                PersistentObject existingObj = entry.getValue();
-                double distance = existingObj.pose.getTranslation()
-                    .getDistance(objectPose.getTranslation());
-                
-                if (distance < MATCH_THRESHOLD) {
-                    existingObj.pose = objectPose; // Update the position
-                    existingObj.lastSeenTime = currentTime;
-                    matched = true;
-                    break;
-                }
-            }
-            
-            // If no match, add as new object
-            if (!matched) {
-                persistentObjects.put(nextPersistentId++, 
-                    new PersistentObject(objectPose, currentTime));
-            }
+    List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+    if (!results.isEmpty()) {
+      // Get the most recent frame
+      PhotonPipelineResult result = results.get(results.size() - 1);
+      
+      if (result.hasTargets()) {
+        // Process each target
+        for (PhotonTrackedTarget target : result.getTargets()) {
+          // Skip low-confidence detections
+          if (target.getDetectedObjectConfidence() < 0.5) {
+            continue;
+          }
+          
+          // Convert target to a "bottom-center" point, then to a field Pose2d
+          Point point = getTargetPoint(target);
+          if (point == null) continue;
+          
+          Pose2d objectPose = getObjectPose(point);
+          if (objectPose == null) continue;
+          
+          detectedObjects.add(objectPose);
         }
+      }
     }
     
-    // Remove stale objects
-    persistentObjects.entrySet().removeIf(entry -> 
-        (currentTime - entry.getValue().lastSeenTime) > OBJECT_PERSISTENCE_TIME);
+    // Update tracking with new detections
+    updateTracking(detectedObjects, currentTime);
+    
+    // Generate output objects based on tracked objects with sufficient confidence
+    List<Pose2d> outputObjects = new ArrayList<>();
+    for (TrackedObject obj : trackedObjects.values()) {
+      if (obj.confidence >= DISPLAY_CONFIDENCE) {
+        outputObjects.add(obj.pose);
+      }
+    }
     
     // Update the output array
-    objects = persistentObjects.values().stream()
-        .map(obj -> obj.pose)
-        .toArray(Pose2d[]::new);
+    objects = outputObjects.toArray(new Pose2d[0]);
     
-    targetVisible = objects.length > 0;
+    // Keep velocity vectors for debug visualization
+    logVelocityVectors();
     
-    // Logging
-    SmartDashboard.putNumber("Vision/Object Count", objects.length);
-    SmartDashboard.putString("Vision/Calibration Status", 
-        calibrationInitialized ? "Initialized" : "Waiting");
+    // Debug output
+    SmartDashboard.putNumber("Vision/DetectionCount", detectedObjects.size());
+    SmartDashboard.putNumber("Vision/TrackingCount", trackedObjects.size());
+    SmartDashboard.putNumber("Vision/OutputCount", objects.length);
     
-    // Debug - log positions of all objects
+    // Log to AdvantageScope
+    Logger.recordOutput("Vision/DetectedObjects", getObjectPoses3d());
+    
+    // If objects are detected, output the first object's position
     if (objects.length > 0) {
-        double[] xValues = new double[objects.length];
-        double[] yValues = new double[objects.length];
-        for (int i = 0; i < objects.length; i++) {
-            xValues[i] = objects[i].getX();
-            yValues[i] = objects[i].getY();
-        }
-        SmartDashboard.putNumberArray("Vision/Object X", xValues);
-        SmartDashboard.putNumberArray("Vision/Object Y", yValues);
+      SmartDashboard.putNumber("Vision/Object0_X", objects[0].getX());
+      SmartDashboard.putNumber("Vision/Object0_Y", objects[0].getY());
+      
+      // Distance from robot to object
+      Pose2d robotPose = swerveSubsystem.getPose();
+      double distance = robotPose.getTranslation().getDistance(objects[0].getTranslation());
+      SmartDashboard.putNumber("Vision/Object0_Distance", distance);
     }
+  }
+
+  private Pose3d[] getObjectPoses3d() {
+    if (objects == null || objects.length == 0) {
+      return new Pose3d[0];
+    }
+
+    Pose3d[] poses3d = new Pose3d[objects.length];
+    for (int i = 0; i < objects.length; i++) {
+      // Convert Pose2d to Pose3d
+      poses3d[i] = new Pose3d(
+        objects[i].getX(), 
+        objects[i].getY(), 
+        0.06,  // Z coordinate at ground level
+        new Rotation3d(0, 0, objects[i].getRotation().getRadians())
+      );
+    }
+    return poses3d;
+  }
+  
+  /**
+   * Log additional visualization for moving objects
+   */
+  private void logVelocityVectors() {
+    List<Pose3d> velocityMarkers = new ArrayList<>();
+    
+    for (TrackedObject obj : trackedObjects.values()) {
+      if (obj.isMoving() && obj.confidence >= DISPLAY_CONFIDENCE) {
+        // Create a pose that points in the direction of movement
+        double heading = Math.atan2(obj.velocity.getY(), obj.velocity.getX());
+        
+        velocityMarkers.add(new Pose3d(
+          obj.pose.getX(),
+          obj.pose.getY(),
+          0.06, // Slightly above objects
+          new Rotation3d(0, 0, heading)
+        ));
+      }
+    }
+    
+    // Log velocity vectors if any exist
+    if (!velocityMarkers.isEmpty()) {
+      Logger.recordOutput("Vision/VelocityVectors", 
+        velocityMarkers.toArray(new Pose3d[0]));
+    }
+  }
 }
