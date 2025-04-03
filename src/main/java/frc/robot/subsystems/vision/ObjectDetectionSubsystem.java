@@ -66,6 +66,13 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private Map<Integer, TrackedObject> trackedObjects = new HashMap<>();
   private int nextTrackId = 0;
 
+  // Exclusion points configuration
+  private static final boolean ENABLE_EXCLUSION_POINTS = true; 
+  private static final double EXCLUSION_TOLERANCE = 0.5; // meters - how close is "too close" to excluded points
+
+// List of positions to exclude (in meters, field coordinates)
+private List<Translation2d> exclusionPoints = new ArrayList<>();
+
   // Class to represent a tracked object with filtering
   private static class TrackedObject {
     public Pose2d pose;
@@ -121,6 +128,36 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     }
   }
 
+    /**
+   * Initialize exclusion points - call this in the constructor
+   */
+  private void initializeExclusionPoints() {
+    // Example points - replace with your actual positions to avoid
+    exclusionPoints.add(new Translation2d(1.2, 2.2)); 
+    exclusionPoints.add(new Translation2d(0.0, 5.54));
+    // Add more points as needed
+  }
+
+  /**
+   * Checks if a position is too close to any exclusion point
+   */
+  private boolean isTooCloseToExcludedPoint(Translation2d position) {
+    if (!ENABLE_EXCLUSION_POINTS) {
+      return false;
+    }
+    
+    for (Translation2d point : exclusionPoints) {
+      double distance = point.getDistance(position);
+      if (distance <= EXCLUSION_TOLERANCE) {
+        SmartDashboard.putString("Vision/ExcludedNear", 
+            String.format("Point near (%.2f, %.2f)", point.getX(), point.getY()));
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
   public ObjectDetectionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
 
@@ -128,6 +165,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     cvSink.close(); // We don't actually need to use it
 
     getCameraCalibrationData();
+    initializeExclusionPoints();
   }
 
   /**
@@ -292,16 +330,21 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     if (objects == null || objects.length == 0) {
       return null;
     }
-    
+
     // Get robot position
     Pose2d robotPose = swerveSubsystem.getPose();
     Translation2d robotTranslation = robotPose.getTranslation();
-    
-    // Find the closest object
+
+    // Find the closest object that's NOT too close to an exclusion point
     Pose2d closestObject = null;
     double closestDistance = Double.MAX_VALUE;
-    
+
     for (Pose2d objectPose : objects) {
+      // Skip objects too close to exclusion points
+      if (isTooCloseToExcludedPoint(objectPose.getTranslation())) {
+        continue;
+      }
+      
       double distance = robotTranslation.getDistance(objectPose.getTranslation());
       if (distance < closestDistance) {
         closestDistance = distance;
@@ -323,7 +366,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
         new Rotation2d(angleRad)
       );
     }
-    
+
     return closestObject;
   }
 
