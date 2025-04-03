@@ -53,11 +53,12 @@ public class AutoDriveFactory {
     );
   }
 
-  public Command pathAndSnapToObjectCommand() {
-    DataLogManager.log("Auto Driving to Object");
+  public Command pathAndSnapCoralCommand() {
+    DataLogManager.log("Auto Driving to Coral");
+
     return new SequentialCommandGroup(
-      new PathToWaypoint(() -> objectDetectionSubsystem.getClosestObject(), swerve),
-      new ContinuallySnapToWaypoint(swerve, () -> objectDetectionSubsystem.getClosestObject())
+      // new PathToWaypoint(() -> objectDetectionSubsystem.getClosestObject(), swerve),
+      new ContinuallySnapToWaypoint(swerve, () -> FieldConstants.WAYPOINTS.getOffsetPose(objectDetectionSubsystem.getClosestObject(), -FieldConstants.INTAKE_OFFSET))
     );
   }
 }
