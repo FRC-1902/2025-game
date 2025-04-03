@@ -5,13 +5,14 @@
   "pathFolders": [
     "1 L2",
     "2 piece",
+    "2 piece left",
     "4 L3 Piece",
     "4 L3 Piece Left",
-    "2 piece left"
+    "2 L2 2 L3"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
-  "defaultMaxAccel": 2.0,
+  "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 500.0,
   "defaultMaxAngAccel": 400.0,
   "defaultNominalVoltage": 12.0,

@@ -134,7 +134,7 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
   private void initializeExclusionPoints() {
     // Example points - replace with your actual positions to avoid
     exclusionPoints.add(new Translation2d(1.2, 2.2)); 
-    exclusionPoints.add(new Translation2d(0.0, 5.54));
+    exclusionPoints.add(new Translation2d(1.2, 4.02)); 
     // Add more points as needed
   }
 
