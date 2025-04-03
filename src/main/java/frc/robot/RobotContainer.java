@@ -44,10 +44,10 @@ import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.DetectionSubsystem;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
 import frc.robot.subsystems.vision.VisionCamera;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.commands.drive.ObjectAlign;
+// import frc.robot.commands.drive.ObjectAlign;
 
 public class RobotContainer {
 
@@ -59,7 +59,7 @@ public class RobotContainer {
   FloorIntakeSubsystem floorIntake;
   LEDSubsystem led;
   ControllerSubsystem controllers;
-  DetectionSubsystem detectionSubsystem;
+  ObjectDetectionSubsystem detectionSubsystem;
 
   AutoDriveFactory autoDrive;
   AutoIntakeFactory autoIntakeFactory;
@@ -83,7 +83,7 @@ public class RobotContainer {
     led = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
 
-    detectionSubsystem = new DetectionSubsystem();
+    detectionSubsystem = new ObjectDetectionSubsystem(swerve);
 
     // Path Planner logging
     field = new Field2d();
@@ -111,7 +111,7 @@ public class RobotContainer {
       () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE)
     );
 
-    autoDrive = new AutoDriveFactory(swerve);
+    autoDrive = new AutoDriveFactory(swerve, detectionSubsystem);
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
@@ -160,16 +160,16 @@ public class RobotContainer {
     //   .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
 
     // Align to L1
-    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-      .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
+    // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+    //   .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
 
     // Align with Coral TODO: Change when Align PR is merged
-    //  controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-    //        .whileTrue(new ObjectAlign(detectionSubsystem, swerve));
+    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+      .whileTrue(autoDrive.pathAndSnapCoralCommand());
 
-  // Align to Barge
-  controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-    .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
+    // Align to Barge
+    controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+      .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
 
 
     /* Manipulator Controls */

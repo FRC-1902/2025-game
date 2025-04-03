@@ -32,7 +32,6 @@ import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
-import frc.robot.commands.drive.ObjectAlign;
 import frc.robot.commands.drive.SnapToWaypoint;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
 import frc.robot.commands.floorIntake.PositionIntakeCommand;
@@ -42,7 +41,10 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.DetectionSubsystem;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
+import frc.robot.FieldConstants;
+import frc.robot.Constants.EndEffector;
+import frc.robot.Constants;
 
 /*
  * Publishes a network table chooser to smart dashboard to select the autonomous command. 
@@ -56,13 +58,12 @@ public class AutoSelector {
   AlgaeIntakeSubsystem algaeIntake;
   FloorIntakeSubsystem floorIntake;
   EndEffectorSubsystem endEffector;
-  DetectionSubsystem detectionSubsystem;
+  ObjectDetectionSubsystem detectionSubsystem;
   ElevatorSubsystem elevator;
 
   PositionIntakeCommand deployFloorIntakeCommand;
   AutoIntakeFactory autoIntakeFactory;
   ElevatorFactory elevatorFactory;
-  ObjectAlign objectAlign;
   AutoDriveFactory autoDriveFactory;
 
   ContinuousConditionalCommand continuousConditionalCommand;
@@ -83,7 +84,7 @@ public class AutoSelector {
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
-    autoDriveFactory = new AutoDriveFactory(swerve);
+    autoDriveFactory = new AutoDriveFactory(swerve, detectionSubsystem);
 
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
     
@@ -142,7 +143,7 @@ public class AutoSelector {
         new WaitCommand(7),
         autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)
       ),
-      new ObjectAlign(detectionSubsystem, swerve, floorIntake)
+      autoDriveFactory.pathAndSnapCoralCommand()
     );
   } 
 
@@ -521,37 +522,5 @@ public class AutoSelector {
       // End of Auto
     );
   }
-
-  // private SequentialCommandGroup test(){
-  //   return new SequentialCommandGroup(
-  //     // setup odometry
-  //     setStartPosition(7.14, 5.8118),
-
-  //     new ConditionalCommand(
-  //       getPushingPCommand(),
-  //       new InstantCommand(),
-  //       this::isPushingPEnabled
-  //     ),
-
-  //     endEffectorFactory.getIndexSequence(),
-
-  //     // Drive to reef
-  //     new ParallelCommandGroup(
-  //       elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-  //       autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[9]),
-  //       new AlgaeIntakeCommand(algaeIntake)
-  //     ),
-      
-  //     // Place 
-  //     new ScoreCommand(endEffector),
-
-  //     // END OF CYCLE TWO
-
-  //     // Clean Up
-  //     elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
-
-  //     // End of Auto
-  //   );
-  // }
 }
 
