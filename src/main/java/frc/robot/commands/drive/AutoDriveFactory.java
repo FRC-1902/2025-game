@@ -63,7 +63,10 @@ public class AutoDriveFactory {
 
   public Command pathAndSnapCoralCommand() {
     DataLogManager.log("Auto Driving to Coral");
-
+    if (objectDetectionSubsystem.getClosestObject() == null) {
+      DataLogManager.log("No coral detected");
+      return new SequentialCommandGroup();
+    }
     return new SequentialCommandGroup(
       // new PathToWaypoint(() -> objectDetectionSubsystem.getClosestObject(), swerve),
       new ContinuallySnapToWaypoint(swerve, () -> FieldConstants.WAYPOINTS.getOffsetPose(objectDetectionSubsystem.getClosestObject(), -FieldConstants.INTAKE_OFFSET))

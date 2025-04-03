@@ -21,7 +21,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -29,10 +28,11 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.Vision;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -45,7 +45,6 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private static final double DISPLAY_CONFIDENCE = 0.3;  // Minimum confidence to display object
   private static final double MAX_AGE = 1.0;  // Maximum time to track without seeing
   private static final double FILTER_WEIGHT = 0.3;  // Weight for new measurements (0-1)
-  private static final double MIN_VELOCITY = 0.05;  // Minimum velocity to consider object moving (m/s)
   
   /** Creates a new DetectionSubsystem. */
   private final PhotonCamera camera = new PhotonCamera(Vision.CAMERA_OBJECT.CAMERA_NAME);
@@ -70,72 +69,19 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private static final boolean ENABLE_EXCLUSION_POINTS = true; 
   private static final double EXCLUSION_TOLERANCE = 0.5; // meters - how close is "too close" to excluded points
 
-// List of positions to exclude (in meters, field coordinates)
-private List<Translation2d> exclusionPoints = new ArrayList<>();
+  // List of positions to exclude (in meters, field coordinates)
+  private List<Translation2d> exclusionPoints = new ArrayList<>();
 
-  // Class to represent a tracked object with filtering
-  private static class TrackedObject {
-    public Pose2d pose;
-    private Translation2d filteredTranslation;
-    private Translation2d velocity;  // Velocity vector
-    public double lastSeenTimestamp;
-    public double confidence;
-    private boolean isMoving;
-    
-    public TrackedObject(Pose2d pose, double timestamp) {
-      this.pose = pose;
-      this.filteredTranslation = pose.getTranslation();
-      this.velocity = new Translation2d();  // Zero velocity initially
-      this.lastSeenTimestamp = timestamp;
-      this.confidence = 0.5;  // Initial confidence
-      this.isMoving = false;
-    }
-    
-    public void updatePose(Pose2d newPose, double currentTime, double filterWeight) {
-      // Calculate time delta
-      double dt = currentTime - lastSeenTimestamp;
-      if (dt <= 0) dt = 0.02;  // Avoid division by zero
-      
-      // Previous position
-      Translation2d oldPosition = filteredTranslation;
-      
-      // Apply position filter
-      double newX = filteredTranslation.getX() * (1-filterWeight) + newPose.getX() * filterWeight;
-      double newY = filteredTranslation.getY() * (1-filterWeight) + newPose.getY() * filterWeight;
-      filteredTranslation = new Translation2d(newX, newY);
-      
-      // Track velocity for debugging but simplified
-      if (dt > 0) {
-        double vx = (filteredTranslation.getX() - oldPosition.getX()) / dt;
-        double vy = (filteredTranslation.getY() - oldPosition.getY()) / dt;
-        velocity = new Translation2d(vx, vy);
-        
-        // Flag as moving if velocity exceeds threshold
-        isMoving = velocity.getNorm() > MIN_VELOCITY;
-      }
-      
-      // Create new pose with filtered position but use rotation from new pose
-      pose = new Pose2d(filteredTranslation, newPose.getRotation());
-      lastSeenTimestamp = currentTime;
-    }
-    
-    public boolean isMoving() {
-      return isMoving;
-    }
-    
-    public double getSpeed() {
-      return velocity.getNorm();
-    }
-  }
+  // Alert for calibration errors
+  private Alert calibrationErrorAlert;
 
     /**
    * Initialize exclusion points - call this in the constructor
    */
   private void initializeExclusionPoints() {
-    // Example points - replace with your actual positions to avoid
     exclusionPoints.add(new Translation2d(1.2, 2.2)); 
     exclusionPoints.add(new Translation2d(1.2, 4.02)); 
-    // Add more points as needed
+    exclusionPoints.add(new Translation2d(1.2, 5.85)); 
   }
 
   /**
@@ -149,7 +95,7 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
     for (Translation2d point : exclusionPoints) {
       double distance = point.getDistance(position);
       if (distance <= EXCLUSION_TOLERANCE) {
-        SmartDashboard.putString("Vision/ExcludedNear", 
+        SmartDashboard.putString("Vision/Detection/ExcludedNear", 
             String.format("Point near (%.2f, %.2f)", point.getX(), point.getY()));
         return true;
       }
@@ -164,6 +110,8 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
     edu.wpi.first.cscore.CvSink cvSink = new edu.wpi.first.cscore.CvSink("temp");
     cvSink.close(); // We don't actually need to use it
 
+    calibrationErrorAlert = new Alert("Vision/Detection/Camera calibration data not available", AlertType.kError);
+
     getCameraCalibrationData();
     initializeExclusionPoints();
   }
@@ -172,19 +120,16 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
    * Fetches the photonvision calibration results
    * @return calibration results
    */
-  private boolean getCameraCalibrationData() {
+  private void getCameraCalibrationData() {
     cameraMatrixOpt = camera.getCameraMatrix();
     distCoeffsOpt = camera.getDistCoeffs();
     
     boolean hasCalibrationData = cameraMatrixOpt.isPresent() && distCoeffsOpt.isPresent();
     if (!hasCalibrationData) {
       System.err.println("Camera calibration data not available yet");
-      // Don't set calibrationInitialized - we need to keep trying
-      return false;
     } else {
       System.out.println("Camera calibration data successfully loaded");
       calibrationInitialized = true; // Only set to true when we have data
-      return true;
     }
   }
 
@@ -198,8 +143,10 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
     if (currentObject == null) return null;
 
     if (!cameraMatrixOpt.isPresent() || !distCoeffsOpt.isPresent()) {
-      System.err.println("Camera calibration data not available");
+      calibrationErrorAlert.set(true);
       return null;
+    } else {
+      calibrationErrorAlert.set(false);
     }
       
     Matrix<N3, N3> cameraMatrix = cameraMatrixOpt.get();
@@ -276,11 +223,16 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
 
   /**
    * Calculates the object pose relative to the field
-   * Can return null
+   * Requires calibrated point
+   * Can return null if
+   * - Input point is null
+   * - Camera calibration data is unavailable
+   * - Depth calculation fails (invalid angles)
+   * - Robot pose from odometry is invalid
    * @param point
    * @return
    */
-  public Pose2d getObjectPose(Point point) {
+  private Pose2d getObjectPose(Point point) {
     if (point == null) return null;
 
     double depth = getDepth(point);
@@ -297,13 +249,7 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
     );
 
     // Get robot's position from odometry
-    Pose2d robotPose = swerveSubsystem.getPose();
-    Pose3d robotPose3d = new Pose3d(
-      robotPose.getX(), 
-      robotPose.getY(), 
-      0.0, 
-      new Rotation3d(0, 0, robotPose.getRotation().getRadians())
-    );
+    Pose3d robotPose3d = new Pose3d(swerveSubsystem.getPose());
     
     // Apply transforms to get object position
     Pose3d objectPose3d = robotPose3d
@@ -311,11 +257,7 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
       .transformBy(cameraToObject);
     
     // Project back to 2D for navigation
-    return new Pose2d(
-      objectPose3d.getX(),
-      objectPose3d.getY(),
-      new Rotation2d(objectPose3d.getRotation().getZ())
-    );
+    return objectPose3d.toPose2d();
   }
 
   public boolean isTargetVisible() {
@@ -377,7 +319,7 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
    */
   private void updateTracking(List<Pose2d> newDetections, double currentTime) {
     // Match detections to existing tracks
-    Set<Integer> matchedTracks = new HashSet<>();
+    Set<Integer> matchedTracks = new HashSet<>(trackedObjects.size());
     
     for (Pose2d detection : newDetections) {
       int bestMatchId = -1;
@@ -442,16 +384,71 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
     }
     
     // Log counts
-    SmartDashboard.putNumber("Vision/MovingObjects", movingCount);
-    SmartDashboard.putNumber("Vision/StationaryObjects", stationaryCount);
+    SmartDashboard.putNumber("Vision/Detection/TrackedMovingObjects", movingCount);
+    SmartDashboard.putNumber("Vision/Detection/TrackedStationaryObjects", stationaryCount);
   }
 
+  /**
+   * Converts Pose2d array to Pose3d array for logging
+   * @param objectsToConvert Array of Pose2d objects
+   * @return Array of Pose3d objects
+   */
+  private Pose3d[] getObjectPoses3d(Pose2d[] objectsToConvert) {
+    if (objectsToConvert == null || objectsToConvert.length == 0) {
+      return new Pose3d[0];
+    }
+  
+    Pose3d[] poses3d = new Pose3d[objectsToConvert.length];
+    for (int i = 0; i < objectsToConvert.length; i++) {
+      // Convert Pose2d to Pose3d
+      poses3d[i] = new Pose3d(
+        objectsToConvert[i].getX(), 
+        objectsToConvert[i].getY(), 
+        0.06,  // Z coordinate at ground level
+        new Rotation3d(objectsToConvert[i].getRotation())
+      );
+    }
+    return poses3d;
+  }
+  
+  /**
+   * Log additional visualization for moving objects
+   */
+  private void logVelocityVectors() {
+    List<Pose3d> velocityMarkers = new ArrayList<>();
+    
+    for (TrackedObject obj : trackedObjects.values()) {
+      if (obj.isMoving() && obj.confidence >= DISPLAY_CONFIDENCE) {
+        // Create a pose that points in the direction of movement
+        Translation2d velocity = obj.getVelocity();
+        double heading = Math.atan2(velocity.getY(), velocity.getX());
+        
+        velocityMarkers.add(new Pose3d(
+          obj.pose.getX(),
+          obj.pose.getY(),
+          0.06, // Slightly above objects
+          new Rotation3d(0, 0, heading)
+        ));
+      }
+    }
+    
+    // Log velocity vectors if any exist
+    if (!velocityMarkers.isEmpty()) {
+      Logger.recordOutput("Vision/Detection/VelocityVectors", 
+        velocityMarkers.toArray(new Pose3d[0]));
+    }
+  }
+
+  /**
+   * Periodic method to be called every loop
+   * @return The tracked objects
+   */
   @Override
   public void periodic() {
     double currentTime = Timer.getFPGATimestamp();
 
     // Basic debugging
-    SmartDashboard.putBoolean("Vision/CalibrationInitialized", calibrationInitialized);
+    SmartDashboard.putBoolean("/Vision/Detection/CalibrationInitialized", calibrationInitialized);
     
     // Try to get calibration data if needed
     if (!calibrationInitialized && 
@@ -497,81 +494,31 @@ private List<Translation2d> exclusionPoints = new ArrayList<>();
     updateTracking(detectedObjects, currentTime);
     
     // Generate output objects based on tracked objects with sufficient confidence
-    List<Pose2d> outputObjects = new ArrayList<>();
-    for (TrackedObject obj : trackedObjects.values()) {
-      if (obj.confidence >= DISPLAY_CONFIDENCE) {
-        outputObjects.add(obj.pose);
-      }
-    }
-    
-    // Update the output array
-    objects = outputObjects.toArray(new Pose2d[0]);
+    objects = trackedObjects.values().stream()
+      .filter(obj -> obj.confidence >= DISPLAY_CONFIDENCE)
+      .map(obj -> obj.pose)
+      .toArray(Pose2d[]::new);
     
     // Keep velocity vectors for debug visualization
     logVelocityVectors();
     
     // Debug output
-    SmartDashboard.putNumber("Vision/DetectionCount", detectedObjects.size());
-    SmartDashboard.putNumber("Vision/TrackingCount", trackedObjects.size());
-    SmartDashboard.putNumber("Vision/OutputCount", objects.length);
+    SmartDashboard.putNumber("Vision/Detection/DetectionCount", detectedObjects.size());
+    SmartDashboard.putNumber("Vision/Detection/TrackingCount", trackedObjects.size());
+    SmartDashboard.putNumber("Vision/Detection/OutputCount", objects.length);
     
     // Log to AdvantageScope
-    Logger.recordOutput("Vision/DetectedObjects", getObjectPoses3d());
+    Logger.recordOutput("Vision/Detection/DetectedObjects", getObjectPoses3d(objects));
     
     // If objects are detected, output the first object's position
     if (objects.length > 0) {
-      SmartDashboard.putNumber("Vision/Object0_X", objects[0].getX());
-      SmartDashboard.putNumber("Vision/Object0_Y", objects[0].getY());
+      SmartDashboard.putNumber("Vision/Detection/Object0_X", objects[0].getX());
+      SmartDashboard.putNumber("Vision/Detection/Object0_Y", objects[0].getY());
       
       // Distance from robot to object
       Pose2d robotPose = swerveSubsystem.getPose();
       double distance = robotPose.getTranslation().getDistance(objects[0].getTranslation());
-      SmartDashboard.putNumber("Vision/Object0_Distance", distance);
-    }
-  }
-
-  private Pose3d[] getObjectPoses3d() {
-    if (objects == null || objects.length == 0) {
-      return new Pose3d[0];
-    }
-
-    Pose3d[] poses3d = new Pose3d[objects.length];
-    for (int i = 0; i < objects.length; i++) {
-      // Convert Pose2d to Pose3d
-      poses3d[i] = new Pose3d(
-        objects[i].getX(), 
-        objects[i].getY(), 
-        0.06,  // Z coordinate at ground level
-        new Rotation3d(0, 0, objects[i].getRotation().getRadians())
-      );
-    }
-    return poses3d;
-  }
-  
-  /**
-   * Log additional visualization for moving objects
-   */
-  private void logVelocityVectors() {
-    List<Pose3d> velocityMarkers = new ArrayList<>();
-    
-    for (TrackedObject obj : trackedObjects.values()) {
-      if (obj.isMoving() && obj.confidence >= DISPLAY_CONFIDENCE) {
-        // Create a pose that points in the direction of movement
-        double heading = Math.atan2(obj.velocity.getY(), obj.velocity.getX());
-        
-        velocityMarkers.add(new Pose3d(
-          obj.pose.getX(),
-          obj.pose.getY(),
-          0.06, // Slightly above objects
-          new Rotation3d(0, 0, heading)
-        ));
-      }
-    }
-    
-    // Log velocity vectors if any exist
-    if (!velocityMarkers.isEmpty()) {
-      Logger.recordOutput("Vision/VelocityVectors", 
-        velocityMarkers.toArray(new Pose3d[0]));
+      SmartDashboard.putNumber("Vision/Detection/Object0_Distance", distance);
     }
   }
 }
