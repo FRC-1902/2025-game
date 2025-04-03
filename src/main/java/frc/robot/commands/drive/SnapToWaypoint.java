@@ -38,8 +38,8 @@ public class SnapToWaypoint extends Command {
   public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier, double maxVelocity) {
     this.swerve = swerve;
     this.targetPoseSupplier = targetPoseSupplier;
-    this.pidX = new PIDController(3.5, 0.02, 0.0);
-    this.pidY = new PIDController(3.5, 0.02, 0.0);
+    this.pidX = new PIDController(2.5, 0.02, 0.001);
+    this.pidY = new PIDController(2.5, 0.02, 0.001);
     this.maxVelocity = maxVelocity;
 
     pidX.reset();

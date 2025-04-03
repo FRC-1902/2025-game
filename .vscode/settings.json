@@ -60,5 +60,6 @@
   "cSpell.words": [
     "Arducam",
     "MANIP"
-  ]
+  ],
+  "java.debug.settings.onBuildFailureProceed": true
 }

@@ -153,7 +153,7 @@ public class RobotContainer {
     
     // Align to Reef
     controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-      .whileTrue(autoDrive.snapCommand(WaypointType.REEF));
+      .whileTrue(autoDrive.snapOffsetCommand(WaypointType.REEF));
     
     // Align to Processor
     // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
