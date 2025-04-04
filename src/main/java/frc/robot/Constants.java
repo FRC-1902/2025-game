@@ -223,21 +223,21 @@ public final class Constants {
 
       public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
 
-      public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(65); // TODO: Change to real value
-      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(53); // TODO: Change to real value
-      public static final double HORIZONTAL_RES = 1920;
-      public static final double VERTICAL_RES = 1080;
+      public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(69.9); // TODO: Change to real value
+      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(47.2); // TODO: Change to real value
+      public static final double HORIZONTAL_RES = 1280;
+      public static final double VERTICAL_RES = 800 ;
 
       public static final Transform3d CAMERA_OBJECT_POS = new Transform3d(
         new Translation3d(
-          Units.inchesToMeters(-5), // X (5 inches back)
+          Units.inchesToMeters( 2.5), // X (5 inches back)
           0.0,                      // Y (centered)
-          Units.inchesToMeters(28)  // Z (28 inches up)
+          Units.inchesToMeters(30)  // Z (28 inches up)
         ),
         new Rotation3d(
           0.0,                      // Roll (no tilt side to side)
-          Math.toRadians(-30),      // Pitch (30° downward - adjust as needed)
-          Math.toRadians(0)       // Yaw (facing backward based on your current CAMERA_POSE)
+          Math.toRadians(60),      // Pitch (30° downward - adjust as needed)
+          Math.toRadians(180)       // Yaw (facing backward based on your current CAMERA_POSE)
         )
       );
     }

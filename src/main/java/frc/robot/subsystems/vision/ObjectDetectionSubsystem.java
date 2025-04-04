@@ -17,6 +17,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -49,9 +50,8 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   /** Creates a new DetectionSubsystem. */
   private final PhotonCamera camera = new PhotonCamera(Vision.CAMERA_OBJECT.CAMERA_NAME);
   private final SwerveSubsystem swerveSubsystem;
-
-  private Optional<Matrix<N3, N3>> cameraMatrixOpt = Optional.empty();
-  private Optional<Matrix<N8, N1>> distCoeffsOpt = Optional.empty();
+  private Optional<Matrix<N3, N3>> cameraMatrixOpt;
+  private Optional<Matrix<N8, N1>> distCoeffsOpt;
 
   // Array to store detected objects
   public Pose2d[] objects = new Pose2d[0];
@@ -74,6 +74,18 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
 
   // Alert for calibration errors
   private Alert calibrationErrorAlert;
+
+  public ObjectDetectionSubsystem(SwerveSubsystem swerveSubsystem) {
+    this.swerveSubsystem = swerveSubsystem;
+
+    edu.wpi.first.cscore.CvSink cvSink = new edu.wpi.first.cscore.CvSink("temp");
+    cvSink.close(); // We don't actually need to use it
+
+    calibrationErrorAlert = new Alert("Vision/Detection/Camera calibration data not available", AlertType.kError);
+
+    getCameraCalibrationData();
+    initializeExclusionPoints();
+  }
 
     /**
    * Initialize exclusion points - call this in the constructor
@@ -104,30 +116,25 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     return false;
   }
 
-  public ObjectDetectionSubsystem(SwerveSubsystem swerveSubsystem) {
-    this.swerveSubsystem = swerveSubsystem;
-
-    edu.wpi.first.cscore.CvSink cvSink = new edu.wpi.first.cscore.CvSink("temp");
-    cvSink.close(); // We don't actually need to use it
-
-    calibrationErrorAlert = new Alert("Vision/Detection/Camera calibration data not available", AlertType.kError);
-
-    getCameraCalibrationData();
-    initializeExclusionPoints();
-  }
-
   /**
    * Fetches the photonvision calibration results
    * @return calibration results
    */
   private void getCameraCalibrationData() {
-    cameraMatrixOpt = camera.getCameraMatrix();
-    distCoeffsOpt = camera.getDistCoeffs();
+    // TODO: fix up these matricies
+    double[] mat = {917.6716413485537, 0.0, 628.7701549231754, 0.0, 917.2895671181985, 408.3570513202173, 0.0, 0.0, 1.0};
+    double[] mat2 = {0.04279707404944934, -0.04269424123671227, 0.00037888329523742993, 0.0004287957504340824, -0.017187182092513124, -0.0013394471798796866, 0.00293146982353923, 0.0011172256283668042};
+    cameraMatrixOpt = Optional.of(new Matrix<>(Nat.N3(), Nat.N3(), mat));
+    distCoeffsOpt = Optional.of(new Matrix<>(Nat.N8(), Nat.N1(), mat2));
+    // cameraMatrixOpt = camera.getCameraMatrix();
+    // distCoeffsOpt = camera.getDistCoeffs();
+    SmartDashboard.putNumber("Vision/Detection/aaaa", camera.getAllUnreadResults().size());
+
+    SmartDashboard.putBoolean("Vision/Detection/matrix", cameraMatrixOpt.isPresent());
+    SmartDashboard.putBoolean("Vision/Detection/dist", distCoeffsOpt.isPresent());
     
     boolean hasCalibrationData = cameraMatrixOpt.isPresent() && distCoeffsOpt.isPresent();
-    if (!hasCalibrationData) {
-      System.err.println("Camera calibration data not available yet");
-    } else {
+    if (hasCalibrationData) {
       System.out.println("Camera calibration data successfully loaded");
       calibrationInitialized = true; // Only set to true when we have data
     }
@@ -153,19 +160,15 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     Matrix<N8, N1> distCoeffs = distCoeffsOpt.get();
   
     Point[] cornersList = OpenCVHelp.cornersToPoints(currentObject.getMinAreaRectCorners());
-    Point[] undistortedArray = OpenCVHelp.undistortPoints(cameraMatrix, distCoeffs, cornersList);
-
-    for (int i = 0; i < cornersList.length; i++) {
-      cornersList[i].x = undistortedArray[i].x;
-      cornersList[i].y = undistortedArray[i].y;
-    }
+    // TODO: re-add undistortion
+    //cornersList = OpenCVHelp.undistortPoints(cameraMatrix, distCoeffs, cornersList);
   
     double y = Double.NEGATIVE_INFINITY;
     double sumX = 0.0;
 
     if (cornersList.length == 0) return null;
 
-    // Find the average x value and the max y value
+    // Find the average x value and the max y value   
     for (Point corner : cornersList) {
       sumX += corner.x;
       // Find the max y value
@@ -181,7 +184,14 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     y = Math.max(0, Math.min(y, Vision.CAMERA_OBJECT.VERTICAL_RES));
 
     double normX = x/Vision.CAMERA_OBJECT.HORIZONTAL_RES;
-    double normY = (Vision.CAMERA_OBJECT.VERTICAL_RES - y)/Vision.CAMERA_OBJECT.VERTICAL_RES;
+    double normY = y/Vision.CAMERA_OBJECT.VERTICAL_RES;
+
+    // flip coordinates
+    normX = 1 - normX;
+    normY = 1 - normY;
+
+    SmartDashboard.putNumber("Vision/Detection/normX", normX);
+    SmartDashboard.putNumber("Vision/Detection/normY", normY);
 
     return new Point(normX, normY);
   }
@@ -196,13 +206,16 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     double angleOffset = point.y - .5;
 
     // Calculate the pitch in degrees
-    double pitchDeg = angleOffset * (Vision.CAMERA_OBJECT.VERTICAL_FOV).getDegrees(); 
+    double pitchRad = angleOffset * Vision.CAMERA_OBJECT.VERTICAL_FOV.getRadians();
 
-    double totalAngleDeg = Units.radiansToDegrees(Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS.getRotation().getY()) + pitchDeg;
-    double totalAngleRad = Math.toRadians(totalAngleDeg);
+    SmartDashboard.putNumber("Vision/Detection/pitchRad", pitchRad);
+
+    double totalAngleRad = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS.getRotation().getY() + pitchRad;
 
     // Horizontal distance to the object on the floor
     double distance = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS.getZ() * Math.tan(totalAngleRad);  
+
+    SmartDashboard.putNumber("Vision/Detection/distance", distance);
 
     return distance;
   }
@@ -214,11 +227,10 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
    */
   private Rotation2d getYaw(Point point) {
     // Calculate the angle offset from the center of the camera
+    // +/- 50% in either direction
     double angleOffset = point.x - .5;
     
-    Rotation2d yaw = Rotation2d.fromDegrees(-angleOffset * (Vision.CAMERA_OBJECT.HORIZONTAL_FOV).getDegrees());
-    
-    return yaw;
+    return Rotation2d.fromDegrees(angleOffset * Vision.CAMERA_OBJECT.HORIZONTAL_FOV.getDegrees());
   }
 
   /**
@@ -445,15 +457,12 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
    */
   @Override
   public void periodic() {
-    double currentTime = Timer.getFPGATimestamp();
-
     // Basic debugging
-    SmartDashboard.putBoolean("/Vision/Detection/CalibrationInitialized", calibrationInitialized);
+    SmartDashboard.putBoolean("Vision/Detection/CalibrationInitialized", calibrationInitialized);
+    SmartDashboard.putBoolean("Vision/Detection/crap", camera.isConnected());
     
     // Try to get calibration data if needed
-    if (!calibrationInitialized && 
-        (currentTime - lastCalibrationAttempt) > CALIBRATION_RETRY_INTERVAL) {
-      lastCalibrationAttempt = currentTime;
+    if (!calibrationInitialized) {
       getCameraCalibrationData();
     }
     
@@ -491,7 +500,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     }
     
     // Update tracking with new detections
-    updateTracking(detectedObjects, currentTime);
+    updateTracking(detectedObjects, Timer.getFPGATimestamp()); // TODO: change to result time
     
     // Generate output objects based on tracked objects with sufficient confidence
     objects = trackedObjects.values().stream()
