@@ -417,7 +417,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
         objectsToConvert[i].getX(), 
         objectsToConvert[i].getY(), 
         0.06,  // Z coordinate at ground level
-        new Rotation3d(objectsToConvert[i].getRotation())
+        new Rotation3d(0,0, objectsToConvert[i].getRotation().getRadians() + Math.PI/2)
       );
     }
     return poses3d;

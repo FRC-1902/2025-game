@@ -230,13 +230,13 @@ public final class Constants {
 
       public static final Transform3d CAMERA_OBJECT_POS = new Transform3d(
         new Translation3d(
-          Units.inchesToMeters( 2.5), // X (5 inches back)
+          Units.inchesToMeters(-4.879), // X camera offset
           0.0,                      // Y (centered)
-          Units.inchesToMeters(30)  // Z (28 inches up)
+          Units.inchesToMeters(30.1)  // Z (28 inches up)
         ),
         new Rotation3d(
-          0.0,                      // Roll (no tilt side to side)
-          Math.toRadians(60),      // Pitch (30° downward - adjust as needed)
+          0.0,                      //  Roll (no tilt side to side)
+          Math.toRadians(62),      // Pitch (30° downward - adjust as needed)
           Math.toRadians(180)       // Yaw (facing backward based on your current CAMERA_POSE)
         )
       );

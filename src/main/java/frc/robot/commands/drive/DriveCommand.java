@@ -1,5 +1,6 @@
 package frc.robot.commands.drive;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 
@@ -16,7 +17,10 @@ public class DriveCommand extends Command {
   private final SwerveSubsystem swerve;
   private final DoubleSupplier vX, vY, heading;
   private double rotationMultiplier;
+  private double rotationInput;
   private IntSupplier dpad;
+  private DoubleSupplier trigger;
+  private CoralAlignmentHelper alignmentHelper;
 
 
   /**
@@ -26,12 +30,23 @@ public class DriveCommand extends Command {
    * @param vY
    * @param heading
    */
-  public DriveCommand(SwerveSubsystem swerve, DoubleSupplier vX, DoubleSupplier vY, DoubleSupplier heading, IntSupplier dpad) {
+  public DriveCommand(
+      SwerveSubsystem swerve, 
+      DoubleSupplier vX, 
+      DoubleSupplier vY, 
+      DoubleSupplier heading, 
+      IntSupplier dpad,
+      DoubleSupplier trigger,
+      CoralAlignmentHelper alignmentHelper
+    ) 
+  {
     this.swerve = swerve;
     this.vX = vX;
     this.vY = vY;
     this.heading = heading;
     this.dpad = dpad;
+    this.trigger = trigger;
+    this.alignmentHelper = alignmentHelper;
 
     rotationMultiplier = 0.40;
 
@@ -64,7 +79,13 @@ public class DriveCommand extends Command {
     } else {
       rotationMultiplier = 0.40;
     }
-    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
+
+    if (trigger.getAsDouble() > .5) {
+      rotationInput = alignmentHelper.calculateRotationAssistance();
+    } else {
+      rotationInput = 0;
+    }
+    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier + rotationInput; // TODO: change speed cap
 
     SmartDashboard.putNumber("swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
 
