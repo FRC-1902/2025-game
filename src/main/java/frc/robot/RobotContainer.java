@@ -152,12 +152,21 @@ public class RobotContainer {
       .onTrue(new InstantCommand(swerve::zeroGyro));
     
     // Align to Reef
-    controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-      .whileTrue(autoDrive.snapOffsetCommand(WaypointType.REEF));
+    Trigger reefAlignHoldTrigger = controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05); // Keep debounce if desired
+
+    // allign to current reef waypoint
+    reefAlignHoldTrigger.whileTrue(autoDrive.snapOffsetCommand(WaypointType.REEF));
+
+    new Trigger(() -> reefAlignHoldTrigger.getAsBoolean() && controllers.getCommandController(ControllerName.DRIVE).getLeftY() < -.5)
+        .onTrue(new InstantCommand(swerve::decrementReefWaypointIndex, swerve));
+
+    new Trigger(() -> reefAlignHoldTrigger.getAsBoolean() &&
+                    controllers.get(ControllerName.DRIVE, Axis.LX) > .5)
+        .onTrue(new InstantCommand(swerve::incrementReefWaypointIndex, swerve));
     
     // Align to Processor
-    // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-    //   .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
+    controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+      .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
 
     // Align to L1
     controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
@@ -167,8 +176,8 @@ public class RobotContainer {
     //  controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
     //        .whileTrue(new ObjectAlign(detectionSubsystem, swerve));
 
-  // Align to Barge
-  controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+    // Align to Barge
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 180) // Down
     .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
 
 
@@ -201,15 +210,15 @@ public class RobotContainer {
       .whileTrue(new AlgaeIntakeCommand(algaeIntake));
       
     // Climber Up
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 0) // TODO: Get Correct angle
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 0) // Up
       .onTrue(elevatorFactory.getClimberUpSequence());
 
     // Climber Down
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 180) // TODO: Get Correct angle
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 180) // Down
       .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
 
     // Climber Intake In
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90) // TODO: Get Correct angle
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90) // Right
       .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(70)), floorIntake));
 
     // Home
