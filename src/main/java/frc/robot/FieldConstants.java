@@ -34,7 +34,7 @@ public final class FieldConstants {
   public static final double PATH_OFFSET = OFFSET+Units.inchesToMeters(6);
   public static final double TROUGH_OFFSET = Units.inchesToMeters(13); // TODO: get trough offset
   public static final double BARGE_OFFSET = Units.inchesToMeters(60); // TODO: get barge offset
-  public static final double INTAKE_OFFSET = Units.inchesToMeters(12); // TODO: get intake offset
+  public static final double INTAKE_OFFSET = Units.inchesToMeters(20); // TODO: get intake offset
 
 	public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
   

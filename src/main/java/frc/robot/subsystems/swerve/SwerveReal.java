@@ -43,7 +43,7 @@ public class SwerveReal implements SwerveBase {
         Constants.Swerve.MAX_SPEED,
         new Pose2d(
           new Translation2d(Meter.of(2), Meter.of(4)),
-          Rotation2d.fromDegrees(45)
+          Rotation2d.fromDegrees(180)
         )
       );
     } catch (Exception e) {

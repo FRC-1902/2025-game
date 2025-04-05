@@ -84,7 +84,7 @@ public class SnapToWaypoint extends Command {
       cappedVelocity = cappedVelocity.times(1.0 / v).times(maxVelocity);
     }
 
-    double rotationkP = 3; 
+    double rotationkP = 4; 
     Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
     double cappedRotation = Math.max(Math.min(rotation.getRadians(), 3), -3);
     

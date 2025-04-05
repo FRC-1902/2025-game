@@ -41,11 +41,12 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   // Configuration for object tracking
   private static final double POSITION_MATCH_THRESHOLD = 0.2;  // meters
   private static final double CONFIDENCE_GAIN = 0.1;  // How quickly confidence increases
-  private static final double CONFIDENCE_DECAY = 0.5;  // How quickly confidence decreases per second
+  private static final double CONFIDENCE_DECAY = 0.2;  // How quickly confidence decreases per second
   private static final double MIN_CONFIDENCE = 0.1;  // Minimum confidence to keep tracking
   private static final double DISPLAY_CONFIDENCE = 0.3;  // Minimum confidence to display object
-  private static final double MAX_AGE = 1.0;  // Maximum time to track without seeing
+  private static final double MAX_AGE = 2.0;  // Maximum time to track without seeing
   private static final double FILTER_WEIGHT = 0.3;  // Weight for new measurements (0-1)
+  private static final double CONFIDENCE = 0.1;  // Minimum confidence to consider a target valid, independent of photons confidence, photon comes first, if it passes will basically just get filtered twice
   
   /** Creates a new DetectionSubsystem. */
   private final PhotonCamera camera = new PhotonCamera(Vision.CAMERA_OBJECT.CAMERA_NAME);
@@ -122,12 +123,15 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
    */
   private void getCameraCalibrationData() {
     // TODO: fix up these matricies
-    double[] mat = {917.6716413485537, 0.0, 628.7701549231754, 0.0, 917.2895671181985, 408.3570513202173, 0.0, 0.0, 1.0};
-    double[] mat2 = {0.04279707404944934, -0.04269424123671227, 0.00037888329523742993, 0.0004287957504340824, -0.017187182092513124, -0.0013394471798796866, 0.00293146982353923, 0.0011172256283668042};
+    double[] mat = {914.4473225619788, 0.0, 593.3724508723684, 0.0, 914.7543494185871, 473.17413201554217, 0.0, 0.0, 1.0};
+    double[] mat2 = {0.03913534503908854, -0.05779809768824109, 0.00011209689892050617, -0.0009032158840746022, 0.0029564913451770175, -0.001342718063004936, 0.0006578999028743138, -0.0010550436326518305};
+    // double[] mat = {0,0,0,0,0,0,0,0,0};
+    // double[] mat2 = {0,0,0,0,0,0,0,0};
     cameraMatrixOpt = Optional.of(new Matrix<>(Nat.N3(), Nat.N3(), mat));
     distCoeffsOpt = Optional.of(new Matrix<>(Nat.N8(), Nat.N1(), mat2));
     // cameraMatrixOpt = camera.getCameraMatrix();
     // distCoeffsOpt = camera.getDistCoeffs();
+
     SmartDashboard.putNumber("Vision/Detection/aaaa", camera.getAllUnreadResults().size());
 
     SmartDashboard.putBoolean("Vision/Detection/matrix", cameraMatrixOpt.isPresent());
@@ -161,7 +165,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   
     Point[] cornersList = OpenCVHelp.cornersToPoints(currentObject.getMinAreaRectCorners());
     // TODO: re-add undistortion
-    //cornersList = OpenCVHelp.undistortPoints(cameraMatrix, distCoeffs, cornersList);
+    cornersList = OpenCVHelp.undistortPoints(cameraMatrix, distCoeffs, cornersList);
   
     double y = Double.NEGATIVE_INFINITY;
     double sumX = 0.0;
@@ -233,44 +237,58 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     return Rotation2d.fromDegrees(angleOffset * Vision.CAMERA_OBJECT.HORIZONTAL_FOV.getDegrees());
   }
 
-  /**
-   * Calculates the object pose relative to the field
-   * Requires calibrated point
-   * Can return null if
-   * - Input point is null
-   * - Camera calibration data is unavailable
-   * - Depth calculation fails (invalid angles)
-   * - Robot pose from odometry is invalid
-   * @param point
-   * @return
-   */
-  private Pose2d getObjectPose(Point point) {
-    if (point == null) return null;
+/**
+ * Calculates the object pose relative to the field - SIMPLIFIED VERSION
+ * @param point Normalized detection point
+ * @return Object pose in field coordinates
+ */
+private Pose2d getObjectPose(Point point) {
+  if (point == null) return null;
 
-    double depth = getDepth(point);
-    double yawDegrees = getYaw(point).getDegrees();
-    double yawRad = Math.toRadians(yawDegrees);
-
-    double xCamera = depth * Math.cos(yawRad);
-    double yCamera = depth * Math.sin(yawRad);
-
-    // Create a 3D transform from camera to object
-    Transform3d cameraToObject = new Transform3d(
-      new Translation3d(xCamera, yCamera, 0), // Object is on floor
-      new Rotation3d(0, 0, 0)
-    );
-
-    // Get robot's position from odometry
-    Pose3d robotPose3d = new Pose3d(swerveSubsystem.getPose());
+  // STEP 1: Get depth (straight-line distance to object in camera's forward direction)
+  double depth = getDepth(point);
+  
+  // STEP 2: Get yaw (horizontal angle to object)
+  double yawDegrees = getYaw(point).getDegrees();
+  double yawRad = Math.toRadians(yawDegrees);
+  
+  // For camera, +X is forward, +Y is left
+  double xCamera = depth * Math.cos(yawRad); // Forward distance 
+  double yCamera = depth * Math.sin(yawRad); // Side distance
     
-    // Apply transforms to get object position
-    Pose3d objectPose3d = robotPose3d
-      .transformBy(Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS)
-      .transformBy(cameraToObject);
-    
-    // Project back to 2D for navigation
-    return objectPose3d.toPose2d();
-  }
+  // Get camera position on robot
+  Transform3d cameraPose = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS;
+  
+  // Create a 3D transform from camera to object
+  Transform3d cameraToObject = new Transform3d(
+    new Translation3d(xCamera, yCamera, 0), // Object is on floor
+    new Rotation3d(0, 0, 0)
+  );
+
+  Translation3d robotTrans = new Translation3d(swerveSubsystem.getPose().getTranslation());
+  Rotation3d robotRot = new Rotation3d(swerveSubsystem.getPose().getRotation());
+
+  // STEP 6: Combine all transforms to get field coordinates
+  Pose3d robotPose3d = new Pose3d(new Translation3d(robotTrans.getX()-Units.inchesToMeters(4.879), robotTrans.getY(), 0), new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Math.PI));
+  Pose3d objectPose3d = robotPose3d
+    // .transformBy(test2)  // Go from robot to camera
+    .transformBy(cameraToObject);  // Go from camera to object
+  
+
+
+  // Apply camera transform to get camera position in field coordinates
+  Pose3d cameraPose3d = robotPose3d.transformBy(cameraPose);
+  
+  // Log camera position and orientation
+  Logger.recordOutput("Vision/Detection/CameraPose", cameraPose3d);
+  
+  // Log final object position in field coordinates
+  SmartDashboard.putNumber("Vision/Detection/ObjectFieldX", objectPose3d.getX());
+  SmartDashboard.putNumber("Vision/Detection/ObjectFieldY", objectPose3d.getY());
+  
+  // Project back to 2D for navigation
+  return objectPose3d.toPose2d();
+}
 
   public boolean isTargetVisible() {
     return objects != null && objects.length > 0;
@@ -281,21 +299,34 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
    * @return The closest Pose2d object, or null if no objects detected
    */
   public Pose2d getClosestObject() {
-    if (objects == null || objects.length == 0) {
-      return null;
-    }
-
+    // Log entry to method for debugging
+    boolean hasObjects = (objects != null && objects.length > 0);
+    SmartDashboard.putBoolean("Vision/ClosestObject/HasObjects", hasObjects);
+    SmartDashboard.putNumber("Vision/ClosestObject/ObjectCount", (objects != null) ? objects.length : 0);
+    
+    // if (!hasObjects) {
+    //   return null;
+    // }
+  
     // Get robot position
     Pose2d robotPose = swerveSubsystem.getPose();
     Translation2d robotTranslation = robotPose.getTranslation();
-
+    SmartDashboard.putNumber("Vision/ClosestObject/RobotX", robotTranslation.getX());
+    SmartDashboard.putNumber("Vision/ClosestObject/RobotY", robotTranslation.getY());
+  
     // Find the closest object that's NOT too close to an exclusion point
     Pose2d closestObject = null;
     double closestDistance = Double.MAX_VALUE;
-
+    int objectsFilteredByExclusion = 0;
+  
     for (Pose2d objectPose : objects) {
-      // Skip objects too close to exclusion points
-      if (isTooCloseToExcludedPoint(objectPose.getTranslation())) {
+      // Log each object position
+      Logger.recordOutput("Vision/ClosestObject/ObjectPositions", getObjectPoses3d(objects));
+      
+      // Check exclusion points
+      boolean tooClose = isTooCloseToExcludedPoint(objectPose.getTranslation());
+      if (tooClose) {
+        objectsFilteredByExclusion++;
         continue;
       }
       
@@ -305,22 +336,39 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
         closestObject = objectPose;
       }
     }
-
+    
+    // Log exclusion stats
+    SmartDashboard.putNumber("Vision/ClosestObject/FilteredByExclusion", objectsFilteredByExclusion);
+    
+    // Check if we found any valid object after filtering
+    SmartDashboard.putBoolean("Vision/ClosestObject/FoundValid", closestObject != null);
+    
     if (closestObject != null) {
+      // Log the distance to closest object
+      SmartDashboard.putNumber("Vision/ClosestObject/Distance", closestDistance);
+      
       // Calculate angle from robot to coral
       Translation2d coralTranslation = closestObject.getTranslation();
       double dx = coralTranslation.getX() - robotTranslation.getX();
       double dy = coralTranslation.getY() - robotTranslation.getY();
-      double angleRad = Math.atan2(dy, dx) + Math.PI;
+      
+      // Calculate an angle that points TOWARD the coral (not +PI)
+      double angleRad = Math.atan2(dy, dx);
+      SmartDashboard.putNumber("Vision/ClosestObject/AngleToObject", Math.toDegrees(angleRad));
       
       // Create new Pose2d with correct rotation
       closestObject = new Pose2d(
         closestObject.getX(),
         closestObject.getY(),
-        new Rotation2d(angleRad)
+        new Rotation2d(angleRad+Math.PI) // Flip to point toward object
       );
+      
+      // Log the final object position
+      SmartDashboard.putNumber("Vision/ClosestObject/FinalX", closestObject.getX());
+      SmartDashboard.putNumber("Vision/ClosestObject/FinalY", closestObject.getY());
+      SmartDashboard.putNumber("Vision/ClosestObject/FinalRotDeg", closestObject.getRotation().getDegrees());
     }
-
+  
     return closestObject;
   }
 
@@ -458,8 +506,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Basic debugging
-    SmartDashboard.putBoolean("Vision/Detection/CalibrationInitialized", calibrationInitialized);
-    SmartDashboard.putBoolean("Vision/Detection/crap", camera.isConnected());
+    SmartDashboard.putBoolean("Vision/Detection/CameraStatus", camera.isConnected());
     
     // Try to get calibration data if needed
     if (!calibrationInitialized) {
@@ -483,7 +530,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
         // Process each target
         for (PhotonTrackedTarget target : result.getTargets()) {
           // Skip low-confidence detections
-          if (target.getDetectedObjectConfidence() < 0.5) {
+          if (target.getDetectedObjectConfidence() < CONFIDENCE) {
             continue;
           }
           
@@ -518,6 +565,8 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     
     // Log to AdvantageScope
     Logger.recordOutput("Vision/Detection/DetectedObjects", getObjectPoses3d(objects));
+
+    getClosestObject();
     
     // If objects are detected, output the first object's position
     if (objects.length > 0) {
