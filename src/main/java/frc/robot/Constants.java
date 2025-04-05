@@ -57,7 +57,7 @@ public final class Constants {
 
     // Auto Speeds
     public static final double AUTO_MAX_SPEED = 3; // m/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = 2; // m/s^2 TODO: Adjust later
+    public static final double AUTO_MAX_ACCELERATION = 3; // m/s^2 TODO: Adjust later
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(4); // TODO: Adjust later
 
     // Object detection turn KP
@@ -223,8 +223,8 @@ public final class Constants {
 
       public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
 
-      public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(69.9); // TODO: Change to real value
-      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(47.2); // TODO: Change to real value
+      public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(69.83); // TODO: Change to real value
+      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(47.16); // TODO: Change to real value
       public static final double HORIZONTAL_RES = 1280;
       public static final double VERTICAL_RES = 800 ;
 
@@ -237,7 +237,7 @@ public final class Constants {
         new Rotation3d(
           0.0,                      //  Roll (no tilt side to side)
           Math.toRadians(65),      // Pitch (30° downward - adjust as needed)
-          Math.toRadians(180)       // Yaw (facing backward based on your current CAMERA_POSE)
+          Math.toRadians(172)       // Yaw (facing backward based on your current CAMERA_POSE)
         )
       );
     }

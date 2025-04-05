@@ -41,7 +41,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   // Configuration for object tracking
   private static final double POSITION_MATCH_THRESHOLD = 0.2;  // meters
   private static final double CONFIDENCE_GAIN = 0.1;  // How quickly confidence increases
-  private static final double CONFIDENCE_DECAY = 0.2;  // How quickly confidence decreases per second
+  private static final double CONFIDENCE_DECAY = 0.3;  // How quickly confidence decreases per second
   private static final double MIN_CONFIDENCE = 0.1;  // Minimum confidence to keep tracking
   private static final double DISPLAY_CONFIDENCE = 0.3;  // Minimum confidence to display object
   private static final double MAX_AGE = 2.0;  // Maximum time to track without seeing
@@ -212,8 +212,6 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     // Calculate the pitch in degrees
     double pitchRad = angleOffset * Vision.CAMERA_OBJECT.VERTICAL_FOV.getRadians();
 
-    SmartDashboard.putNumber("Vision/Detection/pitchRad", pitchRad);
-
     double totalAngleRad = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS.getRotation().getY() + pitchRad;
 
     // Horizontal distance to the object on the floor
@@ -230,11 +228,19 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
    * @return
    */
   private Rotation2d getYaw(Point point) {
-    // Calculate the angle offset from the center of the camera
-    // +/- 50% in either direction
-    double angleOffset = point.x - .5;
+    // Convert from normalized coordinates to tangent space
+    double normalizedX = point.x - 0.5; // -0.5 to 0.5
     
-    return Rotation2d.fromDegrees(angleOffset * Vision.CAMERA_OBJECT.HORIZONTAL_FOV.getDegrees());
+    // Calculate the tangent based on the camera's focal properties
+    // For a camera with horizontal FOV of θ, the focal length in normalized units is:
+    // f = 0.5 / tan(θ/2)
+    double horizontalFOVRad = Vision.CAMERA_OBJECT.HORIZONTAL_FOV.getRadians();
+    double focalLength = 0.5 / Math.tan(horizontalFOVRad / 2.0);
+    
+    // Calculate the yaw using arctan
+    double yawRad = Math.atan(normalizedX / focalLength);
+    
+    return new Rotation2d(yawRad);
   }
 
 /**
@@ -256,7 +262,7 @@ private Pose2d getObjectPose(Point point) {
   
   // For camera, +X is forward, +Y is left
   double xCamera = depth * Math.cos(yawRad); // Forward distance 
-  double yCamera = depth * Math.sin(yawRad); // Side distance
+  double yCamera = depth * Math.sin(yawRad) * 1.1; // Side distance
     
   // Get camera position on robot
   Transform3d cameraPose = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS;
@@ -271,9 +277,10 @@ private Pose2d getObjectPose(Point point) {
   Rotation3d robotRot = new Rotation3d(swerveSubsystem.getPose().getRotation());
 
   // STEP 6: Combine all transforms to get field coordinates
-  Pose3d robotPose3d = new Pose3d(new Translation3d(robotTrans.getX()-Units.inchesToMeters(0/*4.879 */), robotTrans.getY(), 0), new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Math.PI));
+  Pose3d robotPose3d = new Pose3d(
+    new Translation3d(robotTrans.getX()-Units.inchesToMeters(4.879), robotTrans.getY(), 0), 
+    new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Units.degreesToRadians(179)));
   Pose3d objectPose3d = robotPose3d
-    // .transformBy(test2)  // Go from robot to camera
     .transformBy(cameraToObject);  // Go from camera to object
   
   // Apply camera transform to get camera position in field coordinates

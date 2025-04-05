@@ -92,11 +92,11 @@ public class AutoSelector {
     SmartDashboard.setPersistent(pushingP);
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
+    autoChooser.addDefaultOption("Leave", getLeave());
+    autoChooser.addOption("Right 1 Face", getRight1Face());
+    // autoChooser.addOption("Left 1 Face", getLeft1Face());
     autoChooser.addOption("Right 2 L3", getRight2L3());
     autoChooser.addOption("Left 2 L3", getLeft2L3());
-    autoChooser.addDefaultOption("Leave", getLeave());
-    autoChooser.addOption("Right 4 L3", getRight4L3());
-    autoChooser.addOption("Left 4 L3", getLeft4L3());
     autoChooser.addOption("1 L2", get1L2());
     // autoChooser.addOption("Test", test());
   }
@@ -131,6 +131,21 @@ public class AutoSelector {
     );
   }
 
+  public Command setStartPosition(double x, double y, double rotation) {
+    return new ConditionalCommand(
+      new SequentialCommandGroup(
+        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(x, y, Rotation2d.fromDegrees(180+rotation)))),
+        new InstantCommand(() -> swerve.zeroGyroWithAlliance())
+      ),
+      new SequentialCommandGroup(
+        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(FieldConstants.LENGTH - x, FieldConstants.WIDTH - y, Rotation2d.fromDegrees(0+rotation)))), 
+        new InstantCommand(() -> swerve.zeroGyroWithAlliance())
+      ),
+      this::isBlue
+    );
+  }
+
+
   /**
    * Aligns and drives to coral and ends once intaken
    * <b><h1>Gussy likes to call this "get verified"</h1></b>
@@ -140,7 +155,7 @@ public class AutoSelector {
   private Command getCoralWithDetection(){
     return new ParallelDeadlineGroup(
       new ParallelRaceGroup(
-        new WaitCommand(7),
+        new WaitCommand(5),
         autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)
       ),
       autoDriveFactory.pathAndSnapCoralCommand()
@@ -226,10 +241,10 @@ public class AutoSelector {
     );
   }
 
-  private SequentialCommandGroup getRight4L3(){
+  private SequentialCommandGroup getRight1Face(){
     return new SequentialCommandGroup(
       // setup odometry
-      setStartPosition(7.14, 2.240), // TODO: fix start pos
+      setStartPosition(6.980, 2.200, 60.000),
 
       new ConditionalCommand(
         getPushingPCommand(),
@@ -239,32 +254,28 @@ public class AutoSelector {
 
       endEffectorFactory.getIndexSequence(),
 
-      // Drive to reef and grab algae
+      // Drive to reef and grab algae from L2
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("4 L3 1"),
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
+        swerve.getFollowPathCommand("1F 1"),
         new AlgaeIntakeCommand(algaeIntake)
       ),
+
       // Place
       new ScoreCommand(endEffector),
 
       // END OF CYCLE ONE
 
-      // Drive to HP
-
-      // drive far enough away to get rid of algae
-
-      // drive, while outaking algae, intaking, and looking for a piece
+      // Deploy floor intake, outtake algae, and look for a piece
 
       new ParallelCommandGroup(
-        swerve.getFollowPathCommand("4 L3 2"),
-        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake),
+        // new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake),
+        getCoralWithDetection(),
         new SequentialCommandGroup(
-          new WaitCommand(1),
+          new WaitCommand(2),
           new AlgaeOuttakeCommand(algaeIntake)
         )
       ),
-      getCoralWithDetection(),
 
       // Drive to reef
       new ParallelCommandGroup(
@@ -272,7 +283,7 @@ public class AutoSelector {
           autoIntakeFactory.getAutonomousIndexSequence(),
           elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
         ),
-        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[0]),
+        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[10]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       

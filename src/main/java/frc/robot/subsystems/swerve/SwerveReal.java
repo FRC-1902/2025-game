@@ -42,8 +42,8 @@ public class SwerveReal implements SwerveBase {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(
         Constants.Swerve.MAX_SPEED,
         new Pose2d(
-          new Translation2d(Meter.of(0), Meter.of(0)),
-          Rotation2d.fromDegrees(180)
+          new Translation2d(Meter.of(2), Meter.of(4)),
+          Rotation2d.fromDegrees(0)
         )
       );
     } catch (Exception e) {

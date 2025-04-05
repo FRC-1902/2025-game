@@ -76,7 +76,8 @@ public class RobotContainer {
 		vision = new VisionSubsystem(
       swerve::addVisionMeasurement, 
       new VisionCamera(Constants.Vision.CAMERA_ONE, Constants.Vision.CAMERA_ONE_POS), 
-      new VisionCamera(Constants.Vision.CAMERA_TWO, Constants.Vision.CAMERA_TWO_POS)
+      new VisionCamera(Constants.Vision.CAMERA_TWO, Constants.Vision.CAMERA_TWO_POS),
+      new VisionCamera(Constants.Vision.CAMERA_THREE, Constants.Vision.CAMERA_THREE_POS)
     );
 
     endEffector = new EndEffectorSubsystem();
@@ -174,7 +175,7 @@ public class RobotContainer {
       .whileTrue(autoDrive.pathAndSnapCoralCommand());
 
     // Align to Barge
-    controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 180)
       .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
 
 
