@@ -250,6 +250,8 @@ private Pose2d getObjectPose(Point point) {
   
   // STEP 2: Get yaw (horizontal angle to object)
   double yawDegrees = getYaw(point).getDegrees();
+  SmartDashboard.putNumber("Vision/Detection/yaw", yawDegrees);
+
   double yawRad = Math.toRadians(yawDegrees);
   
   // For camera, +X is forward, +Y is left
@@ -269,13 +271,11 @@ private Pose2d getObjectPose(Point point) {
   Rotation3d robotRot = new Rotation3d(swerveSubsystem.getPose().getRotation());
 
   // STEP 6: Combine all transforms to get field coordinates
-  Pose3d robotPose3d = new Pose3d(new Translation3d(robotTrans.getX()-Units.inchesToMeters(4.879), robotTrans.getY(), 0), new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Math.PI));
+  Pose3d robotPose3d = new Pose3d(new Translation3d(robotTrans.getX()-Units.inchesToMeters(0/*4.879 */), robotTrans.getY(), 0), new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Math.PI));
   Pose3d objectPose3d = robotPose3d
     // .transformBy(test2)  // Go from robot to camera
     .transformBy(cameraToObject);  // Go from camera to object
   
-
-
   // Apply camera transform to get camera position in field coordinates
   Pose3d cameraPose3d = robotPose3d.transformBy(cameraPose);
   
