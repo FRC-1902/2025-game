@@ -38,6 +38,23 @@ public class AutoDriveFactory {
     );
   }
 
+  public Command autoPathOffsetCommand(Pose2d waypoint) {
+    Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.PATH_OFFSET);
+
+    return new SequentialCommandGroup(
+      new SnapToWaypoint(swerve, () -> swerve.allianceFlip(offsetWaypoint))
+    );
+  }
+
+  public Command autoSnapOffsetCommand(Pose2d waypoint) {
+    Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.OFFSET);
+
+    return new SequentialCommandGroup(
+      new SnapToWaypoint(swerve, () -> swerve.allianceFlip(offsetWaypoint))
+    );
+  }
+
+
   /**
    * Drives to the waypoint and snaps to it.
    * @return the command
@@ -80,7 +97,8 @@ public Command pathAndSnapCoralCommand() {
         
         // Apply the offset and return
         return FieldConstants.WAYPOINTS.getOffsetPose(coral, -FieldConstants.INTAKE_OFFSET);
-      }
+      },
+      4
     )
   );
 }

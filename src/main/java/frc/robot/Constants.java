@@ -57,7 +57,7 @@ public final class Constants {
 
     // Auto Speeds
     public static final double AUTO_MAX_SPEED = 3; // m/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = 3; // m/s^2 TODO: Adjust later
+    public static final double AUTO_MAX_ACCELERATION = 2; // m/s^2 TODO: Adjust later
     public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(4); // TODO: Adjust later
 
     // Object detection turn KP
