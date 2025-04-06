@@ -275,7 +275,8 @@ public class AutoSelector {
       new ParallelCommandGroup(
         // new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake),
         swerve.getFollowPathCommand("1F 2"),
-        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake)
+        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake),
+        new InstantCommand(()->floorIntake.setSpeed(1))
       ),
       new AlgaeOuttakeCommand(algaeIntake),
       getCoralWithDetection(),
@@ -288,7 +289,7 @@ public class AutoSelector {
         ),
         autoDriveFactory.autoPathOffsetCommand(FieldConstants.WAYPOINTS.POLES[10])
       ),
-      autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[10]),
+      // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[10]),
 
       // Place 
       new ScoreCommand(endEffector),
@@ -305,7 +306,7 @@ public class AutoSelector {
         ),
         autoDriveFactory.autoPathOffsetCommand(FieldConstants.WAYPOINTS.POLES[11])
       ),
-      autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11]),
+      // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11]),
 
 
       // Place
@@ -323,7 +324,7 @@ public class AutoSelector {
         ),
         autoDriveFactory.autoPathOffsetCommand(FieldConstants.WAYPOINTS.POLES[11])
       ),
-      autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11]),
+      // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11]),
 
       // Place
       new ScoreCommand(endEffector),     // End of Auto

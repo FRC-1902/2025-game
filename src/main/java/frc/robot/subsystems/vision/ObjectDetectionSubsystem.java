@@ -279,7 +279,7 @@ private Pose2d getObjectPose(Point point) {
   // STEP 6: Combine all transforms to get field coordinates
   Pose3d robotPose3d = new Pose3d(
     new Translation3d(robotTrans.getX()-Units.inchesToMeters(4.879), robotTrans.getY(), 0), 
-    new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Units.degreesToRadians(179)));
+    new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Units.degreesToRadians(185)));
   Pose3d objectPose3d = robotPose3d
     .transformBy(cameraToObject);  // Go from camera to object
   

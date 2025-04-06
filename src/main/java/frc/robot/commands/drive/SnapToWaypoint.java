@@ -20,7 +20,7 @@ public class SnapToWaypoint extends Command {
   private Pose2d targetPose;
   private final PIDController pidX;
   private final PIDController pidY;
-  private final double distanceErrorTolerance = 0.04; // meters
+  private final double distanceErrorTolerance = 0.06; // meters
   private final double rotationErrorTolerance = Math.toRadians(3); // degrees
   private final double maxVelocity;
   private double currentDistance;
