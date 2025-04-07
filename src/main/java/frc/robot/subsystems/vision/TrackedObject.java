@@ -29,7 +29,7 @@ public class TrackedObject {
     this.filteredTranslation = pose.getTranslation();
     this.velocity = new Translation2d();  // Zero velocity initially
     this.lastSeenTimestamp = timestamp;
-    this.confidence = 0.5;  // Initial confidence
+    this.confidence = 0.2;  // Initial confidence
     this.isMoving = false;
   }
   

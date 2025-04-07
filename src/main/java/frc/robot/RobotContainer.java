@@ -26,7 +26,6 @@ import frc.robot.commands.algaeIntake.AlgaeIntakeCommand;
 import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
 import frc.robot.commands.algaeIntake.AlgaeOuttakeFactory;
 import frc.robot.commands.drive.AutoDriveFactory;
-import frc.robot.commands.drive.CoralAlignmentHelper;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
@@ -61,7 +60,6 @@ public class RobotContainer {
   LEDSubsystem led;
   ControllerSubsystem controllers;
   ObjectDetectionSubsystem detectionSubsystem;
-  CoralAlignmentHelper coralAlignmentHelper;
 
   AutoDriveFactory autoDrive;
   AutoIntakeFactory autoIntakeFactory;
@@ -86,8 +84,6 @@ public class RobotContainer {
     led = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
     detectionSubsystem = new ObjectDetectionSubsystem(swerve);
-    coralAlignmentHelper = new CoralAlignmentHelper(swerve, detectionSubsystem);
-
 
     // Path Planner logging
     field = new Field2d();
@@ -112,9 +108,7 @@ public class RobotContainer {
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND), // Right Stick Turning   
-      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE),
-      () -> controllers.get(ControllerName.DRIVE, Axis.LT),
-      coralAlignmentHelper
+      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE)
     );
 
     autoDrive = new AutoDriveFactory(swerve, detectionSubsystem);
@@ -133,7 +127,6 @@ public class RobotContainer {
     led.registerPattern(() -> { return elevator.isAtPosition() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
     led.registerPattern(algaeIntake::isPieceSensorActive, greenPattern);
 
-    
     bindButtons();
   }
 

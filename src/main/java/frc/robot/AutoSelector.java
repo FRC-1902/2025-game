@@ -260,7 +260,7 @@ public class AutoSelector {
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
         new SequentialCommandGroup(
           swerve.getFollowPathCommand("1F 1"),
-          new SnapToWaypoint(swerve,() -> swerve.allianceFlip(FieldConstants.WAYPOINTS.getOffsetPose(FieldConstants.WAYPOINTS.POLES[10], FieldConstants.OFFSET)))
+          autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[10])
         ),
         new AlgaeIntakeCommand(algaeIntake)
       ),

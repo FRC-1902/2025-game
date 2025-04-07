@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.165,
-        "y": 3.86
+        "x": 5.144442038470958,
+        "y": 5.162045043852115
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4073939213439566,
-        "y": 3.7756168615715198
+        "x": 6.773559253248802,
+        "y": 5.962337662340158
       },
       "isLocked": false,
-      "linkedName": "B"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.358372088419432,
-        "y": 2.9872435537364597
+        "x": 5.969143942418498,
+        "y": 0.6655994719573619
       },
       "prevControl": {
-        "x": 2.379254947576135,
-        "y": 3.4033162979955107
+        "x": 5.918851461041011,
+        "y": 0.9765422077947028
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "EF HP"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7032085561497334,
+      "rotationDegrees": -90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -41,14 +46,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 1.0,
-    "rotation": 90.0
+    "velocity": 0,
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "4 L3 Piece",
+  "folder": "1 L3 Algae",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -120.09424147644512
   },
   "useDefaultConstraints": true
 }

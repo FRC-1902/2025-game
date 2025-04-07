@@ -17,11 +17,7 @@ public class DriveCommand extends Command {
   private final SwerveSubsystem swerve;
   private final DoubleSupplier vX, vY, heading;
   private double rotationMultiplier;
-  private double rotationInput;
   private IntSupplier dpad;
-  private DoubleSupplier trigger;
-  private CoralAlignmentHelper alignmentHelper;
-
 
   /**
    * Creates a DriveCommand
@@ -35,18 +31,14 @@ public class DriveCommand extends Command {
       DoubleSupplier vX, 
       DoubleSupplier vY, 
       DoubleSupplier heading, 
-      IntSupplier dpad,
-      DoubleSupplier trigger,
-      CoralAlignmentHelper alignmentHelper
+      IntSupplier dpad
     ) 
   {
     this.swerve = swerve;
     this.vX = vX;
     this.vY = vY;
     this.heading = heading;
-    this.dpad = dpad;
-    this.trigger = trigger;
-    this.alignmentHelper = alignmentHelper;
+    this.dpad = this.dpad;
 
     rotationMultiplier = 0.40;
 
@@ -79,13 +71,8 @@ public class DriveCommand extends Command {
     } else {
       rotationMultiplier = 0.40;
     }
-
-    if (trigger.getAsDouble() > .5) {
-      rotationInput = alignmentHelper.calculateRotationAssistance();
-    } else {
-      rotationInput = 0;
-    }
-    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier + rotationInput; // TODO: change speed cap
+    
+    double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
 
     SmartDashboard.putNumber("swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
 
