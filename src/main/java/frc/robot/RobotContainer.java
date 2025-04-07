@@ -105,10 +105,12 @@ public class RobotContainer {
 
     DriveCommand closedDrive = new DriveCommand(
       swerve,
+      detectionSubsystem,
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND), // Right Stick Turning   
-      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE)
+      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE),
+      () -> (controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
     );
 
     autoDrive = new AutoDriveFactory(swerve, detectionSubsystem);
@@ -139,7 +141,6 @@ public class RobotContainer {
       .whileTrue(new ScoreCommand(endEffector));
 
     // Re Index Coral
-    // new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
     controllers.getTrigger(ControllerName.DRIVE, Button.LB).debounce(0.05)
       .onTrue(endEffectorFactory.getReverseSequence());
 
@@ -162,10 +163,6 @@ public class RobotContainer {
     // Align to L1
     // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
     //   .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
-
-    // Align with Coral TODO: Change when Align PR is merged
-    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-      .whileTrue(autoDrive.pathAndSnapCoralCommand());
 
     // Align to Barge
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 180)

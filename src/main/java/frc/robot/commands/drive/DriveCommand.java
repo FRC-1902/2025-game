@@ -4,6 +4,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -11,13 +12,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
 
 public class DriveCommand extends Command {
 
   private final SwerveSubsystem swerve;
+  private final ObjectDetectionSubsystem detectionSubsystem; 
   private final DoubleSupplier vX, vY, heading;
   private double rotationMultiplier;
   private IntSupplier dpad;
+  private BooleanSupplier trigger;
+  private PIDController rotationPID;
 
   /**
    * Creates a DriveCommand
@@ -27,18 +32,24 @@ public class DriveCommand extends Command {
    * @param heading
    */
   public DriveCommand(
-      SwerveSubsystem swerve, 
-      DoubleSupplier vX, 
-      DoubleSupplier vY, 
-      DoubleSupplier heading, 
-      IntSupplier dpad
-    ) 
+    SwerveSubsystem swerve, 
+    ObjectDetectionSubsystem detectionSubsystem,
+    DoubleSupplier vX, 
+    DoubleSupplier vY, 
+    DoubleSupplier heading, 
+    IntSupplier dpad,
+    BooleanSupplier trigger
+  ) 
   {
     this.swerve = swerve;
+    this.detectionSubsystem = detectionSubsystem;
     this.vX = vX;
     this.vY = vY;
     this.heading = heading;
     this.dpad = this.dpad;
+    this.trigger = trigger;
+
+    rotationPID = new PIDController(5, 0, 0.0);
 
     rotationMultiplier = 0.40;
 
@@ -73,6 +84,18 @@ public class DriveCommand extends Command {
     }
     
     double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
+
+    // Coral alignment
+    if (trigger.getAsBoolean()) {
+      if (detectionSubsystem.getTrackedObject() != null) {
+        double objectAngle = detectionSubsystem.getTrackedObject().getRotation().getDegrees();
+        double currentAngle = swerve.getHeading().getDegrees();
+
+        rotationPID.setSetpoint(objectAngle);
+
+        rotationVelocity = rotationPID.calculate(currentAngle);
+      }
+    }
 
     SmartDashboard.putNumber("swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
 
