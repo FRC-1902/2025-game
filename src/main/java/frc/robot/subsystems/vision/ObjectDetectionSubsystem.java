@@ -119,7 +119,6 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
         return true;
       }
     }
-    
     return false;
   }
 
@@ -165,7 +164,6 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     Matrix<N8, N1> distCoeffs = distCoeffsOpt.get();
   
     Point[] cornersList = OpenCVHelp.cornersToPoints(currentObject.getMinAreaRectCorners());
-    // TODO: re-add undistortion
     cornersList = OpenCVHelp.undistortPoints(cameraMatrix, distCoeffs, cornersList);
   
     double y = Double.NEGATIVE_INFINITY;
@@ -195,8 +193,8 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     normX = 1 - normX;
     normY = 1 - normY;
 
-    SmartDashboard.putNumber("Vision/Detection/normX", normX);
-    SmartDashboard.putNumber("Vision/Detection/normY", normY);
+    // SmartDashboard.putNumber("Vision/Detection/normX", normX);
+    // SmartDashboard.putNumber("Vision/Detection/normY", normY);
 
     return new Point(normX, normY);
   }
@@ -375,7 +373,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
       
       // Calculate an angle that points TOWARD the coral (not +PI)
       double angleRad = Math.atan2(dy, dx);
-      SmartDashboard.putNumber("Vision/ClosestObject/AngleToObject", Math.toDegrees(angleRad));
+      // SmartDashboard.putNumber("Vision/ClosestObject/AngleToObject", Math.toDegrees(angleRad));
       
       // Create new Pose2d with correct rotation
       Pose2d resultPose = new Pose2d(
@@ -385,15 +383,15 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
       );
       
       // Log additional info from the tracked object
-      SmartDashboard.putNumber("Vision/ClosestObject/Confidence", closestTrackedObject.confidence);
-      SmartDashboard.putNumber("Vision/ClosestObject/TimeSinceLastSeen", 
-          Timer.getFPGATimestamp() - closestTrackedObject.lastSeenTimestamp);
+      // SmartDashboard.putNumber("Vision/ClosestObject/Confidence", closestTrackedObject.confidence);
+      // SmartDashboard.putNumber("Vision/ClosestObject/TimeSinceLastSeen", 
+          // Timer.getFPGATimestamp() - closestTrackedObject.lastSeenTimestamp);
       SmartDashboard.putBoolean("Vision/ClosestObject/IsMoving", closestTrackedObject.isMoving());
       
       // Log the final object position
-      SmartDashboard.putNumber("Vision/ClosestObject/FinalX", resultPose.getX());
-      SmartDashboard.putNumber("Vision/ClosestObject/FinalY", resultPose.getY());
-      SmartDashboard.putNumber("Vision/ClosestObject/FinalRotDeg", resultPose.getRotation().getDegrees());
+      // SmartDashboard.putNumber("Vision/ClosestObject/FinalX", resultPose.getX());
+      // SmartDashboard.putNumber("Vision/ClosestObject/FinalY", resultPose.getY());
+      // SmartDashboard.putNumber("Vision/ClosestObject/FinalRotDeg", resultPose.getRotation().getDegrees());
       
       return resultPose;
     }
