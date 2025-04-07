@@ -41,7 +41,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveBase.SwerveInputs inputs = new SwerveBase.SwerveInputs();
   private final AprilTagFieldLayout aprilTagFieldLayout;
-  private int selectedReefWaypointIndex = 0;
 
   /**
    * Creates a SwerveSubsystem with a vision system and swerve base.
@@ -232,63 +231,6 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Gets the total number of defined REEF waypoints.
-   * Assumes the offset doesn't change the number of waypoints.
-   * @return The count of reef waypoints.
-   */
-  public int getReefWaypointCount() {
-    // Use offset 0 just to get the array for its length
-    Pose2d[] waypoints = FieldConstants.WAYPOINTS.getReefPositions(0);
-    return waypoints != null ? waypoints.length : 0;
-  }
-
-  /**
-   * Increments the selected reef waypoint index, wrapping around.
-   */
-  public void incrementReefWaypointIndex() {
-      int count = getReefWaypointCount();
-      if (count > 0) {
-          selectedReefWaypointIndex = (selectedReefWaypointIndex + 1) % count;
-          System.out.println("Incremented Reef Index to: " + selectedReefWaypointIndex); // Optional logging
-      }
-  }
-
-  /**
-   * Decrements the selected reef waypoint index, wrapping around.
-   */
-  public void decrementReefWaypointIndex() {
-      int count = getReefWaypointCount();
-      if (count > 0) {
-          selectedReefWaypointIndex = (selectedReefWaypointIndex - 1 + count) % count;
-           System.out.println("Decremented Reef Index to: " + selectedReefWaypointIndex); // Optional logging
-      }
-  }
-
-  /**
-   * Gets the selected reef waypoint index.
-   * @return The current index.
-   */
-  public int getSelectedReefWaypointIndex() {
-      return selectedReefWaypointIndex;
-  }
-
-  /**
-   * Gets the Pose2d of the reef waypoint at the specified index, applies offset, and alliance flip.
-   * @param index The index of the desired reef waypoint.
-   * @param offset The offset distance to apply.
-   * @return The Pose2d of the waypoint, or null if the index is invalid.
-   */
-  public Pose2d getReefWaypointByIndex(int index, double offset) {
-      Pose2d[] reefWaypoints = FieldConstants.WAYPOINTS.getReefPositions(offset); // Get waypoints with offset
-      if (reefWaypoints == null || index < 0 || index >= reefWaypoints.length) {
-          DriverStation.reportError("Invalid Reef Waypoint Index: " + index, false);
-          return null; // Or return a default pose, or the 0th index
-      }
-      // Apply alliance flip to the specific waypoint
-      return allianceFlip(reefWaypoints[index]);
-  }
-
-  /**
    * Finds the closest waypoint of the specified type.
    *
    * @param type WaypointType
@@ -300,7 +242,8 @@ public class SwerveSubsystem extends SubsystemBase {
   
     switch (type) {
       case REEF:
-        return getReefWaypointByIndex(selectedReefWaypointIndex, offset);
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(offset));
+        break;
       case TROUGH:
         waypoints = allianceFlip(FieldConstants.WAYPOINTS.getTroughPositions());
         break;
