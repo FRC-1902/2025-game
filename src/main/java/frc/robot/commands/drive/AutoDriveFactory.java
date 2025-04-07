@@ -2,10 +2,14 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.FieldConstants;
 import frc.robot.FieldConstants.WaypointType;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -62,6 +66,7 @@ public class AutoDriveFactory {
   public Command bargeAlignCommand(WaypointType waypoint) {
     return new SequentialCommandGroup(
       new PathToWaypoint( ()-> FieldConstants.WAYPOINTS.getOffsetPose(swerve.getWaypoint(waypoint, 0), -FieldConstants.BARGE_OFFSET), swerve),
+      new SnapToWaypoint(swerve, () -> FieldConstants.WAYPOINTS.getOffsetPose(swerve.getWaypoint(waypoint, 0), Units.inchesToMeters(12)), 1),
       new SnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, 0), 1)
     );
   }

@@ -27,6 +27,7 @@ import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
 import frc.robot.commands.algaeIntake.AlgaeOuttakeFactory;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
+import frc.robot.commands.drive.ReefAlign;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
@@ -60,6 +61,8 @@ public class RobotContainer {
   LEDSubsystem led;
   ControllerSubsystem controllers;
   ObjectDetectionSubsystem detectionSubsystem;
+  ReefAlign reefAlignCommand;
+
 
   AutoDriveFactory autoDrive;
   AutoIntakeFactory autoIntakeFactory;
@@ -84,6 +87,7 @@ public class RobotContainer {
     led = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
     detectionSubsystem = new ObjectDetectionSubsystem(swerve);
+    reefAlignCommand = new ReefAlign(swerve);
 
     // Path Planner logging
     field = new Field2d();
@@ -154,20 +158,28 @@ public class RobotContainer {
     
     // Align to Reef
     controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-      .whileTrue(autoDrive.snapOffsetCommand(WaypointType.REEF));
+    .whileTrue(reefAlignCommand)
+    .onFalse(new InstantCommand(reefAlignCommand::resetPoleIndex));
+  
+    // Align to left Reef Pole
+    new Trigger(() -> controllers.getTrigger(ControllerName.DRIVE, Button.B).getAsBoolean() && controllers.get(ControllerName.DRIVE, Axis.LX) < -Constants.Controller.LEFT_Y_DEADBAND)
+      .onTrue(new InstantCommand(() -> reefAlignCommand.navigateToDirectionalPole(false)));
     
+    // Align to right Reef Pole
+    new Trigger(() -> controllers.getTrigger(ControllerName.DRIVE, Button.B).getAsBoolean() && controllers.get(ControllerName.DRIVE, Axis.LX) > Constants.Controller.LEFT_Y_DEADBAND)
+      .onTrue(new InstantCommand(() -> reefAlignCommand.navigateToDirectionalPole(true)));
+
     // Align to Processor
-    // controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-    //   .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
+    controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
+      .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
 
     // Align to L1
-    // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-    //   .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
+    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+      .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
 
     // Align to Barge
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 180)
       .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
-
 
     /* Manipulator Controls */
 

@@ -236,13 +236,13 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param type WaypointType
    * @return closest waypoint of the specified type
    */
-  public Pose2d getWaypoint(WaypointType type, double offset) {
+  public Pose2d getWaypoint(WaypointType type, double reefOffset) {
     Translation2d robotTranslation = swerve.getPose().getTranslation();
     Pose2d[] waypoints = null;
   
     switch (type) {
       case REEF:
-        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(offset));
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(reefOffset));
         break;
       case TROUGH:
         waypoints = allianceFlip(FieldConstants.WAYPOINTS.getTroughPositions());

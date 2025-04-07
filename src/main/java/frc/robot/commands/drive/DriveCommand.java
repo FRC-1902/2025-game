@@ -46,7 +46,7 @@ public class DriveCommand extends Command {
     this.vX = vX;
     this.vY = vY;
     this.heading = heading;
-    this.dpad = this.dpad;
+    this.dpad = dpad;
     this.trigger = trigger;
 
     rotationPID = new PIDController(5, 0, 0.0);
