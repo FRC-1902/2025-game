@@ -1,18 +1,23 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.FieldConstants;
 import frc.robot.FieldConstants.WaypointType;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
 
 public class AutoDriveFactory {
   private SwerveSubsystem swerve;
+  private ObjectDetectionSubsystem objectDetectionSubsystem;
 
-  public AutoDriveFactory(SwerveSubsystem swerve) {
+  public AutoDriveFactory(SwerveSubsystem swerve, ObjectDetectionSubsystem objectDetectionSubsystem) {
     this.swerve = swerve;
+    this.objectDetectionSubsystem = objectDetectionSubsystem;
   }
 
   /**
@@ -32,6 +37,23 @@ public class AutoDriveFactory {
       new ContinuallySnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, FieldConstants.OFFSET))
     );
   }
+
+  public Command autoPathOffsetCommand(Pose2d waypoint) {
+    Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.PATH_OFFSET);
+
+    return new SequentialCommandGroup(
+      new SnapToWaypoint(swerve, () -> swerve.allianceFlip(offsetWaypoint))
+    );
+  }
+
+  public Command autoSnapOffsetCommand(Pose2d waypoint) {
+    Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.OFFSET);
+
+    return new SequentialCommandGroup(
+      new SnapToWaypoint(swerve, () -> swerve.allianceFlip(offsetWaypoint))
+    );
+  }
+
 
   /**
    * Drives to the waypoint and snaps to it.
@@ -57,4 +79,27 @@ public class AutoDriveFactory {
       new SnapToWaypoint(swerve, () -> swerve.allianceFlip(finalWaypoint))
     );
   }
+
+public Command pathAndSnapCoralCommand() {
+  DataLogManager.log("Auto Driving to Coral");
+
+  return new SequentialCommandGroup(
+    new SnapToWaypoint(
+      swerve, 
+      () -> {
+        Pose2d coral = objectDetectionSubsystem.getClosestObject();
+        if (coral == null) {
+          return swerve.getPose();
+        }
+        
+        // We have a valid coral
+        SmartDashboard.putBoolean("Vision/CoralTracking", true);
+        
+        // Apply the offset and return
+        return FieldConstants.WAYPOINTS.getOffsetPose(coral, -FieldConstants.INTAKE_OFFSET);
+      },
+      4
+    )
+  );
+}
 }

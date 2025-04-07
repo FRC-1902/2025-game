@@ -20,7 +20,7 @@ public class SnapToWaypoint extends Command {
   private Pose2d targetPose;
   private final PIDController pidX;
   private final PIDController pidY;
-  private final double distanceErrorTolerance = 0.04; // meters
+  private final double distanceErrorTolerance = 0.06; // meters
   private final double rotationErrorTolerance = Math.toRadians(3); // degrees
   private final double maxVelocity;
   private double currentDistance;
@@ -84,7 +84,7 @@ public class SnapToWaypoint extends Command {
       cappedVelocity = cappedVelocity.times(1.0 / v).times(maxVelocity);
     }
 
-    double rotationkP = 3; 
+    double rotationkP = 4; 
     Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
     double cappedRotation = Math.max(Math.min(rotation.getRadians(), 3), -3);
     

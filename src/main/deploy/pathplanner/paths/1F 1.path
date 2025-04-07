@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.165,
-        "y": 3.86
+        "x": 7.134465100166887,
+        "y": 2.2072784680848794
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4073939213439566,
-        "y": 3.7756168615715198
+        "x": 5.064238105479355,
+        "y": 2.3820419642364534
       },
       "isLocked": false,
-      "linkedName": "B"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.358372088419432,
-        "y": 2.9872435537364597
+        "x": 3.891356981564576,
+        "y": 2.595494261339301
       },
       "prevControl": {
-        "x": 2.379254947576135,
-        "y": 3.4033162979955107
+        "x": 4.140781170030472,
+        "y": 2.5785362482443306
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "EF HP"
+      "linkedName": "D"
     }
   ],
   "rotationTargets": [],
@@ -34,21 +34,21 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 2.0,
-    "maxAngularVelocity": 570.0,
-    "maxAngularAcceleration": 500.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 400.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 1.0,
-    "rotation": 90.0
+    "velocity": 0,
+    "rotation": 59.99999999999999
   },
   "reversed": false,
-  "folder": "4 L3 Piece",
+  "folder": "1 Face",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 89.29553255906679
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

@@ -44,10 +44,10 @@ import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.DetectionSubsystem;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
 import frc.robot.subsystems.vision.VisionCamera;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.commands.drive.ObjectAlign;
+// import frc.robot.commands.drive.ObjectAlign;
 
 public class RobotContainer {
 
@@ -59,7 +59,7 @@ public class RobotContainer {
   FloorIntakeSubsystem floorIntake;
   LEDSubsystem led;
   ControllerSubsystem controllers;
-  DetectionSubsystem detectionSubsystem;
+  ObjectDetectionSubsystem detectionSubsystem;
 
   AutoDriveFactory autoDrive;
   AutoIntakeFactory autoIntakeFactory;
@@ -74,7 +74,8 @@ public class RobotContainer {
 		vision = new VisionSubsystem(
       swerve::addVisionMeasurement, 
       new VisionCamera(Constants.Vision.CAMERA_ONE, Constants.Vision.CAMERA_ONE_POS), 
-      new VisionCamera(Constants.Vision.CAMERA_TWO, Constants.Vision.CAMERA_TWO_POS)
+      new VisionCamera(Constants.Vision.CAMERA_TWO, Constants.Vision.CAMERA_TWO_POS),
+      new VisionCamera(Constants.Vision.CAMERA_THREE, Constants.Vision.CAMERA_THREE_POS)
     );
 
     endEffector = new EndEffectorSubsystem();
@@ -82,8 +83,7 @@ public class RobotContainer {
     floorIntake = new FloorIntakeSubsystem(elevator);
     led = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
-
-    detectionSubsystem = new DetectionSubsystem();
+    detectionSubsystem = new ObjectDetectionSubsystem(swerve);
 
     // Path Planner logging
     field = new Field2d();
@@ -105,13 +105,15 @@ public class RobotContainer {
 
     DriveCommand closedDrive = new DriveCommand(
       swerve,
+      detectionSubsystem,
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND), // Right Stick Turning   
-      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE)
+      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE),
+      () -> (controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
     );
 
-    autoDrive = new AutoDriveFactory(swerve);
+    autoDrive = new AutoDriveFactory(swerve, detectionSubsystem);
     endEffectorFactory = new EndEffectorFactory(endEffector);
     autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
     elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
@@ -127,7 +129,6 @@ public class RobotContainer {
     led.registerPattern(() -> { return elevator.isAtPosition() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
     led.registerPattern(algaeIntake::isPieceSensorActive, greenPattern);
 
-    
     bindButtons();
   }
 
@@ -140,7 +141,7 @@ public class RobotContainer {
       .whileTrue(new ScoreCommand(endEffector));
 
     // Re Index Coral
-    new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
+    controllers.getTrigger(ControllerName.DRIVE, Button.LB).debounce(0.05)
       .onTrue(endEffectorFactory.getReverseSequence());
 
     // Score/Outtake Algae
@@ -160,16 +161,12 @@ public class RobotContainer {
     //   .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
 
     // Align to L1
-    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-      .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
+    // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+    //   .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
 
-    // Align with Coral TODO: Change when Align PR is merged
-    //  controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-    //        .whileTrue(new ObjectAlign(detectionSubsystem, swerve));
-
-  // Align to Barge
-  controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-    .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
+    // Align to Barge
+    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 180)
+      .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
 
 
     /* Manipulator Controls */

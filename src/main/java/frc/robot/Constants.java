@@ -7,6 +7,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
@@ -215,20 +217,30 @@ public final class Constants {
       )
     );
 
-    // Object Camera
-    public static String CAMERA_OBJECT = "colorCam";
-    public static Transform3d CAMERA_OBJECT_POS = new Transform3d(
-      new Translation3d( // X (red), Y (green), Z (height)
-        Units.inchesToMeters(-9.537),
-        Units.inchesToMeters(-10.806),
-        Units.inchesToMeters(8.525)
-      ),
-      new Rotation3d(
-        Math.toRadians(0), 
-        Math.toRadians(-20), 
-        Math.toRadians(-190)
-      )
-    );
+    // Object Detection Camera
+    public static final class CAMERA_OBJECT {
+      public static final String CAMERA_NAME = "colorCam";
+
+      public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
+
+      public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(69.83); // TODO: Change to real value
+      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(47.16); // TODO: Change to real value
+      public static final double HORIZONTAL_RES = 1280;
+      public static final double VERTICAL_RES = 800 ;
+
+      public static final Transform3d CAMERA_OBJECT_POS = new Transform3d(
+        new Translation3d(
+          Units.inchesToMeters(-4.879), // X camera offset
+          0.0,                      // Y (centered)
+          Units.inchesToMeters(28.5)  // Z (28 inches up) 30.1
+        ),
+        new Rotation3d(
+          0.0,                      //  Roll (no tilt side to side)
+          Math.toRadians(65),      // Pitch (30° downward - adjust as needed)
+          Math.toRadians(172)       // Yaw (facing backward based on your current CAMERA_POSE)
+        )
+      );
+    }
 
     // Basic filtering thresholds
     public static double maxAmbiguity = 0.3;

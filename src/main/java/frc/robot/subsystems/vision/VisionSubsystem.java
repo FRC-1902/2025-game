@@ -38,9 +38,7 @@ public class VisionSubsystem extends SubsystemBase {
 		// Initialize disconnected alerts
 		this.disconnectedAlerts = new Alert[io.length];
 		for (int i = 0; i < inputs.length; i++) {
-			disconnectedAlerts[i] =
-					new Alert(
-							"Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
+			disconnectedAlerts[i] = new Alert("Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
 		}
 	}
 
@@ -68,7 +66,7 @@ public class VisionSubsystem extends SubsystemBase {
 		List<Integer> allTagsUsed = new LinkedList<>(); // Track all tags used
 
 		// Define the set of allowed tag IDs
-		Set<Integer> allowedTagIds = Set.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22);
+		Set<Integer> allowedTagIds = Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
 
 		// Loop over cameras
 		for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {

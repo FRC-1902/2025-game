@@ -27,13 +27,14 @@ public final class FieldConstants {
   }
 
   // TODO: Adjust for each field type
-  public static final double WIDTH = Units.inchesToMeters(317); // TODO: Confirm size 
-  public static final double LENGTH = Units.inchesToMeters(690.875); // TODO: Confirm size 
+  public static final double WIDTH = Units.inchesToMeters(317);
+  public static final double LENGTH = Units.inchesToMeters(690.875);
 
-  public static final double OFFSET = Units.inchesToMeters(17); // TODO: Get offsets
-  public static final double PATH_OFFSET = OFFSET+Units.inchesToMeters(12); // TODO: get path offset
+  public static final double OFFSET = Units.inchesToMeters(19);
+  public static final double PATH_OFFSET = OFFSET+Units.inchesToMeters(4);
   public static final double TROUGH_OFFSET = Units.inchesToMeters(13); // TODO: get trough offset
-  public static final double BARGE_OFFSET = Units.inchesToMeters(60); // TODO: get trough offset
+  public static final double BARGE_OFFSET = Units.inchesToMeters(60); // TODO: get barge offset
+  public static final double INTAKE_OFFSET = Units.inchesToMeters(10); // TODO: get intake offset
 
 	public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
   
