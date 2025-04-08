@@ -5,8 +5,10 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +25,8 @@ public class DriveCommand extends Command {
   private IntSupplier dpad;
   private BooleanSupplier trigger;
   private PIDController rotationPID;
+  private boolean wasTracking = false; // Track state for button release detection
+
 
   /**
    * Creates a DriveCommand
@@ -37,8 +41,8 @@ public class DriveCommand extends Command {
     DoubleSupplier vX, 
     DoubleSupplier vY, 
     DoubleSupplier heading, 
-    IntSupplier dpad
-    // BooleanSupplier trigger
+    IntSupplier dpad,
+    BooleanSupplier trigger
   ) 
   {
     this.swerve = swerve;
@@ -47,9 +51,11 @@ public class DriveCommand extends Command {
     this.vY = vY;
     this.heading = heading;
     this.dpad = dpad;
-    // this.trigger = trigger;
+    this.trigger = trigger;
 
-    rotationPID = new PIDController(5, 0, 0.0);
+    rotationPID = new PIDController(6, 0, 0.01);
+    rotationPID.enableContinuousInput(-Math.PI, Math.PI);
+
 
     rotationMultiplier = 0.40;
 
@@ -86,16 +92,23 @@ public class DriveCommand extends Command {
     double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
 
     // Coral alignment
-    // if (trigger.getAsBoolean()) {
-    //   if (detectionSubsystem.getTrackedObject() != null) {
-    //     double objectAngle = detectionSubsystem.getTrackedObject().getRotation().getDegrees();
-    //     double currentAngle = swerve.getHeading().getDegrees();
+    if (trigger.getAsBoolean()) {
+      wasTracking = true;
+      Pose2d trackedObject = detectionSubsystem.getTrackedObject();
+      if (trackedObject != null) {
+        double objectAngle = trackedObject.getRotation().getDegrees();
+        double currentAngle = swerve.getHeading().getDegrees();
 
-    //     rotationPID.setSetpoint(objectAngle);
+        rotationPID.setSetpoint(Units.degreesToRadians(objectAngle));
 
-    //     rotationVelocity = rotationPID.calculate(currentAngle);
-    //   }
-    // }
+        // Apply damping to reduce oscillation
+        rotationVelocity = rotationPID.calculate(Units.degreesToRadians(currentAngle));
+      }
+    } else if (wasTracking) {
+      // Reset tracking when button is released
+      detectionSubsystem.resetTracking();
+      wasTracking = false;
+    }
 
     SmartDashboard.putNumber("swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
 

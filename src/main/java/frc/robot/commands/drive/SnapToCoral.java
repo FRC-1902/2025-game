@@ -1,46 +1,44 @@
 package frc.robot.commands.drive;
 
-
-import java.util.function.Supplier;
-
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
 
-public class SnapToWaypoint extends Command {
+
+/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+public class SnapToCoral extends Command {
   private final SwerveSubsystem swerve;
-  private Supplier<Pose2d> targetPoseSupplier;
+  private final ObjectDetectionSubsystem objectDetection;
   private Pose2d targetPose;
   private final PIDController pidX;
   private final PIDController pidY;
   private final double distanceErrorTolerance = 0.06; // meters
   private final double rotationErrorTolerance = Math.toRadians(3); // degrees
-  private final double maxVelocity;
+  private final double maxVelocity = 4;
+  private final double rotationkP = 4;
   private double currentDistance;
   private double currentRotError;
 
-  public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
-    this(swerve, targetPoseSupplier, 4.0); // Default max velocity is 4.0 m/s
-  }
-
   /**
-   * snaps to specified targetPose based on currentPose
-   * @param swerve
-   * @param targetPoseSupplier
+   * Creates a command that drives to and aligns with a tracked coral with custom velocity
+   * @param swerve SwerveSubsystem for movement
+   * @param objectDetection ObjectDetectionSubsystem for coral tracking
+   * @param maxVelocity Maximum velocity when approaching the coral
    */
-  public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier, double maxVelocity) {
+  public SnapToCoral(SwerveSubsystem swerve, ObjectDetectionSubsystem objectDetection) {
     this.swerve = swerve;
-    this.targetPoseSupplier = targetPoseSupplier;
+    this.objectDetection = objectDetection;
     this.pidX = new PIDController(2.5, 0.02, 0.001);
     this.pidY = new PIDController(2.5, 0.02, 0.001);
-    this.maxVelocity = maxVelocity;
 
     pidX.reset();
     pidY.reset();
@@ -50,40 +48,51 @@ public class SnapToWaypoint extends Command {
 
   @Override
   public void initialize() {
-    targetPose = targetPoseSupplier.get();
+    DataLogManager.log("SnapToTrackedCoral initialized");
     pidX.reset();
     pidY.reset();
   }
 
   @Override
   public void execute() {
-    // Finish when position and orientation are close enough
-    currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
-    currentRotError = Math.abs(swerve.getPose().getRotation().getRadians() - targetPose.getRotation().getRadians());
-
-    SmartDashboard.putNumber("Auto/Snap Distance", currentDistance);
-    SmartDashboard.putNumber("Auto/Snap Rot", currentRotError);
-
-    // Current robot pose
+    // Get the tracked coral object
+    Pose2d coralPose = objectDetection.getTrackedObject();
+    
+    // If no coral found, stop moving
+    if (coralPose == null) {
+      swerve.drive(new Translation2d(0, 0), 0, true);
+      return;
+    }
+      
+    // Apply the offset to keep some distance from the coral
+    targetPose = FieldConstants.WAYPOINTS.getOffsetPose(coralPose, -FieldConstants.INTAKE_OFFSET);
+    
+    // Calculate current position error
     Pose2d currentPose = swerve.getPose();
-
+    currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
+    currentRotError = Math.abs(currentPose.getRotation().getRadians() - targetPose.getRotation().getRadians());
+    
+    // Calculate velocity with PID
     double xVelocity = pidX.calculate(currentPose.getX(), targetPose.getX());
     double yVelocity = pidY.calculate(currentPose.getY(), targetPose.getY());
-
+    
+    // Cap velocity
     Translation2d velocity = new Translation2d(xVelocity, yVelocity);
     Translation2d cappedVelocity = velocity;
-
+    
     double v = velocity.getDistance(Translation2d.kZero);
     if (v > maxVelocity) {
       cappedVelocity = cappedVelocity.times(1.0 / v).times(maxVelocity);
     }
-
-    double rotationkP = 4; 
+    
+    // Calculate rotation to target
     Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
     double cappedRotation = Math.max(Math.min(rotation.getRadians(), 3), -3);
     
+    // Drive to target
     swerve.drive(cappedVelocity, cappedRotation, true);
-
+    
+    // Vibrate controller when close to target
     if ((currentDistance < distanceErrorTolerance) && (currentRotError < rotationErrorTolerance)) {
       ControllerSubsystem.getInstance().vibrate(ControllerName.DRIVE, 100, 1);
     }
@@ -92,10 +101,15 @@ public class SnapToWaypoint extends Command {
   @Override
   public void end(boolean interrupted) {
     swerve.drive(new Translation2d(0, 0), 0, true);
+
+    objectDetection.resetTracking();
+
+    DataLogManager.log("SnapToTrackedCoral ended, interrupted: " + interrupted);
   }
 
   @Override
   public boolean isFinished() {
+    // Finish when position and orientation are close enough
     boolean positionReached = (currentDistance < distanceErrorTolerance);
     boolean rotationReached = (currentRotError < rotationErrorTolerance);
     return positionReached && rotationReached;

@@ -79,6 +79,12 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   // Alert for calibration errors
   private Alert calibrationErrorAlert;
 
+  ////////////// SIM ////////////////////
+  private boolean simulationMode = true;
+  private Pose2d simulatedCoralPose = new Pose2d(5, 5, new Rotation2d());
+  private List<Pose2d> simulatedDetections = new ArrayList<>();
+
+
   public ObjectDetectionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
 
@@ -102,6 +108,37 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     exclusionPoints.add(new Translation2d(16.333, 4.02)); 
     exclusionPoints.add(new Translation2d(16.333, 5.85)); 
   }
+
+  //////////////////////// SIMULATION ONLY ////////////////////////
+  public void enableSimulation(Translation2d position) {
+    simulationMode = true;
+    simulatedCoralPose = new Pose2d(position, new Rotation2d());
+    simulatedDetections.clear();
+    simulatedDetections.add(simulatedCoralPose);
+    System.out.println("Simulation enabled: Coral at " + position.getX() + ", " + position.getY());
+  }
+
+  /**
+   * Disable simulation mode and return to using camera data
+   */
+  public void disableSimulation() {
+      simulationMode = false;
+      simulatedDetections.clear();
+      System.out.println("Simulation disabled");
+  }
+
+  /**
+   * Move the simulated coral to a new position
+   * @param position New position for the simulated coral
+   */
+  public void moveSimulatedCoral(Translation2d position) {
+      simulatedCoralPose = new Pose2d(position, new Rotation2d());
+      if (simulationMode) {
+          simulatedDetections.clear();
+          simulatedDetections.add(simulatedCoralPose);
+      }
+  }
+  ////////////////////////////////////////////////////////////
 
   /**
    * Checks if a position is too close to any exclusion point
@@ -590,30 +627,27 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     List<Pose2d> detectedObjects = new ArrayList<>();
       
     // Process new detections
-    List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-    if (!results.isEmpty()) {
-      // Get the most recent frame
-      PhotonPipelineResult result = results.get(results.size() - 1);
-      
-      if (result.hasTargets()) {
-        // Process each target
-        for (PhotonTrackedTarget target : result.getTargets()) {
-          // Skip low-confidence detections
-          if (target.getDetectedObjectConfidence() < CONFIDENCE) {
-            continue;
+    if (simulationMode) {
+      // Use simulated detections in simulation mode
+      detectedObjects.addAll(simulatedDetections);
+      SmartDashboard.putBoolean("Vision/Detection/SimulationActive", true);
+  } else {
+      // Process new detections from camera
+      SmartDashboard.putBoolean("Vision/Detection/SimulationActive", false);
+      List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+      if (!results.isEmpty()) {
+          // Get the most recent frame
+          PhotonPipelineResult result = results.get(results.size() - 1);
+          
+          if (result.hasTargets()) {
+              // Process each target
+              for (PhotonTrackedTarget target : result.getTargets()) {
+                  // Rest of your existing target processing code
+                  // ...
+              }
           }
-          
-          // Convert target to a "bottom-center" point, then to a field Pose2d
-          Point point = getTargetPoint(target);
-          if (point == null) continue;
-          
-          Pose2d objectPose = getObjectPose(point);
-          if (objectPose == null) continue;
-          
-          detectedObjects.add(objectPose);
-        }
       }
-    }
+  }
     
     // Update tracking with new detections
     updateTracking(detectedObjects, Timer.getFPGATimestamp()); // TODO: change to result time

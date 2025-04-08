@@ -89,6 +89,9 @@ public class RobotContainer {
     detectionSubsystem = new ObjectDetectionSubsystem(swerve);
     reefAlignCommand = new ReefAlign(swerve);
 
+    detectionSubsystem.enableSimulation(new Translation2d(5.0, 3.0));
+    detectionSubsystem.moveSimulatedCoral(new Translation2d(3.2, 2.1));
+
     // Path Planner logging
     field = new Field2d();
     SmartDashboard.putData("Field", field);
@@ -113,8 +116,8 @@ public class RobotContainer {
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND), // Right Stick Turning   
-      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE)
-      // () -> (controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
+      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE),
+      () -> (controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
     );
 
     autoDrive = new AutoDriveFactory(swerve, detectionSubsystem);
@@ -174,14 +177,15 @@ public class RobotContainer {
       .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
 
     // Align to L1
-    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-      .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
+    // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+      // .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
 
     // Align to Barge
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 180)
       .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
 
-    new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
+    // Align to Coral
+    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
       .whileTrue(autoDrive.pathAndSnapCoralCommand());
 
     /* Manipulator Controls */
