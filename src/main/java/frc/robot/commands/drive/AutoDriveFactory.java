@@ -65,8 +65,7 @@ public class AutoDriveFactory {
   public Command bargeAlignCommand(WaypointType waypoint) {
     return new SequentialCommandGroup(
       new PathToWaypoint( ()-> FieldConstants.WAYPOINTS.getOffsetPose(swerve.getWaypoint(waypoint, 0), -FieldConstants.BARGE_OFFSET), swerve),
-      new SnapToWaypoint(swerve, () -> FieldConstants.WAYPOINTS.getOffsetPose(swerve.getWaypoint(waypoint, 0), Units.inchesToMeters(12)), 1),
-      new SnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, 0), 1)
+      new SnapToWaypoint(swerve, () -> FieldConstants.WAYPOINTS.getOffsetPose(swerve.getWaypoint(waypoint, 0), Units.inchesToMeters(12)-FieldConstants.BARGE_OFFSET), .5)
     );
   }
 
