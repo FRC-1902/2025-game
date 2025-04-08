@@ -31,6 +31,8 @@ public class AutoIntakeFactory {
   EndEffectorFactory endEffectorFactory;
   LEDSubsystem led;
 
+  public static Boolean intakeFlag;
+
   /**
    * returns command composition that correctly sucks piece off the floor, retracts, and indexes for scoring.
    * @param floorIntakeSubsystem
@@ -45,6 +47,8 @@ public class AutoIntakeFactory {
     this.endEffectorSubsystem = endEffectorSubsystem;
     this.endEffectorFactory = endEffectorFactory;
     this.led = led;
+
+    intakeFlag = false;
 
     endEffectorFactory = new EndEffectorFactory(endEffectorSubsystem);
   }
@@ -145,48 +149,51 @@ public class AutoIntakeFactory {
     // Move elevator down and intake out to specified deployed position
     return new SequentialCommandGroup(
       new InstantCommand(() -> elevatorSubsystem.setPosition(Constants.Elevator.Position.MIN)),
-      new PositionIntakeCommand(Rotation2d.fromDegrees(angle),floorIntakeSubsystem),
+      new PositionIntakeCommand(Rotation2d.fromDegrees(angle), floorIntakeSubsystem),
       // Intake game piece
-      new InstantCommand(()-> DataLogManager.log("Intake Command Started")),
+      new InstantCommand(() -> DataLogManager.log("Intake Command Started")),
       new IntakeCommand(floorIntakeSubsystem, led),
-      new InstantCommand(()-> DataLogManager.log("Intake Command Ended"))
+      new InstantCommand(() -> DataLogManager.log("Intake Command Ended"))
     ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).finallyDo((wasCancelled) -> {
-      DataLogManager.log("After finally do");
-      Timer timer = new Timer();
-      timer.schedule(new TimerTask() {
-        @Override
-        public void run() {
-          new ConditionalCommand(
-            // Move floor intake in and index successful intake
-            new SequentialCommandGroup(
-              new InstantCommand(()-> DataLogManager.log("Good finish Started")),
-              new ParallelDeadlineGroup(
-                new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN),
-                new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
-              ),
-              new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
-              new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem),
-              endEffectorFactory.getIndexSequence()
-            ),
-            // clean up failed intake
-            new SequentialCommandGroup(
-              new InstantCommand(()-> DataLogManager.log("Bad finish Started")),
-              new ParallelDeadlineGroup(
-                new SequentialCommandGroup(
-                  new ParallelDeadlineGroup(
-                    new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
-                    new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
-                  ), 
-                  new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem)
-                ),
-                new OuttakeCommand(floorIntakeSubsystem)
-              )     
+      DataLogManager.log("After finally do - setting flag for cleanup");
+      // Set the static flag to signal cleanup is needed
+      intakeFlag = true;
+    });
+  }
+
+  public void executeCleanup() {
+    DataLogManager.log("Executing intake cleanup");
+    intakeFlag = false;
+
+    // Check the IR sensor directly
+    if (floorIntakeSubsystem.pieceSensorActiveFiltered()) {
+      // Move floor intake in and index successful intake
+      new SequentialCommandGroup(
+        new InstantCommand(() -> DataLogManager.log("Good finish Started")),
+        new ParallelDeadlineGroup(
+          new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN),
+          new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
+        ),
+        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
+        new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem),
+        endEffectorFactory.getIndexSequence()
+      ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).schedule();
+    } else {
+      // clean up failed intake
+      new SequentialCommandGroup(
+        new InstantCommand(() -> DataLogManager.log("Bad finish Started")),
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new ParallelDeadlineGroup(
+              new ElevatorCommand(elevatorSubsystem, Constants.Elevator.Position.MIN), 
+              new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.ELEVATOR_ANGLE), floorIntakeSubsystem)
             ), 
-            () -> floorIntakeSubsystem.pieceSensorActiveFiltered()
-          ).schedule();
-        }
-      }, 5);
-  });
+            new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem)
+          ),
+          new OuttakeCommand(floorIntakeSubsystem)
+        )
+      ).schedule();
+    }    
   }
 }
 
