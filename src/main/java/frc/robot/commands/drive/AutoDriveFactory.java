@@ -58,7 +58,6 @@ public class AutoDriveFactory {
     );
   }
 
-
   /**
    * Drives to the waypoint and snaps to it.
    * @return the command
@@ -103,7 +102,7 @@ public Command pathAndSnapCoralCommand() {
         // Apply the offset and return
         return FieldConstants.WAYPOINTS.getOffsetPose(coral, -FieldConstants.INTAKE_OFFSET);
       },
-      4
+      2
     )
   );
 }

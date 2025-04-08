@@ -249,56 +249,49 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
    */
   private Pose2d getObjectPose(Point point) {
     if (point == null) return null;
-
+  
     // STEP 1: Get depth (straight-line distance to object in camera's forward direction)
     double depth = getDepth(point);
     
     // STEP 2: Get yaw (horizontal angle to object)
     double yawDegrees = getYaw(point).getDegrees();
     SmartDashboard.putNumber("Vision/Detection/yaw", yawDegrees);
-
+  
     double yawRad = Math.toRadians(yawDegrees);
     
     // For camera, +X is forward, +Y is left
     double xCamera = depth * Math.cos(yawRad); // Forward distance 
     double yCamera = depth * Math.sin(yawRad) * 1.1; // Side distance
-          
-    // Create a 3D transform from camera to object
-    // Transform3d cameraToObject = new Transform3d(
-    //   new Translation3d(xCamera, yCamera, 0), // Object is on floor
-    //   new Rotation3d(0, 0, 0)
-    // );
-
-    Translation3d robotTrans = new Translation3d(swerveSubsystem.getPose().getTranslation());
-    Rotation3d robotRot = new Rotation3d(swerveSubsystem.getPose().getRotation());
-
-    Pose3d robotPose3d = new Pose3d(swerveSubsystem.getPose());
-
-    // Pose3d robotPose3d = new Pose3d(
-    //   new Translation3d(robotTrans.getX()-Units.inchesToMeters(4.879), robotTrans.getY(), 0), 
-    //   new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Units.degreesToRadians(185)));
-    
-    // Pose3d robotPose3d = new Pose3d(
-    //   robotPose2d.getX(), 
-    //   robotPose2d.getY(), 
-    //   0, 
-    //   new Rotation3d(0, 0, robotPose2d.getRotation().getRadians())
-    // );
-
+      
+    // Get camera position on robot
     Transform3d cameraPose = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS;
-    Pose3d cameraPose3d = robotPose3d.transformBy(cameraPose);
     
-    Logger.recordOutput("Vision/Detection/CameraPose", cameraPose3d);
-
-    // Create the object position relative to the camera
+    // Create a 3D transform from camera to object
     Transform3d cameraToObject = new Transform3d(
-      new Translation3d(xCamera, yCamera, 0),
+      new Translation3d(xCamera, yCamera, 0), // Object is on floor
       new Rotation3d(0, 0, 0)
     );
+  
+    Translation3d robotTrans = new Translation3d(swerveSubsystem.getPose().getTranslation());
+    Rotation3d robotRot = new Rotation3d(swerveSubsystem.getPose().getRotation());
+  
+    // STEP 6: Combine all transforms to get field coordinates
+    Pose3d robotPose3d = new Pose3d(
+      new Translation3d(robotTrans.getX()-Units.inchesToMeters(4.879), robotTrans.getY(), 0), 
+      new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Units.degreesToRadians(180)));
+    Pose3d objectPose3d = robotPose3d
+      .transformBy(cameraToObject);  // Go from camera to object
+    
+    // Apply camera transform to get camera position in field coordinates
+    Pose3d cameraPose3d = robotPose3d.transformBy(cameraPose);
     
     // Log camera position and orientation
-    Pose3d objectPose3d = cameraPose3d.transformBy(cameraToObject);
-        
+    Logger.recordOutput("Vision/Detection/CameraPose", cameraPose3d);
+    
+    // Log final object position in field coordinates
+    SmartDashboard.putNumber("Vision/Detection/ObjectFieldX", objectPose3d.getX());
+    SmartDashboard.putNumber("Vision/Detection/ObjectFieldY", objectPose3d.getY());
+    
     // Project back to 2D for navigation
     return objectPose3d.toPose2d();
   }

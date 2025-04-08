@@ -113,8 +113,8 @@ public class RobotContainer {
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND), // Right Stick Turning   
-      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE),
-      () -> (controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
+      () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE)
+      // () -> (controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
     );
 
     autoDrive = new AutoDriveFactory(swerve, detectionSubsystem);
@@ -180,6 +180,9 @@ public class RobotContainer {
     // Align to Barge
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 180)
       .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
+
+    new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
+      .whileTrue(autoDrive.pathAndSnapCoralCommand());
 
     /* Manipulator Controls */
 

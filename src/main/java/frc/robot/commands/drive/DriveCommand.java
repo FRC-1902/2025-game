@@ -37,8 +37,8 @@ public class DriveCommand extends Command {
     DoubleSupplier vX, 
     DoubleSupplier vY, 
     DoubleSupplier heading, 
-    IntSupplier dpad,
-    BooleanSupplier trigger
+    IntSupplier dpad
+    // BooleanSupplier trigger
   ) 
   {
     this.swerve = swerve;
@@ -47,7 +47,7 @@ public class DriveCommand extends Command {
     this.vY = vY;
     this.heading = heading;
     this.dpad = dpad;
-    this.trigger = trigger;
+    // this.trigger = trigger;
 
     rotationPID = new PIDController(5, 0, 0.0);
 
@@ -86,16 +86,16 @@ public class DriveCommand extends Command {
     double rotationVelocity = heading.getAsDouble() * Constants.Swerve.MAX_ROTATION_SPEED.getRadians() * rotationMultiplier; // TODO: change speed cap
 
     // Coral alignment
-    if (trigger.getAsBoolean()) {
-      if (detectionSubsystem.getTrackedObject() != null) {
-        double objectAngle = detectionSubsystem.getTrackedObject().getRotation().getDegrees();
-        double currentAngle = swerve.getHeading().getDegrees();
+    // if (trigger.getAsBoolean()) {
+    //   if (detectionSubsystem.getTrackedObject() != null) {
+    //     double objectAngle = detectionSubsystem.getTrackedObject().getRotation().getDegrees();
+    //     double currentAngle = swerve.getHeading().getDegrees();
 
-        rotationPID.setSetpoint(objectAngle);
+    //     rotationPID.setSetpoint(objectAngle);
 
-        rotationVelocity = rotationPID.calculate(currentAngle);
-      }
-    }
+    //     rotationVelocity = rotationPID.calculate(currentAngle);
+    //   }
+    // }
 
     SmartDashboard.putNumber("swerve/Target Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
 
