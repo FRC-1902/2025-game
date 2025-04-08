@@ -38,7 +38,7 @@ public final class FieldConstants {
   public static final double BARGE_OFFSET = Units.inchesToMeters(50); // TODO: get barge offset
   public static final double INTAKE_OFFSET = ROBOT_OFFSET_BACK + Units.inchesToMeters(4); // TODO: get intake offset
 
-	public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+  public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
   
   public static class Reef {
 
@@ -70,11 +70,12 @@ public final class FieldConstants {
     
     /**
      * Calculates pole positions by offsetting left/right from AprilTag face centers
+     * Requires centerFaces to be initialized
      */
     public static Pose2d[] calculatePoles() {
-      Pose2d[] poles = new Pose2d[12];
+      Pose2d[] poles = new Pose2d[centerFaces.length * 2];
       
-      for (int face = 0; face < 6; face++) {
+      for (int face = 0; face < centerFaces.length; face++) {
         Pose2d facePose = centerFaces[face]; // Use outward-facing poses
         
         // From the face center, offset to the right for the right pole (L3)

@@ -89,9 +89,6 @@ public class RobotContainer {
     detectionSubsystem = new ObjectDetectionSubsystem(swerve);
     reefAlignCommand = new ReefAlign(swerve);
 
-    detectionSubsystem.enableSimulation(new Translation2d(5.0, 3.0));
-    detectionSubsystem.moveSimulatedCoral(new Translation2d(3.2, 2.1));
-
     // Path Planner logging
     field = new Field2d();
     SmartDashboard.putData("Field", field);

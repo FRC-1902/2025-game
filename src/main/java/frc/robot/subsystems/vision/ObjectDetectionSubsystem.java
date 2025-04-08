@@ -79,12 +79,6 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   // Alert for calibration errors
   private Alert calibrationErrorAlert;
 
-  ////////////// SIM ////////////////////
-  private boolean simulationMode = true;
-  private Pose2d simulatedCoralPose = new Pose2d(5, 5, new Rotation2d());
-  private List<Pose2d> simulatedDetections = new ArrayList<>();
-
-
   public ObjectDetectionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
 
@@ -109,37 +103,6 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     exclusionPoints.add(new Translation2d(16.333, 5.85)); 
   }
 
-  //////////////////////// SIMULATION ONLY ////////////////////////
-  public void enableSimulation(Translation2d position) {
-    simulationMode = true;
-    simulatedCoralPose = new Pose2d(position, new Rotation2d());
-    simulatedDetections.clear();
-    simulatedDetections.add(simulatedCoralPose);
-    System.out.println("Simulation enabled: Coral at " + position.getX() + ", " + position.getY());
-  }
-
-  /**
-   * Disable simulation mode and return to using camera data
-   */
-  public void disableSimulation() {
-      simulationMode = false;
-      simulatedDetections.clear();
-      System.out.println("Simulation disabled");
-  }
-
-  /**
-   * Move the simulated coral to a new position
-   * @param position New position for the simulated coral
-   */
-  public void moveSimulatedCoral(Translation2d position) {
-      simulatedCoralPose = new Pose2d(position, new Rotation2d());
-      if (simulationMode) {
-          simulatedDetections.clear();
-          simulatedDetections.add(simulatedCoralPose);
-      }
-  }
-  ////////////////////////////////////////////////////////////
-
   /**
    * Checks if a position is too close to any exclusion point
    */
@@ -150,11 +113,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     
     for (Translation2d point : exclusionPoints) {
       double distance = point.getDistance(position);
-      if (distance <= EXCLUSION_TOLERANCE) {
-        SmartDashboard.putString("Vision/Detection/ExcludedNear", 
-            String.format("Point near (%.2f, %.2f)", point.getX(), point.getY()));
-        return true;
-      }
+      if (distance <= EXCLUSION_TOLERANCE) return true;
     }
     return false;
   }
@@ -167,11 +126,10 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     // TODO: fix up these matricies
     double[] mat = {914.4473225619788, 0.0, 593.3724508723684, 0.0, 914.7543494185871, 473.17413201554217, 0.0, 0.0, 1.0};
     double[] mat2 = {0.03913534503908854, -0.05779809768824109, 0.00011209689892050617, -0.0009032158840746022, 0.0029564913451770175, -0.001342718063004936, 0.0006578999028743138, -0.0010550436326518305};
-    // double[] mat = {0,0,0,0,0,0,0,0,0};
-    // double[] mat2 = {0,0,0,0,0,0,0,0};
     cameraMatrixOpt = Optional.of(new Matrix<>(Nat.N3(), Nat.N3(), mat));
     distCoeffsOpt = Optional.of(new Matrix<>(Nat.N8(), Nat.N1(), mat2));
-    // cameraMatrixOpt = camera.getCameraMatrix();
+
+    // cameraMatrixOpt = camera.getCameraMatrix(); // Removed because fetched data was corrupted
     // distCoeffsOpt = camera.getDistCoeffs();
     
     boolean hasCalibrationData = cameraMatrixOpt.isPresent() && distCoeffsOpt.isPresent();
@@ -230,9 +188,6 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     normX = 1 - normX;
     normY = 1 - normY;
 
-    // SmartDashboard.putNumber("Vision/Detection/normX", normX);
-    // SmartDashboard.putNumber("Vision/Detection/normY", normY);
-
     return new Point(normX, normY);
   }
 
@@ -250,12 +205,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
 
     double totalAngleRad = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS.getRotation().getY() + pitchRad;
 
-    // Horizontal distance to the object on the floor
-    double distance = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS.getZ() * Math.tan(totalAngleRad);  
-
-    SmartDashboard.putNumber("Vision/Detection/distance", distance);
-
-    return distance;
+    return Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS.getZ() * Math.tan(totalAngleRad);
   }
 
   /**
@@ -292,13 +242,12 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     
     // STEP 2: Get yaw (horizontal angle to object)
     double yawDegrees = getYaw(point).getDegrees();
-    SmartDashboard.putNumber("Vision/Detection/yaw", yawDegrees);
   
     double yawRad = Math.toRadians(yawDegrees);
     
     // For camera, +X is forward, +Y is left
     double xCamera = depth * Math.cos(yawRad); // Forward distance 
-    double yCamera = depth * Math.sin(yawRad) * 1.1; // Side distance
+    double yCamera = depth * Math.sin(yawRad) * 1.1; // Side distance multiplied by 1.1 to account for funky camera distortion or smth
       
     // Get camera position on robot
     Transform3d cameraPose = Vision.CAMERA_OBJECT.CAMERA_OBJECT_POS;
@@ -318,17 +267,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
       new Rotation3d(robotRot.getX(), robotRot.getY(), robotRot.getZ()+Units.degreesToRadians(180)));
     Pose3d objectPose3d = robotPose3d
       .transformBy(cameraToObject);  // Go from camera to object
-    
-    // Apply camera transform to get camera position in field coordinates
-    Pose3d cameraPose3d = robotPose3d.transformBy(cameraPose);
-    
-    // Log camera position and orientation
-    Logger.recordOutput("Vision/Detection/CameraPose", cameraPose3d);
-    
-    // Log final object position in field coordinates
-    SmartDashboard.putNumber("Vision/Detection/ObjectFieldX", objectPose3d.getX());
-    SmartDashboard.putNumber("Vision/Detection/ObjectFieldY", objectPose3d.getY());
-    
+          
     // Project back to 2D for navigation
     return objectPose3d.toPose2d();
   }
@@ -344,16 +283,12 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   public Pose2d getClosestObject() {
     // Log entry to method for debugging
     boolean hasObjects = (objects != null && objects.length > 0);
-    SmartDashboard.putBoolean("Vision/ClosestObject/HasObjects", hasObjects);
-    SmartDashboard.putNumber("Vision/ClosestObject/ObjectCount", (objects != null) ? objects.length : 0);
     
     if (!hasObjects) return null;
   
     // Get robot position
     Pose2d robotPose = swerveSubsystem.getPose();
     Translation2d robotTranslation = robotPose.getTranslation();
-    SmartDashboard.putNumber("Vision/ClosestObject/RobotX", robotTranslation.getX());
-    SmartDashboard.putNumber("Vision/ClosestObject/RobotY", robotTranslation.getY());
   
     // Find the closest object that's NOT too close to an exclusion point
     TrackedObject closestTrackedObject = null;
@@ -384,17 +319,9 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
         closestTrackedObject = trackedObject;
       }
     }
-    
-    // Log exclusion stats
-    SmartDashboard.putNumber("Vision/ClosestObject/FilteredByExclusion", objectsFilteredByExclusion);
-    
-    // Check if we found any valid object after filtering
-    SmartDashboard.putBoolean("Vision/ClosestObject/FoundValid", closestTrackedObject != null);
-    
+
     if (closestTrackedObject != null) {
       Pose2d objectPose = closestTrackedObject.pose;
-      // Log the distance to closest object
-      SmartDashboard.putNumber("Vision/ClosestObject/Distance", closestDistance);
       
       // Calculate angle from robot to coral
       Translation2d coralTranslation = objectPose.getTranslation();
@@ -403,7 +330,6 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
       
       // Calculate an angle that points TOWARD the coral (not +PI)
       double angleRad = Math.atan2(dy, dx);
-      // SmartDashboard.putNumber("Vision/ClosestObject/AngleToObject", Math.toDegrees(angleRad));
       
       // Create new Pose2d with correct rotation
       Pose2d resultPose = new Pose2d(
@@ -411,25 +337,13 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
         objectPose.getY(),
         new Rotation2d(angleRad+Math.PI) // Flip to point toward object
       );
-      
-      // Log additional info from the tracked object
-      // SmartDashboard.putNumber("Vision/ClosestObject/Confidence", closestTrackedObject.confidence);
-      // SmartDashboard.putNumber("Vision/ClosestObject/TimeSinceLastSeen", 
-          // Timer.getFPGATimestamp() - closestTrackedObject.lastSeenTimestamp);
-      SmartDashboard.putBoolean("Vision/ClosestObject/IsMoving", closestTrackedObject.isMoving());
-      
-      // Log the final object position
-      // SmartDashboard.putNumber("Vision/ClosestObject/FinalX", resultPose.getX());
-      // SmartDashboard.putNumber("Vision/ClosestObject/FinalY", resultPose.getY());
-      // SmartDashboard.putNumber("Vision/ClosestObject/FinalRotDeg", resultPose.getRotation().getDegrees());
-      
       return resultPose;
     }
     return null;
   }
   
   /**
-   * Gets a consistently tracked object - will be the closest object that's near the previously tracked object
+   * Gets a consistently tracked object to allow for object to be hidden and still allow robot to path to it
    * @return The consistently tracked object's pose or null if no valid object found
    */
   public Pose2d getTrackedObject() {
@@ -627,27 +541,30 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     List<Pose2d> detectedObjects = new ArrayList<>();
       
     // Process new detections
-    if (simulationMode) {
-      // Use simulated detections in simulation mode
-      detectedObjects.addAll(simulatedDetections);
-      SmartDashboard.putBoolean("Vision/Detection/SimulationActive", true);
-  } else {
-      // Process new detections from camera
-      SmartDashboard.putBoolean("Vision/Detection/SimulationActive", false);
-      List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-      if (!results.isEmpty()) {
-          // Get the most recent frame
-          PhotonPipelineResult result = results.get(results.size() - 1);
-          
-          if (result.hasTargets()) {
-              // Process each target
-              for (PhotonTrackedTarget target : result.getTargets()) {
-                  // Rest of your existing target processing code
-                  // ...
-              }
+    List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+    if (!results.isEmpty()) {
+      // Get the most recent frame
+      PhotonPipelineResult result = results.get(results.size() - 1);
+      
+      if (result.hasTargets()) {
+        // Process each target
+        for (PhotonTrackedTarget target : result.getTargets()) {
+          // Skip low-confidence detections
+          if (target.getDetectedObjectConfidence() < CONFIDENCE) {
+            continue;
           }
+          
+          // Convert target to a "bottom-center" point, then to a field Pose2d
+          Point point = getTargetPoint(target);
+          if (point == null) continue;
+          
+          Pose2d objectPose = getObjectPose(point);
+          if (objectPose == null) continue;
+          
+          detectedObjects.add(objectPose);
+        }
       }
-  }
+    }
     
     // Update tracking with new detections
     updateTracking(detectedObjects, Timer.getFPGATimestamp()); // TODO: change to result time

@@ -28,8 +28,8 @@ public final class Constants {
   public static final RobotMode currentMode = RobotBase.isReal() ? RobotMode.REAL : simMode;
   
   // Battery Voltage Warnings
-  public static final double BATTERY_VOLTAGE_CRITICAL = 11.5; // Volts TODO: Adjust later
-  public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts TODO: Adjust later
+  public static final double BATTERY_VOLTAGE_CRITICAL = 11.5;
+  public static final double BATTERY_VOLTAGE_WARNING = 12.0;
 
   public static final int PDH_ID = 22; // TODO: Find can ID
 
@@ -48,7 +48,7 @@ public final class Constants {
 
   public static final class Swerve {
     private Swerve() {}
-    public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag TDO: Adjust later
+    public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
 
     // Speeds
     public static final double MAX_SPEED = Units.feetToMeters(16.6); // ft/s
@@ -56,12 +56,9 @@ public final class Constants {
     public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
 
     // Auto Speeds
-    public static final double AUTO_MAX_SPEED = 3; // m/s TODO: Adjust later
-    public static final double AUTO_MAX_ACCELERATION = 2; // m/s^2 TODO: Adjust later
-    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(4); // TODO: Adjust later
-
-    // Object detection turn KP
-    public static final double OBJECT_TURN_KP = 5.5;
+    public static final double AUTO_MAX_SPEED = 3; // m/s
+    public static final double AUTO_MAX_ACCELERATION = 2; // m/s^2
+    public static final Rotation2d AUTO_MAX_ROTATION_SPEED = Rotation2d.fromRadians(4); 
   }
 
   public static final class AlgaeIntake{
@@ -237,7 +234,7 @@ public final class Constants {
         new Rotation3d(
           0.0,                      //  Roll (no tilt side to side)
           Math.toRadians(65),      // Pitch (30° downward - adjust as needed)
-          Math.toRadians(172)       // Yaw (facing backward based on your current CAMERA_POSE)
+          Math.toRadians(180)       // Yaw (facing backward based on your current CAMERA_POSE)
         )
       );
     }
