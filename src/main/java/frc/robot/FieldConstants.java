@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Constants for points on the field
@@ -35,9 +36,30 @@ public final class FieldConstants {
   public static final double ROBOT_OFFSET_BACK = Units.inchesToMeters(17);
   public static final double OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(4);
   public static final double PATH_OFFSET = OFFSET + Units.inchesToMeters(1);
-  public static final double TROUGH_OFFSET = Units.inchesToMeters(13); // TODO: get trough offset
-  public static final double BARGE_OFFSET = Units.inchesToMeters(50); // TODO: get barge offset
-  public static final double INTAKE_OFFSET = ROBOT_OFFSET_BACK + Units.inchesToMeters(-4); // TODO: get intake offset
+  public static final double BARGE_OFFSET = Units.inchesToMeters(50); 
+  public static final double INTAKE_OFFSET = ROBOT_OFFSET_BACK + Units.inchesToMeters(-4); 
+
+  public static final double TROUGH_OFFSET = Units.inchesToMeters(16.5); // TODO: get trough offset
+  public static final double TROUGH_INWARD_DISTANCE = Units.inchesToMeters(16.5); // Distance from pole to trough
+  public static final double TROUGH_ANGLE_OFFSET = Math.toRadians(12.5);
+
+  static {
+    SmartDashboard.putNumber("Field/Trough Offset", TROUGH_OFFSET);
+    SmartDashboard.putNumber("Field/Trough Angle Offset", Math.toDegrees(TROUGH_ANGLE_OFFSET)); 
+    SmartDashboard.putNumber("Field/Trough Inward Distance", TROUGH_INWARD_DISTANCE);
+  }
+
+  public static double getTroughOffset() {
+    return SmartDashboard.getNumber("Field/Trough Offset", TROUGH_OFFSET);
+  }
+  public static double getTroughInwardDistance() {
+    return SmartDashboard.getNumber("Field/Trough Inward Distance", TROUGH_INWARD_DISTANCE);
+  }
+  
+  public static double getTroughAngleOffset() {
+    // Convert from degrees in dashboard to radians for calculations
+    return Math.toRadians(SmartDashboard.getNumber("Field/Trough Angle Offset", Math.toDegrees(TROUGH_ANGLE_OFFSET)));
+  }
   
   public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
   
@@ -118,22 +140,6 @@ public final class FieldConstants {
       new Pose2d(3.000, 2.000, Rotation2d.fromDegrees(210)), // Right
     };
 
-    public static final Pose2d[] TROUGH = {
-      // Temp welded
-      new Pose2d(3.165, 4.195, Rotation2d.fromDegrees(0)), // A
-      new Pose2d(3.165, 3.860, Rotation2d.fromDegrees(0)), // B
-      new Pose2d(3.685, 2.960, Rotation2d.fromDegrees(60)), // C
-      new Pose2d(3.970, 2.803, Rotation2d.fromDegrees(60)), // D
-      new Pose2d(5.010, 2.800, Rotation2d.fromDegrees(120)), // E
-      new Pose2d(5.290, 2.965, Rotation2d.fromDegrees(120)), // F
-      new Pose2d(5.810, 3.860, Rotation2d.fromDegrees(180)), // G
-      new Pose2d(5.810, 4.185, Rotation2d.fromDegrees(180)), // H
-      new Pose2d(5.290, 5.090, Rotation2d.fromDegrees(240)), // I
-      new Pose2d(5.000, 5.250, Rotation2d.fromDegrees(240)), // J
-      new Pose2d(3.970, 5.250, Rotation2d.fromDegrees(300)), // K
-      new Pose2d(3.685, 5.090, Rotation2d.fromDegrees(300)) // L
-    };
-
     public static void updatePolesFromAprilTags() {
       Pose2d[] updatedPoles = Reef.calculatePoles();
       for (int i = 0; i < POLES.length; i++) {
@@ -178,18 +184,29 @@ public final class FieldConstants {
      * @return Array of offset trough positions
      */
     public static Pose2d[] getTroughPositions() {
-      Pose2d[] offsetPositions = new Pose2d[TROUGH.length];
+      Pose2d[] troughPositions = new Pose2d[POLES.length];
       
-      for (int i = 0; i < TROUGH.length; i++) {
-        // Determine if this should be offset left or right based on position
-        // A,C,E,G,I,K offset to left (even indices: 0,2,4,6,8,10)
-        // B,D,F,H,J,L offset to right (odd indices: 1,3,5,7,9,11)
-        boolean offsetToRight = (i % 2 != 0);
+      for (int i = 0; i < POLES.length; i++) {
+        Pose2d polePose = POLES[i];
+        boolean isL3 = (i % 2 == 0); // Even indices are L3 poles (right poles)
         
-        offsetPositions[i] = getPerpendicularOffsetPose(TROUGH[i], TROUGH_OFFSET, offsetToRight);
+        // Apply angle offset - rotate away from center
+        // L3 (right) poles get rotated right, L2 (left) poles get rotated left
+        double angleOffset = isL3 ? getTroughAngleOffset() : -getTroughAngleOffset();
+        Rotation2d troughRotation = polePose.getRotation().plus(new Rotation2d(angleOffset));
+        
+        // Move inward by the specified distance
+        double troughX = polePose.getX() - getTroughInwardDistance() * Math.cos(troughRotation.getRadians());
+        double troughY = polePose.getY() - getTroughInwardDistance() * Math.sin(troughRotation.getRadians());
+        
+        // Apply perpendicular offset
+        // L3 poles have trough to right, L2 poles have trough to left
+        boolean offsetToRight = isL3;
+        Pose2d baseTroughPose = new Pose2d(troughX, troughY, troughRotation);
+        troughPositions[i] = getPerpendicularOffsetPose(baseTroughPose, getTroughOffset(), offsetToRight);
       }
       
-      return offsetPositions;
+      return troughPositions;
     }
   }
 }
