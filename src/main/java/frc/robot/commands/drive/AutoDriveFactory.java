@@ -58,6 +58,12 @@ public class AutoDriveFactory {
     );
   }
 
+  public Command hpAlignCommand(WaypointType waypoint) {
+    return new SequentialCommandGroup(
+      new SnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, 0), .5)
+    );
+  }
+
   /**
    * Drives to the waypoint and snaps to it.
    * @return the command

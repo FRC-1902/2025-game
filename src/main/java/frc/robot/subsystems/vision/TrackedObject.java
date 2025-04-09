@@ -13,11 +13,12 @@ public class TrackedObject {
   public double lastSeenTimestamp;
   public double confidence;
   private boolean isMoving;
+  private double distanceToRobot; 
   
   /**
    * Static configuration constants
    */
-  private static final double MIN_VELOCITY = 0.05;  // Minimum velocity to consider object moving (m/s)
+  private static final double MIN_VELOCITY = 0.1;  // Minimum velocity to consider object moving (m/s)
   
   /**
    * Creates a new tracked object
@@ -31,6 +32,7 @@ public class TrackedObject {
     this.lastSeenTimestamp = timestamp;
     this.confidence = 0.2;  // Initial confidence
     this.isMoving = false;
+    this.distanceToRobot = 0.0; 
   }
   
   /**
@@ -65,6 +67,21 @@ public class TrackedObject {
     // Create new pose with filtered position but use rotation from new pose
     pose = new Pose2d(filteredTranslation, newPose.getRotation());
     lastSeenTimestamp = currentTime;
+  }
+
+  /**
+   * Sets the distance from robot to this object
+   * @param distance Distance in meters
+   */
+  public void setDistanceToRobot(double distance) {
+    this.distanceToRobot = distance;
+  }
+
+  /**
+   * @return Distance from robot to this object in meters
+   */
+  public double getDistanceToRobot() {
+    return distanceToRobot;
   }
   
   /**

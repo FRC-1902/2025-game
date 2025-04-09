@@ -23,7 +23,8 @@ public final class FieldConstants {
     REEF,
     PROCESSOR,
     TROUGH,
-    BARGE
+    BARGE,
+    HP
   }
 
   // TODO: Adjust for each field type
@@ -110,6 +111,11 @@ public final class FieldConstants {
       new Pose2d(8.775, 7.260, Rotation2d.fromDegrees(180)), // Left
       new Pose2d(8.775, 6.196, Rotation2d.fromDegrees(180)), // Mid
       new Pose2d(8.775, 5.078, Rotation2d.fromDegrees(180)) // Right
+    };
+
+    public static final Pose2d[] HP = {
+      new Pose2d(3.000, 6.000, Rotation2d.fromDegrees(140)), // Left
+      new Pose2d(3.000, 2.000, Rotation2d.fromDegrees(210)), // Right
     };
 
     public static final Pose2d[] TROUGH = {

@@ -48,7 +48,8 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private static final double FILTER_WEIGHT = 0.3;  // Weight for new measurements (0-1)
   private static final double CONFIDENCE = 0.1;  // Minimum confidence to consider a target valid, independent of photons confidence, photon comes first, if it passes will basically just get filtered twice
   private static final double MAX_TRACKED_VELOCITY = 1; // m/s - max velocity to allow an object to be considered for closestObject to avoid chasing fast moving objects
-  
+  private static final double MIN_DISTANCE = Units.inchesToMeters(12);
+
   private Pose2d lastTrackedObjectPose = null;
   
   /** Creates a new DetectionSubsystem. */
@@ -299,6 +300,8 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
       // Get the pose from the tracked object
       Pose2d objectPose = trackedObject.pose;
       
+      double distance = robotTranslation.getDistance(objectPose.getTranslation());
+
       // Log each object position
       Logger.recordOutput("Vision/ClosestObject/ObjectPositions", getObjectPoses3d());
       
@@ -312,8 +315,12 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
       if (objectPose == null) continue;
 
       if (trackedObject.getSpeed() > MAX_TRACKED_VELOCITY) continue;
-      
-      double distance = robotTranslation.getDistance(objectPose.getTranslation());
+
+      if (distance < MIN_DISTANCE) {
+        SmartDashboard.putBoolean("Vision/ObjectTooClose", true);
+        continue;
+      }
+
       if (distance < closestDistance) {
         closestDistance = distance;
         closestTrackedObject = trackedObject;
@@ -377,6 +384,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
         // Keep the old position if the closest object has changed too much
         SmartDashboard.putBoolean("Vision/TrackedObject/Updated", false);
     }
+
     
     SmartDashboard.putNumber("Vision/TrackedObject/X", lastTrackedObjectPose.getX());
     SmartDashboard.putNumber("Vision/TrackedObject/Y", lastTrackedObjectPose.getY());
@@ -432,6 +440,12 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     
     // Update unmatched tracks
     Iterator<Map.Entry<Integer, TrackedObject>> it = trackedObjects.entrySet().iterator();
+
+    Translation2d robotTranslation = swerveSubsystem.getPose().getTranslation();
+    for (TrackedObject obj : trackedObjects.values()) {
+      double distance = robotTranslation.getDistance(obj.pose.getTranslation());
+      obj.setDistanceToRobot(distance);
+    }
     
     // Count objects by type (for debugging)
     int movingCount = 0;
