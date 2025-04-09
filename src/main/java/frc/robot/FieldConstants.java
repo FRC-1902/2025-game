@@ -32,12 +32,12 @@ public final class FieldConstants {
 
   public static final double ROBOT_OFFSET_FRONT = Units.inchesToMeters(17.5); // Different distances to account for non-symmetrical robot
   public static final double ROBOT_OFFSET_BACK = Units.inchesToMeters(17);
-  public static final double OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(19);
-  public static final double PATH_OFFSET = OFFSET + Units.inchesToMeters(4);
+  public static final double OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(4);
+  public static final double PATH_OFFSET = OFFSET + Units.inchesToMeters(1);
   public static final double TROUGH_OFFSET = Units.inchesToMeters(13); // TODO: get trough offset
   public static final double BARGE_OFFSET = Units.inchesToMeters(50); // TODO: get barge offset
-  public static final double INTAKE_OFFSET = ROBOT_OFFSET_BACK + Units.inchesToMeters(4); // TODO: get intake offset
-
+  public static final double INTAKE_OFFSET = ROBOT_OFFSET_BACK + Units.inchesToMeters(-4); // TODO: get intake offset
+  
   public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
   
   public static class Reef {

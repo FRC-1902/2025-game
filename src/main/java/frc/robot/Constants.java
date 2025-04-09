@@ -73,7 +73,7 @@ public final class Constants {
     public static final double kD = 0; 
     public static final double kG = 0.01;
 
-    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(3); 
+    public static final Rotation2d TOLERANCE = Rotation2d.fromDegrees(5); 
     public static final Rotation2d MAX_PIVOT = Rotation2d.fromDegrees(100); 
     public static final Rotation2d MIN_PIVOT = Rotation2d.fromDegrees(20); 
 

@@ -42,7 +42,7 @@ public class AutoDriveFactory {
     );
   }
 
-  public Command autoPathOffsetCommand(Pose2d waypoint) {
+  public Command autoSnapCommand(Pose2d waypoint) {
     Pose2d offsetWaypoint = FieldConstants.WAYPOINTS.getOffsetPose(waypoint, FieldConstants.PATH_OFFSET);
 
     return new SequentialCommandGroup(

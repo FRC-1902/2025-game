@@ -28,6 +28,7 @@ import frc.robot.commands.algaeIntake.AlgaeOuttakeFactory;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
 import frc.robot.commands.drive.ReefAlign;
+import frc.robot.commands.drive.SnapToCoral;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
@@ -183,7 +184,7 @@ public class RobotContainer {
 
     // Align to Coral
     controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-      .whileTrue(autoDrive.pathAndSnapCoralCommand());
+      .whileTrue(new SnapToCoral(swerve, detectionSubsystem));
 
     /* Manipulator Controls */
 

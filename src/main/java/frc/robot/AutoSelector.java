@@ -33,6 +33,7 @@ import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.PathToWaypoint;
+import frc.robot.commands.drive.SnapToCoral;
 import frc.robot.commands.drive.SnapToWaypoint;
 import frc.robot.commands.floorIntake.AutoIntakeFactory;
 import frc.robot.commands.floorIntake.PositionIntakeCommand;
@@ -135,7 +136,7 @@ public class AutoSelector {
   public Command setStartPosition(double x, double y, double rotation) {
     return new ConditionalCommand(
       new SequentialCommandGroup(
-        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(x, y, Rotation2d.fromDegrees(180+rotation)))),
+        new InstantCommand(() -> swerve.resetOdometry(new Pose2d(x, y, Rotation2d.fromDegrees(180)))),
         new InstantCommand(() -> swerve.zeroGyroWithAlliance())
       ),
       new SequentialCommandGroup(
@@ -156,10 +157,13 @@ public class AutoSelector {
   private Command getCoralWithDetection(){
     return new ParallelDeadlineGroup(
       new ParallelRaceGroup(
-        new WaitCommand(5),
+        new WaitCommand(10),
         autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)
       ),
-      autoDriveFactory.pathAndSnapCoralCommand()
+      new SequentialCommandGroup(
+        new SnapToCoral(swerve, detectionSubsystem),
+        new SnapToCoral(swerve, detectionSubsystem)
+      )
     );
   } 
 
@@ -245,7 +249,7 @@ public class AutoSelector {
   private SequentialCommandGroup getRight1Face(){
     return new SequentialCommandGroup(
       // setup odometry
-      setStartPosition(6.980, 2.200),
+      setStartPosition(7.134, 2, -90),
 
       new ConditionalCommand(
         getPushingPCommand(),
@@ -260,7 +264,7 @@ public class AutoSelector {
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
         new SequentialCommandGroup(
           swerve.getFollowPathCommand("1F 1"),
-          autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[10])
+          autoDriveFactory.autoSnapCommand(FieldConstants.WAYPOINTS.POLES[10])
         ),
         new AlgaeIntakeCommand(algaeIntake)
       ),
@@ -275,8 +279,8 @@ public class AutoSelector {
       new ParallelCommandGroup(
         // new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake),
         swerve.getFollowPathCommand("1F 2"),
-        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake),
-        new InstantCommand(()->floorIntake.setSpeed(1))
+        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake)
+        // new InstantCommand(()->floorIntake.setSpeed(1))
       ),
       new AlgaeOuttakeCommand(algaeIntake),
       getCoralWithDetection(),
@@ -285,9 +289,10 @@ public class AutoSelector {
       new ParallelCommandGroup(
         new SequentialCommandGroup(
           autoIntakeFactory.getAutonomousIndexSequence(),
+          new WaitCommand(.02),
           elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
         ),
-        autoDriveFactory.autoPathOffsetCommand(FieldConstants.WAYPOINTS.POLES[10])
+        autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[10])
       ),
       // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[10]),
 
@@ -304,7 +309,7 @@ public class AutoSelector {
           autoIntakeFactory.getAutonomousIndexSequence(),
           elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
         ),
-        autoDriveFactory.autoPathOffsetCommand(FieldConstants.WAYPOINTS.POLES[11])
+        autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11])
       ),
       // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11]),
 
@@ -322,7 +327,7 @@ public class AutoSelector {
           autoIntakeFactory.getAutonomousIndexSequence(),
           elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2)
         ),
-        autoDriveFactory.autoPathOffsetCommand(FieldConstants.WAYPOINTS.POLES[11])
+        autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11])
       ),
       // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11]),
 
@@ -437,9 +442,13 @@ public class AutoSelector {
       // Drive to reef and grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("2 L3 1"),
+        new SequentialCommandGroup(
+          swerve.getFollowPathCommand("2 L3 1"),
+          autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[8])
+        ),
         new AlgaeIntakeCommand(algaeIntake)
       ),
+      
       // Place
       new ScoreCommand(endEffector),
 
@@ -452,20 +461,21 @@ public class AutoSelector {
       // drive, while outaking algae, intaking, and looking for a piece
 
       new ParallelCommandGroup(
-        swerve.getFollowPathCommand("2 L3 2"),
         new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new AlgaeOuttakeCommand(algaeIntake)
-        )
+        swerve.getFollowPathCommand("2 L3 2")
       ),
+      new AlgaeOuttakeCommand(algaeIntake),
+
+      // new InstantCommand(()-> DataLogManager.log("Before Coral")),
       getCoralWithDetection(),
-      autoIntakeFactory.getAutonomousIndexSequence(),
 
       // Drive to reef
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[9])
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),  // Put inside SequentialCommandGroup 
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
+        autoDriveFactory.autoSnapCommand(FieldConstants.WAYPOINTS.POLES[9])
       ),
       
       // Place 
@@ -496,7 +506,10 @@ public class AutoSelector {
       // Drive to reef and grab algae
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        swerve.getFollowPathCommand("2 L3 1 Left"),
+        new SequentialCommandGroup(
+          swerve.getFollowPathCommand("2 L3 1 Left"),
+          autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[5])
+        ),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       // Place
@@ -519,13 +532,16 @@ public class AutoSelector {
           new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake)
         )
       ),
+      new WaitCommand(1),
       getCoralWithDetection(),
-      autoIntakeFactory.getAutonomousIndexSequence(),
 
       // Drive to reef
       new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-        autoDriveFactory.pathAndSnapCommand(FieldConstants.WAYPOINTS.POLES[9])
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),  // Put inside SequentialCommandGroup 
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
+        autoDriveFactory.autoSnapCommand(FieldConstants.WAYPOINTS.POLES[9])
       ),
       
       // Place 

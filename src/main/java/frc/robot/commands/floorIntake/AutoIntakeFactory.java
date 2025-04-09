@@ -177,7 +177,7 @@ public class AutoIntakeFactory {
         new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.DEFAULT_ANGLE), floorIntakeSubsystem),
         new IndexCommand(floorIntakeSubsystem, endEffectorSubsystem),
         endEffectorFactory.getIndexSequence()
-      ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).schedule();
+      ).schedule();
     } else {
       // clean up failed intake
       new SequentialCommandGroup(

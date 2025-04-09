@@ -53,7 +53,7 @@ public class DriveCommand extends Command {
     this.dpad = dpad;
     this.trigger = trigger;
 
-    rotationPID = new PIDController(6, 0, 0.01);
+    rotationPID = new PIDController(8,0.01, 0.01);
     rotationPID.enableContinuousInput(-Math.PI, Math.PI);
 
 
