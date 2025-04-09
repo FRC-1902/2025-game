@@ -32,6 +32,7 @@ import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
 import frc.robot.commands.endEffector.EndEffectorFactory;
 import frc.robot.commands.endEffector.ScoreCommand;
 import frc.robot.commands.drive.AutoDriveFactory;
+import frc.robot.commands.drive.AutoSnapToCoral;
 import frc.robot.commands.drive.PathToWaypoint;
 import frc.robot.commands.drive.SnapToCoral;
 import frc.robot.commands.drive.SnapToWaypoint;
@@ -161,8 +162,8 @@ public class AutoSelector {
         autoIntakeFactory.getAutonomousIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE)
       ),
       new SequentialCommandGroup(
-        new SnapToCoral(swerve, detectionSubsystem),
-        new SnapToCoral(swerve, detectionSubsystem)
+        new AutoSnapToCoral(swerve, detectionSubsystem),
+        new AutoSnapToCoral(swerve, detectionSubsystem)
       )
     );
   } 

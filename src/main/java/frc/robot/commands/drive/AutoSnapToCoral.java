@@ -10,14 +10,17 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.FieldConstants;
+import frc.robot.FieldConstants.WaypointType;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
+import frc.robot.commands.drive.AutoDriveFactory;
+import frc.robot.commands.drive.SnapToWaypoint; 
 
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SnapToCoral extends Command {
+public class AutoSnapToCoral extends Command {
   private final SwerveSubsystem swerve;
   private final ObjectDetectionSubsystem objectDetection;
   private Pose2d targetPose;
@@ -29,8 +32,8 @@ public class SnapToCoral extends Command {
   private final double rotationkP = 5;
   private double currentDistance;
   private double currentRotError;
-  private static final double CLOSE = Units.inchesToMeters(12); // meters
-  private static final double FAR = Units.inchesToMeters(36); // meters
+  private static final double CLOSE = Units.inchesToMeters(12);
+  private static final double FAR = Units.inchesToMeters(36);
 
   /**
    * Creates a command that drives to and aligns with a tracked coral with custom velocity
@@ -38,7 +41,7 @@ public class SnapToCoral extends Command {
    * @param objectDetection ObjectDetectionSubsystem for coral tracking
    * @param maxVelocity Maximum velocity when approaching the coral
    */
-  public SnapToCoral(SwerveSubsystem swerve, ObjectDetectionSubsystem objectDetection) {
+  public AutoSnapToCoral(SwerveSubsystem swerve, ObjectDetectionSubsystem objectDetection) {
     this.swerve = swerve;
     this.objectDetection = objectDetection;
     this.pidX = new PIDController(2.5, 0.02, 0.001);
@@ -61,19 +64,25 @@ public class SnapToCoral extends Command {
   public void execute() {
     // Get the tracked coral object
     Pose2d coralPose = objectDetection.getTrackedObject();
-    
+    Pose2d targetPoseToUse;
+
     // If no coral found, stop moving
     if (coralPose == null) {
-      swerve.drive(new Translation2d(0, 0), 0, true);
-      return;
+      // If no coral found, use a fallback waypoint
+        targetPoseToUse = swerve.getWaypoint(FieldConstants.WaypointType.HP, 0);
+        if (targetPoseToUse == null) {
+          swerve.drive(new Translation2d(0, 0), 0, true);
+          return;
+        }
+    } else {
+      Transform2d offset = new Transform2d(
+        new Translation2d(-FieldConstants.INTAKE_OFFSET, 0),
+        new Rotation2d(0)
+      );
+      targetPoseToUse = coralPose.plus(offset);
     }
       
-    Transform2d offset = new Transform2d(
-      new Translation2d(-FieldConstants.INTAKE_OFFSET, 0),
-      new Rotation2d(0)
-    );
-    // Apply transform in the coral's reference frame
-    targetPose = coralPose.plus(offset);
+    targetPose = targetPoseToUse;
     
     // Calculate current position error
     Pose2d currentPose = swerve.getPose();

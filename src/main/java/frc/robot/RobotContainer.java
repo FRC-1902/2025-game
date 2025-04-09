@@ -175,15 +175,15 @@ public class RobotContainer {
       .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
 
     // Align to L1
-    // controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-      // .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
+    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+      .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
 
     // Align to Barge
     new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 180)
       .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
 
     // Align to Coral
-    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
+    controllers.getTrigger(ControllerName.DRIVE, Button.LS).debounce(0.05)
       .whileTrue(new SnapToCoral(swerve, detectionSubsystem));
 
     /* Manipulator Controls */
