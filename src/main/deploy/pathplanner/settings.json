@@ -4,12 +4,13 @@
   "holonomicMode": true,
   "pathFolders": [
     "1 Face",
+    "1 Face Left",
     "1 L2",
+    "1 L2 Algae",
     "2 piece",
     "2 piece left",
-    "4 L3 Piece",
-    "4 L3 Piece Left",
-    "1 L3 Algae"
+    "3 L3 Piece",
+    "3 L3 Piece Left"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,

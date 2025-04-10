@@ -32,8 +32,7 @@ public class AutoSnapToCoral extends Command {
   private final double rotationkP = 5;
   private double currentDistance;
   private double currentRotError;
-  private static final double CLOSE = Units.inchesToMeters(12);
-  private static final double FAR = Units.inchesToMeters(36);
+  private Boolean earlyExit = false;
 
   /**
    * Creates a command that drives to and aligns with a tracked coral with custom velocity
@@ -70,10 +69,12 @@ public class AutoSnapToCoral extends Command {
     if (coralPose == null) {
       // If no coral found, use a fallback waypoint
         targetPoseToUse = swerve.getWaypoint(FieldConstants.WaypointType.HP, 0);
-        if (targetPoseToUse == null) {
-          swerve.drive(new Translation2d(0, 0), 0, true);
-          return;
-        }
+        SmartDashboard.putBoolean("Vision/GoingToHold", true);
+        // if (targetPoseToUse == null) {
+        //   swerve.drive(new Translation2d(0, 0), 0, true);
+        //   earlyExit = true;
+        //   return;
+        // }
     } else {
       Transform2d offset = new Transform2d(
         new Translation2d(FieldConstants.INTAKE_OFFSET, 0),
@@ -108,11 +109,6 @@ public class AutoSnapToCoral extends Command {
     
     // Drive to target
     swerve.drive(cappedVelocity, cappedRotation, true);
-    
-    // Vibrate controller when close to target
-    if ((currentDistance < distanceErrorTolerance) && (currentRotError < rotationErrorTolerance)) {
-      ControllerSubsystem.getInstance().vibrate(ControllerName.DRIVE, 100, 1);
-    }
   }
 
   @Override
@@ -129,6 +125,6 @@ public class AutoSnapToCoral extends Command {
     // Finish when position and orientation are close enough
     boolean positionReached = (currentDistance < distanceErrorTolerance);
     boolean rotationReached = (currentRotError < rotationErrorTolerance);
-    return positionReached && rotationReached;
+    return positionReached && rotationReached || earlyExit;
   }
 }

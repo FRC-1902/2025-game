@@ -49,8 +49,10 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private static final double CONFIDENCE = 0.1;  // Minimum confidence to consider a target valid, independent of photons confidence, photon comes first, if it passes will basically just get filtered twice
   private static final double MAX_TRACKED_VELOCITY = 1; // m/s - max velocity to allow an object to be considered for closestObject to avoid chasing fast moving objects
   private static final double MIN_DISTANCE = Units.inchesToMeters(12);
+  private static final double BACKUP_TIME = 2.0;
 
   private Pose2d lastTrackedObjectPose = null;
+
   
   /** Creates a new DetectionSubsystem. */
   private final PhotonCamera camera = new PhotonCamera(Vision.CAMERA_OBJECT.CAMERA_NAME);
@@ -107,7 +109,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   /**
    * Checks if a position is too close to any exclusion point
    */
-  private boolean isTooCloseToExcludedPoint(Translation2d position) {
+  private boolean getExcludedPoint(Translation2d position) {
     if (!ENABLE_EXCLUSION_POINTS) {
       return false;
     }
@@ -306,8 +308,8 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
       Logger.recordOutput("Vision/ClosestObject/ObjectPositions", getObjectPoses3d());
       
       // Check exclusion points
-      boolean tooClose = isTooCloseToExcludedPoint(objectPose.getTranslation());
-      if (tooClose) {
+      boolean exclusionPoints = getExcludedPoint(objectPose.getTranslation());
+      if (exclusionPoints) {
         objectsFilteredByExclusion++;
         continue;
       }
@@ -316,7 +318,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
 
       if (trackedObject.getSpeed() > MAX_TRACKED_VELOCITY) continue;
 
-      if (distance < 0) {
+      if (distance < MIN_DISTANCE) {
         SmartDashboard.putBoolean("Vision/ObjectTooClose", true);
         continue;
       }

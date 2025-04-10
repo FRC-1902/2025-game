@@ -33,6 +33,12 @@
           "data": {
             "pathName": "1L3 5"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1L3 6"
+          }
         }
       ]
     }
