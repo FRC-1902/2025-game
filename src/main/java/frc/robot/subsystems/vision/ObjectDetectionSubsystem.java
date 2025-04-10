@@ -316,7 +316,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
 
       if (trackedObject.getSpeed() > MAX_TRACKED_VELOCITY) continue;
 
-      if (distance < MIN_DISTANCE) {
+      if (distance < 0) {
         SmartDashboard.putBoolean("Vision/ObjectTooClose", true);
         continue;
       }

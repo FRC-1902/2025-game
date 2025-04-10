@@ -163,11 +163,11 @@ public class AutoSelector {
       ),
       new SequentialCommandGroup(
         new AutoSnapToCoral(swerve, detectionSubsystem),
+        new AutoSnapToCoral(swerve, detectionSubsystem),
         new AutoSnapToCoral(swerve, detectionSubsystem)
       )
     );
   } 
-
   private Command getPushingPCommand() {
     return new ParallelRaceGroup(
       new WaitCommand(4),

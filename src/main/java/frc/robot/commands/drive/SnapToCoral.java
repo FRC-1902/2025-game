@@ -69,7 +69,7 @@ public class SnapToCoral extends Command {
     }
       
     Transform2d offset = new Transform2d(
-      new Translation2d(-FieldConstants.INTAKE_OFFSET, 0),
+      new Translation2d(FieldConstants.INTAKE_OFFSET, 0),
       new Rotation2d(0)
     );
     // Apply transform in the coral's reference frame

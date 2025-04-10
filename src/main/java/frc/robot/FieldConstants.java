@@ -34,14 +34,15 @@ public final class FieldConstants {
 
   public static final double ROBOT_OFFSET_FRONT = Units.inchesToMeters(17.5); // Different distances to account for non-symmetrical robot
   public static final double ROBOT_OFFSET_BACK = Units.inchesToMeters(17);
-  public static final double OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(4);
-  public static final double PATH_OFFSET = OFFSET + Units.inchesToMeters(1);
+  public static final double OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(5);
+  public static final double TELLY_OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(2);
+  public static final double PATH_OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(2);
   public static final double BARGE_OFFSET = Units.inchesToMeters(50); 
-  public static final double INTAKE_OFFSET = ROBOT_OFFSET_BACK + Units.inchesToMeters(-4); 
+  public static final double INTAKE_OFFSET = ROBOT_OFFSET_BACK + Units.inchesToMeters(6); 
 
-  public static final double TROUGH_OFFSET = Units.inchesToMeters(16.5); // TODO: get trough offset
-  public static final double TROUGH_INWARD_DISTANCE = Units.inchesToMeters(16.5); // Distance from pole to trough
-  public static final double TROUGH_ANGLE_OFFSET = Math.toRadians(12.5);
+  public static final double TROUGH_OFFSET = Units.inchesToMeters(8); // TODO: get trough offset
+  public static final double TROUGH_INWARD_DISTANCE = Units.inchesToMeters(21); // Distance from pole to trough
+  public static final double TROUGH_ANGLE_OFFSET = Math.toRadians(-15);
 
   static {
     SmartDashboard.putNumber("Field/Trough Offset", TROUGH_OFFSET);
@@ -136,8 +137,8 @@ public final class FieldConstants {
     };
 
     public static final Pose2d[] HP = {
-      new Pose2d(3.000, 6.000, Rotation2d.fromDegrees(140)), // Left
-      new Pose2d(3.000, 2.000, Rotation2d.fromDegrees(210)), // Right
+      new Pose2d(3.000, 6.000, Rotation2d.fromDegrees(140-180)), // Left
+      new Pose2d(3.000, 2.000, Rotation2d.fromDegrees(210-180)), // Right
     };
 
     public static void updatePolesFromAprilTags() {

@@ -135,7 +135,7 @@ public final class Constants {
 
     public enum Position{ 
       // center carriage to floor 9.375 inches, 0.23825 meters, in meters
-      L1(0.35), 
+      L1(Units.inchesToMeters(16)), 
       L2(0.58), 
       L3(0.96), 
       CLIMB_UP(.3), // TODO: Set height

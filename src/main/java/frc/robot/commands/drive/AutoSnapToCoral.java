@@ -76,7 +76,7 @@ public class AutoSnapToCoral extends Command {
         }
     } else {
       Transform2d offset = new Transform2d(
-        new Translation2d(-FieldConstants.INTAKE_OFFSET, 0),
+        new Translation2d(FieldConstants.INTAKE_OFFSET, 0),
         new Rotation2d(0)
       );
       targetPoseToUse = coralPose.plus(offset);

@@ -117,18 +117,18 @@ public class ReefAlign extends Command {
   private void updateTargetPose() {
     if (poleIndex >= 0) {
       // Get pole array with offset (final poses)
-      Pose2d[] allOffsetPoles = swerve.allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(FieldConstants.OFFSET));
+      Pose2d[] allOffsetPoles = swerve.allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(FieldConstants.TELLY_OFFSET));
       
       if (poleIndex < allOffsetPoles.length) {
         // Use the selected pole
         targetPose = allOffsetPoles[poleIndex];
       } else {
         // Fallback if pole index is invalid
-        targetPose = swerve.getWaypoint(WaypointType.REEF, FieldConstants.OFFSET);
+        targetPose = swerve.getWaypoint(WaypointType.REEF, FieldConstants.TELLY_OFFSET);
       }
     } else {
       // Fallback if no pole is selected
-      targetPose = swerve.getWaypoint(WaypointType.REEF, FieldConstants.OFFSET);
+      targetPose = swerve.getWaypoint(WaypointType.REEF, FieldConstants.TELLY_OFFSET);
     }
   }
 
