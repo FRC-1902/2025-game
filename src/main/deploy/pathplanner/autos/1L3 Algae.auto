@@ -7,37 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "1L3 1"
+            "pathName": "Algae 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "1L3 2"
+            "pathName": "Algae 2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "1L3 3"
+            "pathName": "Algae Left 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "1L3 4"
+            "pathName": "Algae Left 2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "1L3 5"
+            "pathName": "Algae Right 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "1L3 6"
+            "pathName": "Algae Right 2"
           }
         }
       ]

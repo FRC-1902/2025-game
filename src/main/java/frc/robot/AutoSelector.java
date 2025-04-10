@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import javax.naming.PartialResultException;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -56,6 +58,8 @@ import frc.robot.Constants;
 public class AutoSelector {
   private LoggedDashboardChooser<Command> autoChooser;
   private String pushingP = "Auto/EnablePushingP";
+  private String leftAlgae = "Auto/Left Algae";
+  private String rightAlgae = "Auto/Right Algae";
 
   SwerveSubsystem swerve;
   AlgaeIntakeSubsystem algaeIntake;
@@ -94,14 +98,20 @@ public class AutoSelector {
     SmartDashboard.putBoolean(pushingP, false);
     SmartDashboard.setPersistent(pushingP);
 
+    // Dynamic Algae auto
+    SmartDashboard.putBoolean(leftAlgae, false);
+    SmartDashboard.setPersistent(leftAlgae);
+    SmartDashboard.putBoolean(rightAlgae, false);
+    SmartDashboard.setPersistent(rightAlgae);
+
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
     autoChooser.addDefaultOption("Leave", getLeave());
-    autoChooser.addOption("Right 1 Face", getRight1Face());
-    // autoChooser.addOption("Left 1 Face", getLeft1Face());
+    autoChooser.addOption("Right 4 Piece", getRight1Face());
+    autoChooser.addOption("Left 4 Piece", getLeft1Face());
     autoChooser.addOption("Right 2 L3", getRight2L3());
     autoChooser.addOption("Left 2 L3", getLeft2L3());
     autoChooser.addOption("1 L2", get1L2());
-    // autoChooser.addOption("Test", test());
+    autoChooser.addOption("Algae L2", getAlgaeL2());
   }
 
   /**
@@ -196,6 +206,13 @@ public class AutoSelector {
     return SmartDashboard.getBoolean(pushingP, false);
   }
 
+  private boolean isLeftAlgaeEnabled() {
+    return SmartDashboard.getBoolean(leftAlgae, false);
+  }
+  private boolean isRightAlgaeEnabled() {
+    return SmartDashboard.getBoolean(rightAlgae, false);
+  }
+
   // Auto definitions
 
   /**
@@ -243,14 +260,95 @@ public class AutoSelector {
       // Place
       new ScoreCommand(endEffector),
       swerve.getFollowPathCommand("1 L2 2")
+    );
+  }
 
+
+  private Command getAlgaeL2() {
+    return new SequentialCommandGroup(
+      // Set initial position
+      setStartPosition(7.200, 4.19),
+      
+      // Check for pushing P
+      new ConditionalCommand(
+        getPushingPCommand(),
+        new InstantCommand(),
+        this::isPushingPEnabled
+      ),
+      
+      // Index end effector
+      endEffectorFactory.getIndexSequence(),
+      new ParallelCommandGroup(
+        // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
+        swerve.getFollowPathCommand("Algae 1")
+        // new AlgaeIntakeCommand(algaeIntake)
+      ),
+
+      // Place
+      new ScoreCommand(endEffector),
+      new ParallelCommandGroup(
+        swerve.getFollowPathCommand("Algae 2"),
+        new SequentialCommandGroup(
+          new WaitCommand(1)
+          // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+        )
+      ),
+      new AlgaeOuttakeCommand(algaeIntake),
+      
+      // Left algae check
+      new ConditionalCommand(
+        new SequentialCommandGroup(
+          new ParallelCommandGroup(
+            // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+            swerve.getFollowPathCommand("Algae Left 1")
+            // new AlgaeIntakeCommand(algaeIntake)
+          ),          
+          new ParallelCommandGroup(
+            swerve.getFollowPathCommand("Algae Left 2"),
+            new SequentialCommandGroup(
+              new WaitCommand(1)
+              // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+            )
+          ),
+          new AlgaeOuttakeCommand(algaeIntake)
+        ),
+        // If path 1 is NOT enabled
+        new WaitCommand(0),
+        this::isLeftAlgaeEnabled
+      ),
+      
+      // Right conditional path
+      new ConditionalCommand(
+        new SequentialCommandGroup(
+          new ParallelCommandGroup(
+            // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+            swerve.getFollowPathCommand("Algae Right 1")
+            // new AlgaeIntakeCommand(algaeIntake)
+          ),          
+          new ParallelCommandGroup(
+            swerve.getFollowPathCommand("Algae Right 2"),
+            new SequentialCommandGroup(
+              new WaitCommand(1)
+              // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+            )
+          ),
+          new AlgaeOuttakeCommand(algaeIntake)
+        ),
+        // If path 1 is NOT enabled
+        // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
+        new WaitCommand(0),
+        this::isRightAlgaeEnabled
+      )
+      
+      // Return to safe position
+      // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
     );
   }
 
   private SequentialCommandGroup getRight1Face(){
     return new SequentialCommandGroup(
       // setup odometry
-      setStartPosition(7.134, 2, -90),
+      setStartPosition(7.2, 2.2),
 
       new ConditionalCommand(
         getPushingPCommand(),
@@ -329,6 +427,98 @@ public class AutoSelector {
           elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2)
         ),
         autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11])
+      ),
+      // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11]),
+
+      // Place
+      new ScoreCommand(endEffector),     // End of Auto
+
+      elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+    );
+  }
+
+  private SequentialCommandGroup getLeft1Face(){
+    return new SequentialCommandGroup(
+      // setup odometry
+      setStartPosition(7.2, 6),
+
+      new ConditionalCommand(
+        getPushingPCommand(),
+        new InstantCommand(),
+        this::isPushingPEnabled
+      ),
+
+      endEffectorFactory.getIndexSequence(),
+
+      // Drive to reef and grab algae from L2
+      new ParallelCommandGroup(
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
+        new SequentialCommandGroup(
+          swerve.getFollowPathCommand("1F 1 Left"),
+          autoDriveFactory.autoSnapCommand(FieldConstants.WAYPOINTS.POLES[2])
+        ),
+        new AlgaeIntakeCommand(algaeIntake)
+      ),
+
+      // Place
+      new ScoreCommand(endEffector),
+
+      // END OF CYCLE ONE
+
+      // Deploy floor intake, outtake algae, and look for a piece
+
+      new ParallelCommandGroup(
+        // new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake),
+        swerve.getFollowPathCommand("1F 2 Left"),
+        new PositionIntakeCommand(Rotation2d.fromDegrees(Constants.FloorIntake.FLOOR_ANGLE), floorIntake)
+        // new InstantCommand(()->floorIntake.setSpeed(1))
+      ),
+      new AlgaeOuttakeCommand(algaeIntake),
+      getCoralWithDetection(),
+
+      // Drive to reef
+      new ParallelCommandGroup(
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),
+          new WaitCommand(.02),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
+        autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[2])
+      ),
+      // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[10]),
+
+      // Place 
+      new ScoreCommand(endEffector),
+
+      // END OF CYCLE TWO
+
+      getCoralWithDetection(),
+
+      // Drive to reef & grab algae
+      new ParallelCommandGroup(
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3)
+        ),
+        autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[3])
+      ),
+      // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11]),
+
+
+      // Place
+      new ScoreCommand(endEffector),
+
+      // END OF CYCLE THREE
+
+      getCoralWithDetection(),
+      
+      // Drive to reef & grab algae
+      new ParallelCommandGroup(
+        new SequentialCommandGroup(
+          autoIntakeFactory.getAutonomousIndexSequence(),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2)
+        ),
+        autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[3])
       ),
       // autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[11]),
 

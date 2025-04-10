@@ -2,7 +2,23 @@
   {
     "name": "/SmartDashboard/Auto/EnablePushingP",
     "type": "boolean",
-    "value": true,
+    "value": false,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/SmartDashboard/Auto/Left Algae",
+    "type": "boolean",
+    "value": false,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/SmartDashboard/Auto/Right Algae",
+    "type": "boolean",
+    "value": false,
     "properties": {
       "persistent": true
     }
