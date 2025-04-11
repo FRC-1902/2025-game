@@ -69,7 +69,6 @@ public class AutoSnapToCoral extends Command {
     if (coralPose == null) {
       // If no coral found, use a fallback waypoint
         targetPoseToUse = swerve.getWaypoint(FieldConstants.WaypointType.HP, 0);
-        SmartDashboard.putBoolean("Vision/GoingToHold", true);
         // if (targetPoseToUse == null) {
         //   swerve.drive(new Translation2d(0, 0), 0, true);
         //   earlyExit = true;

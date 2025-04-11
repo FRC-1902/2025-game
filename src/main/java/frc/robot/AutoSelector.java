@@ -57,9 +57,11 @@ import frc.robot.Constants;
  */
 public class AutoSelector {
   private LoggedDashboardChooser<Command> autoChooser;
+  private LoggedDashboardChooser<String> algaeDirectionChooser;
+
   private String pushingP = "Auto/EnablePushingP";
-  private String leftAlgae = "Auto/Left Algae";
-  private String rightAlgae = "Auto/Right Algae";
+  // private String leftAlgae = "Auto/Left Algae";
+  // private String rightAlgae = "Auto/Right Algae";
 
   SwerveSubsystem swerve;
   AlgaeIntakeSubsystem algaeIntake;
@@ -98,11 +100,14 @@ public class AutoSelector {
     SmartDashboard.putBoolean(pushingP, false);
     SmartDashboard.setPersistent(pushingP);
 
+    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Chooser");
+
     // Dynamic Algae auto
-    SmartDashboard.putBoolean(leftAlgae, false);
-    SmartDashboard.setPersistent(leftAlgae);
-    SmartDashboard.putBoolean(rightAlgae, false);
-    SmartDashboard.setPersistent(rightAlgae);
+    algaeDirectionChooser = new LoggedDashboardChooser<>("Auto/Algae Direction");
+    algaeDirectionChooser.addDefaultOption("None", "none");
+    algaeDirectionChooser.addOption("Left", "left");
+    algaeDirectionChooser.addOption("Right", "right");
+    algaeDirectionChooser.addOption("Both", "both");
 
     autoChooser.addDefaultOption("Do Nothing", getDoNothingAuto());
     autoChooser.addDefaultOption("Leave", getLeave());
@@ -206,13 +211,16 @@ public class AutoSelector {
     return SmartDashboard.getBoolean(pushingP, false);
   }
 
+  // Replace the boolean methods with string-based checks
   private boolean isLeftAlgaeEnabled() {
-    return SmartDashboard.getBoolean(leftAlgae, false);
+    String selection = algaeDirectionChooser.get();
+    return selection.equals("left") || selection.equals("both");
   }
+  
   private boolean isRightAlgaeEnabled() {
-    return SmartDashboard.getBoolean(rightAlgae, false);
+    String selection = algaeDirectionChooser.get();
+    return selection.equals("right") || selection.equals("both");
   }
-
   // Auto definitions
 
   /**
@@ -279,18 +287,19 @@ public class AutoSelector {
       // Index end effector
       endEffectorFactory.getIndexSequence(),
       new ParallelCommandGroup(
-        // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
-        swerve.getFollowPathCommand("Algae 1")
-        // new AlgaeIntakeCommand(algaeIntake)
+        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
+        swerve.getFollowPathCommand("Algae 1"),
+        new AlgaeIntakeCommand(algaeIntake)
       ),
+      autoDriveFactory.autoSnapCommand(FieldConstants.WAYPOINTS.POLES[6]),
 
       // Place
       new ScoreCommand(endEffector),
       new ParallelCommandGroup(
         swerve.getFollowPathCommand("Algae 2"),
         new SequentialCommandGroup(
-          new WaitCommand(1)
-          // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+          new WaitCommand(.5),
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
         )
       ),
       new AlgaeOuttakeCommand(algaeIntake),
@@ -299,15 +308,15 @@ public class AutoSelector {
       new ConditionalCommand(
         new SequentialCommandGroup(
           new ParallelCommandGroup(
-            // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-            swerve.getFollowPathCommand("Algae Left 1")
-            // new AlgaeIntakeCommand(algaeIntake)
+            elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+            swerve.getFollowPathCommand("Algae Left 1"),
+            new AlgaeIntakeCommand(algaeIntake)
           ),          
           new ParallelCommandGroup(
             swerve.getFollowPathCommand("Algae Left 2"),
             new SequentialCommandGroup(
-              new WaitCommand(1)
-              // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+              new WaitCommand(.5),
+              elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
             )
           ),
           new AlgaeOuttakeCommand(algaeIntake)
@@ -321,21 +330,20 @@ public class AutoSelector {
       new ConditionalCommand(
         new SequentialCommandGroup(
           new ParallelCommandGroup(
-            // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
-            swerve.getFollowPathCommand("Algae Right 1")
-            // new AlgaeIntakeCommand(algaeIntake)
+            elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3),
+            swerve.getFollowPathCommand("Algae Right 1"),
+            new AlgaeIntakeCommand(algaeIntake)
           ),          
           new ParallelCommandGroup(
             swerve.getFollowPathCommand("Algae Right 2"),
             new SequentialCommandGroup(
-              new WaitCommand(1)
-              // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
+              new WaitCommand(.5),
+              elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN)
             )
           ),
           new AlgaeOuttakeCommand(algaeIntake)
         ),
         // If path 1 is NOT enabled
-        // elevatorFactory.getElevatorCommand(Constants.Elevator.Position.MIN),
         new WaitCommand(0),
         this::isRightAlgaeEnabled
       )

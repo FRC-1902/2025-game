@@ -101,7 +101,6 @@ public final class Constants {
   
     public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(350.5);
 
-    public static final double HP_ANGLE = 120.0;  // TODO: Find optimal angle
     public static final double FLOOR_ANGLE = 180.0;
     public static final double ELEVATOR_ANGLE = 70.0;
     public static final double CLIMB_ANGLE = 90.0;
@@ -138,7 +137,7 @@ public final class Constants {
       L1(Units.inchesToMeters(16)), 
       L2(0.58), 
       L3(0.96), 
-      CLIMB_UP(.3), // TODO: Set height
+      CLIMB_UP(.3),
       CLIMB_DOWN(0), 
       MIN(0), 
       MAX(0.96),
@@ -218,10 +217,10 @@ public final class Constants {
     public static final class CAMERA_OBJECT {
       public static final String CAMERA_NAME = "colorCam";
 
-      public static final double CONFIDENCE_THRESHOLD = 0.5; // TODO: change later
+      public static final double CONFIDENCE_THRESHOLD = 0.5;
 
-      public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(69.83); // TODO: Change to real value
-      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(47.16); // TODO: Change to real value
+      public static final Rotation2d HORIZONTAL_FOV = Rotation2d.fromDegrees(69.83);
+      public static final Rotation2d VERTICAL_FOV = Rotation2d.fromDegrees(47.16);
       public static final double HORIZONTAL_RES = 1280;
       public static final double VERTICAL_RES = 800 ;
 

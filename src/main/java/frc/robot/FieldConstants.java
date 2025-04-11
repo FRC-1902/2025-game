@@ -28,7 +28,6 @@ public final class FieldConstants {
     HP
   }
 
-  // TODO: Adjust for each field type
   public static final double WIDTH = Units.inchesToMeters(317);
   public static final double LENGTH = Units.inchesToMeters(690.875);
 
@@ -40,26 +39,26 @@ public final class FieldConstants {
   public static final double BARGE_OFFSET = Units.inchesToMeters(50); 
   public static final double INTAKE_OFFSET = ROBOT_OFFSET_BACK + Units.inchesToMeters(6); 
 
-  public static final double TROUGH_OFFSET = Units.inchesToMeters(8); // TODO: get trough offset
-  public static final double TROUGH_INWARD_DISTANCE = Units.inchesToMeters(21); // Distance from pole to trough
-  public static final double TROUGH_ANGLE_OFFSET = Math.toRadians(-15);
+  public static final double TROUGH_OFFSET = Units.inchesToMeters(8);
+  public static final double TROUGH_OUTWARD_DISTANCE = Units.inchesToMeters(19); // Distance from pole to trough
+  public static final Rotation2d TROUGH_ANGLE_OFFSET = Rotation2d.fromDegrees(-15);
 
   static {
     SmartDashboard.putNumber("Field/Trough Offset", TROUGH_OFFSET);
-    SmartDashboard.putNumber("Field/Trough Angle Offset", Math.toDegrees(TROUGH_ANGLE_OFFSET)); 
-    SmartDashboard.putNumber("Field/Trough Inward Distance", TROUGH_INWARD_DISTANCE);
+    SmartDashboard.putNumber("Field/Trough Angle Offset", TROUGH_ANGLE_OFFSET.getDegrees()); 
+    SmartDashboard.putNumber("Field/Trough Inward Distance", TROUGH_OUTWARD_DISTANCE);
   }
 
   public static double getTroughOffset() {
     return SmartDashboard.getNumber("Field/Trough Offset", TROUGH_OFFSET);
   }
-  public static double getTroughInwardDistance() {
-    return SmartDashboard.getNumber("Field/Trough Inward Distance", TROUGH_INWARD_DISTANCE);
+  public static double getTroughOutwardDistance() {
+    return SmartDashboard.getNumber("Field/Trough Outtake Distance", TROUGH_OUTWARD_DISTANCE);
   }
   
-  public static double getTroughAngleOffset() {
+  public static Rotation2d getTroughAngleOffset() {
     // Convert from degrees in dashboard to radians for calculations
-    return Math.toRadians(SmartDashboard.getNumber("Field/Trough Angle Offset", Math.toDegrees(TROUGH_ANGLE_OFFSET)));
+    return Rotation2d.fromDegrees(SmartDashboard.getNumber("Field/Trough Angle Offset", TROUGH_ANGLE_OFFSET.getDegrees()));
   }
   
   public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
@@ -189,20 +188,21 @@ public final class FieldConstants {
       
       for (int i = 0; i < POLES.length; i++) {
         Pose2d polePose = POLES[i];
-        boolean isL3 = (i % 2 == 0); // Even indices are L3 poles (right poles)
+        boolean isRightPole = (i % 2 == 0); // Even indices are right poles
         
         // Apply angle offset - rotate away from center
-        // L3 (right) poles get rotated right, L2 (left) poles get rotated left
-        double angleOffset = isL3 ? getTroughAngleOffset() : -getTroughAngleOffset();
-        Rotation2d troughRotation = polePose.getRotation().plus(new Rotation2d(angleOffset));
+        // right poles get rotated right, left poles get rotated left
+        Rotation2d troughRotation = isRightPole ? 
+          polePose.getRotation().plus(getTroughAngleOffset()) : 
+          polePose.getRotation().minus(getTroughAngleOffset());
         
         // Move inward by the specified distance
-        double troughX = polePose.getX() - getTroughInwardDistance() * Math.cos(troughRotation.getRadians());
-        double troughY = polePose.getY() - getTroughInwardDistance() * Math.sin(troughRotation.getRadians());
+        double troughX = polePose.getX() - getTroughOutwardDistance() * Math.cos(troughRotation.getRadians());
+        double troughY = polePose.getY() - getTroughOutwardDistance() * Math.sin(troughRotation.getRadians());
         
         // Apply perpendicular offset
         // L3 poles have trough to right, L2 poles have trough to left
-        boolean offsetToRight = isL3;
+        boolean offsetToRight = isRightPole;
         Pose2d baseTroughPose = new Pose2d(troughX, troughY, troughRotation);
         troughPositions[i] = getPerpendicularOffsetPose(baseTroughPose, getTroughOffset(), offsetToRight);
       }

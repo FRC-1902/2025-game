@@ -48,8 +48,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private static final double FILTER_WEIGHT = 0.3;  // Weight for new measurements (0-1)
   private static final double CONFIDENCE = 0.1;  // Minimum confidence to consider a target valid, independent of photons confidence, photon comes first, if it passes will basically just get filtered twice
   private static final double MAX_TRACKED_VELOCITY = 1; // m/s - max velocity to allow an object to be considered for closestObject to avoid chasing fast moving objects
-  private static final double MIN_DISTANCE = Units.inchesToMeters(12);
-  private static final double BACKUP_TIME = 2.0;
+  private static final double MIN_DISTANCE = Units.inchesToMeters(15);
 
   private Pose2d lastTrackedObjectPose = null;
 
@@ -65,8 +64,6 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   
   // Camera calibration state
   private boolean calibrationInitialized = false;
-  private double lastCalibrationAttempt = 0;
-  private static final double CALIBRATION_RETRY_INTERVAL = 1.0; // seconds
   
   // Storage for tracked objects
   private Map<Integer, TrackedObject> trackedObjects = new HashMap<>();
@@ -74,7 +71,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
 
   // Exclusion points configuration
   private static final boolean ENABLE_EXCLUSION_POINTS = true; 
-  private static final double EXCLUSION_TOLERANCE = 0.5; // meters - how close is "too close" to excluded points
+  private static final double EXCLUSION_TOLERANCE = 0.4; // meters - how close is "too close" to excluded points
 
   // List of positions to exclude (in meters, field coordinates)
   private List<Translation2d> exclusionPoints = new ArrayList<>();
@@ -109,7 +106,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   /**
    * Checks if a position is too close to any exclusion point
    */
-  private boolean getExcludedPoint(Translation2d position) {
+  private boolean isInExclusionZone(Translation2d position) {
     if (!ENABLE_EXCLUSION_POINTS) {
       return false;
     }
@@ -296,27 +293,23 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
     // Find the closest object that's NOT too close to an exclusion point
     TrackedObject closestTrackedObject = null;
     double closestDistance = Double.MAX_VALUE;
-    int objectsFilteredByExclusion = 0;
   
     for (TrackedObject trackedObject : objects) {
       // Get the pose from the tracked object
       Pose2d objectPose = trackedObject.pose;
       
-      double distance = robotTranslation.getDistance(objectPose.getTranslation());
-
       // Log each object position
       Logger.recordOutput("Vision/ClosestObject/ObjectPositions", getObjectPoses3d());
-      
+
       // Check exclusion points
-      boolean exclusionPoints = getExcludedPoint(objectPose.getTranslation());
-      if (exclusionPoints) {
-        objectsFilteredByExclusion++;
+      if (
+        objectPose == null ||
+        isInExclusionZone(objectPose.getTranslation()) ||
+        trackedObject.getSpeed() > MAX_TRACKED_VELOCITY
+        )
         continue;
-      }
 
-      if (objectPose == null) continue;
-
-      if (trackedObject.getSpeed() > MAX_TRACKED_VELOCITY) continue;
+      double distance = robotTranslation.getDistance(objectPose.getTranslation());
 
       if (distance < MIN_DISTANCE) {
         SmartDashboard.putBoolean("Vision/ObjectTooClose", true);
@@ -325,6 +318,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
 
       if (distance < closestDistance) {
         closestDistance = distance;
+        SmartDashboard.putNumber("Vision/ClosestObjectDistance", closestDistance);
         closestTrackedObject = trackedObject;
       }
     }

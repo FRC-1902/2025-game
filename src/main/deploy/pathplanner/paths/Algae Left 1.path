@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.969,
-        "y": 0.666
+        "x": 5.8,
+        "y": 0.62
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.822560505695838,
-        "y": 1.3729211914131523
+        "x": 5.653560505695838,
+        "y": 1.326921191413152
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Algae"
     },
     {
       "anchor": {
@@ -45,7 +45,21 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 0.8067318925233644,
+      "constraints": {
+        "maxVelocity": 3.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 570.0,
+        "maxAngularAcceleration": 500.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {

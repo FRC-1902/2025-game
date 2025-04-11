@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.969143942418498,
-        "y": 0.6655994719573619
+        "x": 5.8,
+        "y": 0.62
       },
       "prevControl": {
-        "x": 6.042434210526316,
-        "y": 0.9556743421052636
+        "x": 5.873290268107818,
+        "y": 0.9100748701479017
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Algae"
     }
   ],
   "rotationTargets": [
@@ -53,7 +53,7 @@
   "folder": "1 L2 Algae",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 120.53301627176403
+    "rotation": -59.773272591637934
   },
   "useDefaultConstraints": false
 }

@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.969143942418498,
-        "y": 0.6655994719573619
+        "x": 5.8,
+        "y": 0.62
       },
       "prevControl": {
-        "x": 5.918851461041011,
-        "y": 0.9765422077947028
+        "x": 5.749707518622513,
+        "y": 0.9309427358373409
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Algae"
     }
   ],
   "rotationTargets": [
