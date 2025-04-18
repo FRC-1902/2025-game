@@ -288,7 +288,8 @@ public class AutoSelector {
       endEffectorFactory.getIndexSequence(),
       new ParallelCommandGroup(
         elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
-        swerve.getFollowPathCommand("Algae 1"),
+        // swerve.getFollowPathCommand("Algae 1"),
+        autoDriveFactory.autoSnapOffsetCommand(FieldConstants.WAYPOINTS.POLES[6]),
         new AlgaeIntakeCommand(algaeIntake)
       ),
       autoDriveFactory.autoSnapCommand(FieldConstants.WAYPOINTS.POLES[6]),
@@ -367,13 +368,16 @@ public class AutoSelector {
       endEffectorFactory.getIndexSequence(),
 
       // Drive to reef and grab algae from L2
-      new ParallelCommandGroup(
-        elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
-        new SequentialCommandGroup(
-          swerve.getFollowPathCommand("1F 1"),
-          autoDriveFactory.autoSnapCommand(FieldConstants.WAYPOINTS.POLES[10])
+      new ParallelRaceGroup(
+        new ParallelCommandGroup(
+          elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2),
+          new SequentialCommandGroup(
+            swerve.getFollowPathCommand("1F 1"),
+            autoDriveFactory.autoSnapCommand(FieldConstants.WAYPOINTS.POLES[10])
+          ),
+          new AlgaeIntakeCommand(algaeIntake)
         ),
-        new AlgaeIntakeCommand(algaeIntake)
+        new WaitCommand(5)
       ),
 
       // Place

@@ -78,8 +78,8 @@ public class RobotContainer {
 		vision = new VisionSubsystem(
       swerve::addVisionMeasurement, 
       new VisionCamera(Constants.Vision.CAMERA_ONE, Constants.Vision.CAMERA_ONE_POS), 
-      new VisionCamera(Constants.Vision.CAMERA_TWO, Constants.Vision.CAMERA_TWO_POS),
-      new VisionCamera(Constants.Vision.CAMERA_THREE, Constants.Vision.CAMERA_THREE_POS)
+      new VisionCamera(Constants.Vision.CAMERA_TWO, Constants.Vision.CAMERA_TWO_POS)
+      // new VisionCamera(Constants.Vision.CAMERA_THREE, Constants.Vision.CAMERA_THREE_POS)
     );
 
     endEffector = new EndEffectorSubsystem();
@@ -187,7 +187,7 @@ public class RobotContainer {
       .whileTrue(new SnapToCoral(swerve, detectionSubsystem));
 
     /* Manipulator Controls */
-
+    
     // L3
     new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.RT) > 0.5)
         .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3))

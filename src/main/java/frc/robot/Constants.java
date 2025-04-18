@@ -130,11 +130,11 @@ public final class Constants {
     public static final double TOLERANCE = 0.015; // In meters
     public static final double CONVERSION_FACTOR = 0.0193145; // converts to meters 
     public static final double LOCK_ANGLE = 90; // In degrees
-    public static final double UNLOCK_ANGLE = 50.0;  
+    public static final double UNLOCK_ANGLE = 45.0;  
 
     public enum Position{ 
       // center carriage to floor 9.375 inches, 0.23825 meters, in meters
-      L1(Units.inchesToMeters(16)), 
+      L1(Units.inchesToMeters(13.5)), 
       L2(0.58), 
       L3(0.96), 
       CLIMB_UP(.3),
@@ -240,20 +240,19 @@ public final class Constants {
 
     // Basic filtering thresholds
     public static double maxAmbiguity = 0.3;
-    public static double maxZError = 0.75;
+    public static double maxZError = 1;
 
     // Standard deviation baselines, for 1 meter distance and 1 tag
     // (Adjusted automatically based on distance and # of tags)
-    public static double linearStdDevBaseline = 0.02; // Meters
+    public static double linearStdDevBaseline = 0.04; // Meters
     public static double angularStdDevBaseline = 0.06; // Radians
 
     // Standard deviation multipliers for each camera
     // (Adjust to trust some cameras more than others)
     public static double[] cameraStdDevFactors = new double[] {
-        1.0, // Camera 0 (Front Camera)
-        1.0, // Camera 1 (Back Camera)
-        1.0, // Camera 2 (Front Left Camera)
-        1.0 // Camera 3 (Front Right Camera)
+        1.0, // Camera 0 (Front Left Camera)
+        1.0, // Camera 1 (Front Right Camera)
+        1.0, // Camera 2 (Back Camera)
     };
 
     // Multipliers to apply for MegaTag 2 observations
