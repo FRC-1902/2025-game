@@ -9,6 +9,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +17,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
@@ -28,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.FieldConstants.WaypointType;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.math.SwerveMath;
@@ -36,22 +38,19 @@ import swervelib.parser.SwerveDriveConfiguration;
 
 public class SwerveSubsystem extends SubsystemBase {
   private final SwerveBase swerve;
-  private final VisionSubsystem vision;
 
   private final SwerveBase.SwerveInputs inputs = new SwerveBase.SwerveInputs();
   private final AprilTagFieldLayout aprilTagFieldLayout;
 
   /**
    * Creates a SwerveSubsystem with a vision system and swerve base.
-   * @param vision
    * @param swerve
    */
-  public SwerveSubsystem(VisionSubsystem vision, SwerveBase swerve) {
+  public SwerveSubsystem(SwerveBase swerve) {
     this.swerve = swerve;
-    this.vision = vision;
 
     try {
-      this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+      this.aprilTagFieldLayout = FieldConstants.aprilTagLayout;
     } catch (Exception e) {
       throw new RuntimeException("Failed to load AprilTag field layout", e);
     }
@@ -65,49 +64,20 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   @Override
   public void periodic() {
-
-    // Update vision with current swerve pose
-    vision.updatePoseEstimation(getPose());
-
-    // Add new vision measurements to the swerve drive odometry if its available
-    if (vision.getEstimatedGlobalPose().isPresent() && !Double.isNaN(vision.getEstimatedGlobalPose().get().estimatedPose.getX())) {
-      swerve.addVisionMeasurement(
-        vision.getEstimatedGlobalPose().get().estimatedPose.toPose2d(),
-        vision.getEstimatedGlobalPose().get().timestampSeconds);
-
-        // Record estimated pose output
-      Logger.recordOutput(
-        "Vision/CurrentEstimatedPose", vision.getEstimatedGlobalPose().get().estimatedPose);
-    }
-
-    // Convert Pose2d to Pose3d for camera position transformation
-    Pose3d robotPose3d = new Pose3d(inputs.robotPose);
-
-    // Transform camera positions to global coordinate system
-    Pose3d[] globalCameraPositions = new Pose3d[Constants.Vision.CAMERA_POSITIONS.length];
-    for (int i = 0; i < Constants.Vision.CAMERA_POSITIONS.length; i++) {
-      globalCameraPositions[i] = robotPose3d.transformBy(
-        new Transform3d(
-          Constants.Vision.CAMERA_POSITIONS[i].getTranslation(),
-          Constants.Vision.CAMERA_POSITIONS[i].getRotation()
-        )
-      );
-    }
-
-    /* 
-      Record camera positions in global coordinate system In AScope set camera positions to cone object, 
-      and the pointy end is where the camera is looking at If you want to calibrate the postion set camera 
-      positions to transform object instead
-    */
-    Logger.recordOutput("CameraPositions", globalCameraPositions);
-
-      // Update inputs
     swerve.updateInputs(inputs);
-
     Logger.processInputs("Swerve", inputs);
     
     // TODO: this is temp
     SmartDashboard.putNumber("Swerve/Velocity", Math.sqrt(Math.pow(swerve.getRobotVelocity().vxMetersPerSecond, 2) + Math.pow(swerve.getRobotVelocity().vyMetersPerSecond, 2)));
+  }
+
+  /** Adds a new timestamped vision measurement. */
+  public void addVisionMeasurement(
+    Pose2d visionRobotPoseMeters,
+    double timestampSeconds,
+    Matrix<N3, N1> visionMeasurementStdDevs
+    ) {
+    swerve.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
   // /**
@@ -266,16 +236,22 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param type WaypointType
    * @return closest waypoint of the specified type
    */
-  public Pose2d getWaypoint(WaypointType type, double offset) {
+  public Pose2d getWaypoint(WaypointType type, double reefOffset) {
     Translation2d robotTranslation = swerve.getPose().getTranslation();
     Pose2d[] waypoints = null;
   
     switch (type) {
       case REEF:
-        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(offset));
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(reefOffset));
         break;
       case TROUGH:
         waypoints = allianceFlip(FieldConstants.WAYPOINTS.getTroughPositions());
+        break;
+      case BARGE:
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.BARGE);
+        break;
+      case HP:
+        waypoints = allianceFlip(FieldConstants.WAYPOINTS.HP);
         break;
       case PROCESSOR:
         return allianceFlip(FieldConstants.WAYPOINTS.PROCESSOR);

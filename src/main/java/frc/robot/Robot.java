@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.floorIntake.AutoIntakeFactory;
 import frc.robot.util.Elastic;
 
 public class Robot extends LoggedRobot {
@@ -41,7 +42,7 @@ public class Robot extends LoggedRobot {
       case REAL:
         Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs")); // Log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        new PowerDistribution(Constants.PDH_ID, ModuleType.kRev); // Enables power distribution logging
         break;
 
       case SIM:
@@ -78,6 +79,10 @@ public class Robot extends LoggedRobot {
   @Override
     public void robotPeriodic() {
       CommandScheduler.getInstance().run();
+
+      if (AutoIntakeFactory.intakeFlag) {
+        robotContainer.autoIntakeFactory.executeCleanup();
+      }
     }
 
     @Override
@@ -117,7 +122,7 @@ public class Robot extends LoggedRobot {
           autonomousCommand.cancel();
       }
 
-      Elastic.selectTab("TeleOp");
+      Elastic.selectTab("Teleoperated");
 
       // Check battery voltage at teleop start
       checkBatteryVoltage();

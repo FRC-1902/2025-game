@@ -20,28 +20,33 @@ public class SnapToWaypoint extends Command {
   private Pose2d targetPose;
   private final PIDController pidX;
   private final PIDController pidY;
-  private final double distanceErrorTolerance = 0.04; // meters
+  private final double distanceErrorTolerance = 0.06; // meters
   private final double rotationErrorTolerance = Math.toRadians(3); // degrees
+  private final double maxVelocity;
   private double currentDistance;
   private double currentRotError;
+
+  public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
+    this(swerve, targetPoseSupplier, 4.0); // Default max velocity is 4.0 m/s
+  }
 
   /**
    * snaps to specified targetPose based on currentPose
    * @param swerve
    * @param targetPoseSupplier
    */
-  public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier) {
+  public SnapToWaypoint(SwerveSubsystem swerve, Supplier<Pose2d> targetPoseSupplier, double maxVelocity) {
     this.swerve = swerve;
     this.targetPoseSupplier = targetPoseSupplier;
-    this.pidX = new PIDController(2.5, 0.02, 0.0);
-    this.pidY = new PIDController(2.5, 0.02, 0.0);
+    this.pidX = new PIDController(2.5, 0.02, 0.001);
+    this.pidY = new PIDController(2.5, 0.02, 0.001);
+    this.maxVelocity = maxVelocity;
 
     pidX.reset();
     pidY.reset();
 
     addRequirements(swerve);
   }
-
 
   @Override
   public void initialize() {
@@ -52,10 +57,6 @@ public class SnapToWaypoint extends Command {
 
   @Override
   public void execute() {
-    SmartDashboard.putData("PID/SnapToWaypointX", pidX);
-    SmartDashboard.putData("PID/SnapToWaypointY", pidY);
-    double maxVelocity = 4.0;
-
     // Finish when position and orientation are close enough
     currentDistance = swerve.getPose().getTranslation().getDistance(targetPose.getTranslation());
     currentRotError = Math.abs(swerve.getPose().getRotation().getRadians() - targetPose.getRotation().getRadians());
@@ -77,7 +78,7 @@ public class SnapToWaypoint extends Command {
       cappedVelocity = cappedVelocity.times(1.0 / v).times(maxVelocity);
     }
 
-    double rotationkP = 3; 
+    double rotationkP = 4; 
     Rotation2d rotation = targetPose.getRotation().minus(currentPose.getRotation()).times(rotationkP);
     double cappedRotation = Math.max(Math.min(rotation.getRadians(), 3), -3);
     

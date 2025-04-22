@@ -63,6 +63,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
    * @param targetSpeed
    */
   public void setSpeed(double targetSpeed){
+    SmartDashboard.putNumber("EndEffector/Current Roller Speed", targetSpeed);
     rollerMotor.set(targetSpeed);
   }
 

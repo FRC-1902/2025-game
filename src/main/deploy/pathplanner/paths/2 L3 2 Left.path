@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.292312842247307,
-        "y": 5.07691072115353
+        "x": 5.019527093748519,
+        "y": 5.231263528658983
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.4831090504887,
-        "y": 5.740271440131663
+        "x": 5.210323301989912,
+        "y": 5.894624247637116
       },
       "isLocked": false,
       "linkedName": "J"
@@ -28,20 +28,25 @@
       "linkedName": "JK HP"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.8977987421383677,
+      "rotationDegrees": -25.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 2.0,
-    "maxAngularVelocity": 500.0,
-    "maxAngularAcceleration": 400.0,
+    "maxAngularVelocity": 570.0,
+    "maxAngularAcceleration": 500.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 2.0,
+    "velocity": 3.0,
     "rotation": -25.0
   },
   "reversed": false,

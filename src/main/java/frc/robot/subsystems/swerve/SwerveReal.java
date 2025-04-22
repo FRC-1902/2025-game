@@ -11,11 +11,14 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -38,8 +41,8 @@ public class SwerveReal implements SwerveBase {
     try {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(
         Constants.Swerve.MAX_SPEED,
-          new Pose2d(
-          new Translation2d(Meter.of(2.850), Meter.of(4)),
+        new Pose2d(
+          new Translation2d(Meter.of(2), Meter.of(4)),
           Rotation2d.fromDegrees(0)
         )
       );
@@ -54,7 +57,7 @@ public class SwerveReal implements SwerveBase {
     swerveDrive.setCosineCompensator(false);
     
     // TODO: Tune Coeff value before worlds 
-    swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
+    swerveDrive.setAngularVelocityCompensation(true, false, 0.025);
     swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
     swerveDrive.setChassisDiscretization(true, 0.02);
 
@@ -211,10 +214,14 @@ public class SwerveReal implements SwerveBase {
    * @param pose The measured pose
    * @param timestamp The timestamp of the measurement in seconds
    */
-  @Override
-  public void addVisionMeasurement(Pose2d pose, double timestamp) {
-    swerveDrive.addVisionMeasurement(pose, timestamp);
-  }
+@Override
+public void addVisionMeasurement(
+    Pose2d visionPose,
+    double timestampSeconds,
+    Matrix<N3, N1> visionMeasurementStdDevs
+) {
+    swerveDrive.addVisionMeasurement(visionPose, timestampSeconds, visionMeasurementStdDevs);
+}
 
   /** Update odometry for the swerve drive. */
   public void updateOdometry() {

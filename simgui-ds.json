@@ -16,8 +16,9 @@
           "incKey": 83
         },
         {
+          "decKey": 76,
           "decayRate": 0.0,
-          "incKey": 82,
+          "incKey": 75,
           "keyRate": 0.009999999776482582
         },
         {},
@@ -39,7 +40,7 @@
         {
           "key0": 328,
           "key135": 323,
-          "key180": 322,
+          "key180": 72,
           "key225": 321,
           "key270": 324,
           "key315": 327,
@@ -51,12 +52,9 @@
     },
     {
       "axisConfig": [
+        {},
         {
-          "incKey": 76
-        },
-        {
-          "decKey": 73,
-          "incKey": 75
+          "decKey": 73
         }
       ],
       "axisCount": 2,
