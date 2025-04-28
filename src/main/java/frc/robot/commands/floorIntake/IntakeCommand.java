@@ -1,6 +1,8 @@
 package frc.robot.commands.floorIntake;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.ControllerSubsystem;
+import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -41,7 +43,10 @@ public class IntakeCommand extends Command {
   public void end(boolean interrupted) {
     if (interrupted)
       floorIntakeSubsystem.setSpeed(0);
-    
+    if (!interrupted) {
+      ControllerSubsystem.getInstance().vibrate(ControllerName.DRIVE, 300, 1);
+      ControllerSubsystem.getInstance().vibrate(ControllerName.MANIP, 300, 1);
+    }
     endTime = Timer.getFPGATimestamp();
   }
 

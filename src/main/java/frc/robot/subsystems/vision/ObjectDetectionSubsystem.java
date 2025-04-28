@@ -48,7 +48,7 @@ public class ObjectDetectionSubsystem extends SubsystemBase {
   private static final double FILTER_WEIGHT = 0.3;  // Weight for new measurements (0-1)
   private static final double CONFIDENCE = 0.1;  // Minimum confidence to consider a target valid, independent of photons confidence, photon comes first, if it passes will basically just get filtered twice
   private static final double MAX_TRACKED_VELOCITY = 1; // m/s - max velocity to allow an object to be considered for closestObject to avoid chasing fast moving objects
-  private static final double MIN_DISTANCE = Units.inchesToMeters(18);
+  private static final double MIN_DISTANCE = Units.inchesToMeters(20);
 
   private Pose2d lastTrackedObjectPose = null;
 

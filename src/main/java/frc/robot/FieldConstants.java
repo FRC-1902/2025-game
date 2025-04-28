@@ -33,7 +33,7 @@ public final class FieldConstants {
 
   public static final double ROBOT_OFFSET_FRONT = Units.inchesToMeters(17.5); // Different distances to account for non-symmetrical robot
   public static final double ROBOT_OFFSET_BACK = Units.inchesToMeters(17);
-  public static final double OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(4);
+  public static final double OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(4.5);
   public static final double TELLY_OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(2);
   public static final double PATH_OFFSET = ROBOT_OFFSET_FRONT + Units.inchesToMeters(2);
   public static final double BARGE_OFFSET = Units.inchesToMeters(50); 
