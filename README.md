@@ -1,6 +1,6 @@
 <h1 style="text-align:center;">FRC Team 1902 - Exploding Bacon - 2025 Reefscape</h1>
 
-![Reefscape](resources/Reefscape.png)
+![Reefscape](Reefscape.png)
 
 This project contains the code for team 1902's 2025 FRC robot "WaterPig". The code for our robot is written in Java and uses several external libraries including [WPILib](https://docs.wpilib.org/en/stable/), [REVLib](https://codedocs.revrobotics.com/java/com/revrobotics/package-summary.html), [PathPlanner](https://github.com/mjansen4857/pathplanner), [PhotonVision](https://github.com/PhotonVision/photonvision), [YAGSL](https://github.com/BroncBotz3481/YAGSL), [MapleSim](https://shenzhen-robotics-alliance.github.io/maple-sim/), and [AdvantageKit](https://github.com/Mechanical-Advantage/AdvantageKit). We also use [Elastic Dashboard](https://github.com/Gold872/elastic-dashboard) and [AdvantageScope](https://github.com/Mechanical-Advantage/AdvantageScope) as for viewing live and logged robot data and telemetry. All robot code is organzied in the standard command-based layout.
 ## Code Highlights
