@@ -54,41 +54,24 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 public class RobotContainer {
 
   SwerveSubsystem swerve;
-  VisionSubsystem vision;
   AlgaeIntakeSubsystem algaeIntake;
   ElevatorSubsystem elevator;
   EndEffectorSubsystem endEffector;
   FloorIntakeSubsystem floorIntake;
   LEDSubsystem led;
   ControllerSubsystem controllers;
-  ObjectDetectionSubsystem detectionSubsystem;
-  ReefAlign reefAlignCommand;
 
-
-  AutoDriveFactory autoDrive;
-  AutoIntakeFactory autoIntakeFactory;
-  ElevatorFactory elevatorFactory;
-  EndEffectorFactory endEffectorFactory;
-  AlgaeOuttakeFactory algaeOuttakeFactory;
   private final Field2d field;
 
   public RobotContainer() {
     controllers = ControllerSubsystem.getInstance();
     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
-		vision = new VisionSubsystem(
-      swerve::addVisionMeasurement, 
-      new VisionCamera(Constants.Vision.CAMERA_ONE, Constants.Vision.CAMERA_ONE_POS), 
-      new VisionCamera(Constants.Vision.CAMERA_TWO, Constants.Vision.CAMERA_TWO_POS)
-      // new VisionCamera(Constants.Vision.CAMERA_THREE, Constants.Vision.CAMERA_THREE_POS)
-    );
 
     endEffector = new EndEffectorSubsystem();
     elevator = new ElevatorSubsystem();
     floorIntake = new FloorIntakeSubsystem(elevator);
     led = new LEDSubsystem();
     algaeIntake = new AlgaeIntakeSubsystem(elevator);
-    detectionSubsystem = new ObjectDetectionSubsystem(swerve);
-    reefAlignCommand = new ReefAlign(swerve);
 
     // Path Planner logging
     field = new Field2d();
@@ -117,13 +100,6 @@ public class RobotContainer {
       () -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE),
       () -> (controllers.get(ControllerName.DRIVE, Axis.LT) > 0.5)
     );
-
-    autoDrive = new AutoDriveFactory(swerve, detectionSubsystem);
-    endEffectorFactory = new EndEffectorFactory(endEffector);
-    autoIntakeFactory = new AutoIntakeFactory(floorIntake, elevator, endEffector, led);
-    elevatorFactory = new ElevatorFactory(endEffector, elevator, floorIntake);
-    algaeOuttakeFactory = new AlgaeOuttakeFactory(algaeIntake);
-
     swerve.setDefaultCommand(closedDrive);
 
     LEDPattern greenPattern = LEDPattern.solid(new Color(0, 255, 0)).atBrightness(Percent.of(50));
@@ -138,97 +114,5 @@ public class RobotContainer {
   }
 
   private void bindButtons() {
-
-    /* Driver Controls */
-
-    // Place Coral
-    new Trigger(() -> controllers.get(ControllerName.DRIVE, Axis.RT) > 0.5)
-      .whileTrue(new ScoreCommand(endEffector));
-
-    // Re Index Coral
-    controllers.getTrigger(ControllerName.DRIVE, Button.LB).debounce(0.05)
-      .onTrue(endEffectorFactory.getReverseSequence());
-
-    // Score/Outtake Algae
-    controllers.getTrigger(ControllerName.DRIVE, Button.RB).debounce(0.05)
-      .whileTrue(algaeOuttakeFactory.algaeOuttakeSequence());
-
-    // Zero Gyro
-    controllers.getTrigger(ControllerName.DRIVE, Button.Y).debounce(0.05)
-      .onTrue(new InstantCommand(swerve::zeroGyro));
-    
-    // Align to Reef
-    controllers.getTrigger(ControllerName.DRIVE, Button.B).debounce(0.05)
-    .whileTrue(reefAlignCommand)
-    .onFalse(new InstantCommand(reefAlignCommand::resetPoleIndex));
-  
-    // Align to left Reef Pole
-    new Trigger(() -> controllers.getTrigger(ControllerName.DRIVE, Button.B).getAsBoolean() && controllers.get(ControllerName.DRIVE, Axis.LX) < -Constants.Controller.LEFT_Y_DEADBAND)
-      .onTrue(new InstantCommand(() -> reefAlignCommand.navigateToDirectionalPole(false)));
-    
-    // Align to right Reef Pole
-    new Trigger(() -> controllers.getTrigger(ControllerName.DRIVE, Button.B).getAsBoolean() && controllers.get(ControllerName.DRIVE, Axis.LX) > Constants.Controller.LEFT_Y_DEADBAND)
-      .onTrue(new InstantCommand(() -> reefAlignCommand.navigateToDirectionalPole(true)));
-
-    // Align to Processor
-    controllers.getTrigger(ControllerName.DRIVE, Button.X).debounce(0.05)
-      .whileTrue(autoDrive.snapCommand(WaypointType.PROCESSOR)); 
-
-    // Align to L1
-    controllers.getTrigger(ControllerName.DRIVE, Button.A).debounce(0.05)
-      .whileTrue(autoDrive.snapCommand(WaypointType.TROUGH)); 
-
-    // Align to Barge
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.DRIVE) == 180)
-      .whileTrue(autoDrive.bargeAlignCommand(WaypointType.BARGE));
-
-    // Align to Coral
-    controllers.getTrigger(ControllerName.DRIVE, Button.LS).debounce(0.05)
-      .whileTrue(new SnapToCoral(swerve, detectionSubsystem));
-
-    /* Manipulator Controls */
-    
-    // L3
-    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.RT) > 0.5)
-        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L3))
-        .onFalse(elevatorFactory.getElevatorDownCommand());
-    // L2
-    controllers.getTrigger(ControllerName.MANIP, Button.RB).debounce(0.05)
-        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L2))
-        .onFalse(elevatorFactory.getElevatorDownCommand());
-    // L1
-    controllers.getTrigger(ControllerName.MANIP, Button.Y).debounce(0.05)
-        .whileTrue(elevatorFactory.getElevatorCommand(Constants.Elevator.Position.L1))
-        .onFalse(elevatorFactory.getElevatorDownCommand());
-
-    // Spit Floor Intake
-    controllers.getTrigger(ControllerName.MANIP, Button.LS).debounce(0.05)
-      .whileTrue(new OuttakeCommand(floorIntake));
-
-    // Floor Intake
-    new Trigger(() -> controllers.get(ControllerName.MANIP, Axis.LT) > 0.2)
-      // .whileTrue(new IntakeCommand(floorIntake, led));
-      .whileTrue(autoIntakeFactory.getIntakeSequence(Constants.FloorIntake.FLOOR_ANGLE));
-
-    // Algae Intake
-    controllers.getTrigger(ControllerName.MANIP, Button.LB).debounce(0.05)
-      .whileTrue(new AlgaeIntakeCommand(algaeIntake));
-      
-    // Climber Up
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 0)
-      .onTrue(elevatorFactory.getClimberUpSequence());
-
-    // Climber Down
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 180)
-      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.CLIMB_DOWN));
-
-    // Climber Intake In
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 90)
-      .onTrue(new InstantCommand(() -> floorIntake.setAngle(Rotation2d.fromDegrees(70)), floorIntake));
-
-    // Home
-    new Trigger(() -> controllers.getDPAD(ControllerSubsystem.ControllerName.MANIP) == 270)
-      .whileTrue(new ElevatorCommand(elevator, Constants.Elevator.Position.HOLD))
-      .onFalse(new ElevatorCommand(elevator, Constants.Elevator.Position.HOME));
   }
 }
