@@ -35,6 +35,13 @@ public class AutoDriveFactory {
     );
   }
 
+  public Command snapOnceCommand(WaypointType waypoint) {
+    return new SequentialCommandGroup(
+      new SnapToWaypoint(swerve, () -> swerve.getWaypoint(waypoint, FieldConstants.OFFSET))
+    );
+  }
+
+
   public Command snapOffsetCommand(WaypointType waypoint) {
     return new SequentialCommandGroup(
       new SnapToWaypoint(swerve, ()-> FieldConstants.WAYPOINTS.getOffsetPose(swerve.getWaypoint(waypoint, 0), FieldConstants.PATH_OFFSET)),
