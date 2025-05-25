@@ -11,18 +11,27 @@ public interface ElevatorBase {
 
     public class ElevatorBaseInputs {
         boolean atSetpoint;
+        boolean limitSwitchTriggered; 
+        boolean isLocked; 
         Position currentPosition;
+        Position targetPosition; 
+        double unlockTime; 
+        double climbLockTime; 
     }
 
     public double getPosition();
 
-    public void setPosition(double position);
+    public void setPosition(Position position);
+
+    public boolean limitSwitchTriggered(); 
 
     public boolean atSetpoint();
 
     public void resetPID();
 
     public boolean isLocked(); 
+
+    public void setLocked(boolean lock); 
 
     public void update(ElevatorBaseInputs inputs);
 }
