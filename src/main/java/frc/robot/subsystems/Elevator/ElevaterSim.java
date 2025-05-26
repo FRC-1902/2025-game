@@ -86,6 +86,10 @@ public class ElevaterSim implements ElevatorBase {
         //Sim Logic here 
         inputs.atSetpoint = atSetpoint(); 
         inputs.limitSwitchTriggered = limitSwitchTriggered(); 
+        inputs.currentPosition = getPosition();
+        inputs.targetPosition = targetPosition; 
+        inputs.isLocked = locked; 
+        
         elevatorSim.setInputVoltage(pidCalc());
         updateTelemetry();
     };
