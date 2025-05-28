@@ -5,17 +5,16 @@
 package frc.robot.subsystems.Elevator;
 
 import frc.robot.Robot;
-import frc.robot.Constants.Elevator.Position;
+import frc.robot.subsystems.Elevator.ElevatorConstants.Position;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 /** Add your docs here. */
 public class ElevaterSim implements ElevatorBase {
@@ -25,12 +24,15 @@ public class ElevaterSim implements ElevatorBase {
     ElevatorSim elevatorSim; 
     PIDController pid;
     Pose3d stageOne, stageTwo; 
+    DCMotor gearbox; 
 
     public ElevaterSim(){
+
+        gearbox = new DCMotor(getPosition(), getPosition(), getPosition(), getPosition(), getPosition(), 0); // TODO: Scary numbers
         // Sim setup        
-        elevatorSim = new ElevatorSim(null, getPosition(), getPosition(), getPosition(), getPosition(), getPosition(), locked, getPosition(), null); 
+        elevatorSim = new ElevatorSim(gearbox, getPosition(), getPosition(), getPosition(), getPosition(), getPosition(), locked, getPosition(), null); 
         
-        pid = new PIDController(getPosition(), getPosition(), getPosition()); 
+        pid = new PIDController(ElevatorConstants.PIDConstants.kP, ElevatorConstants.PIDConstants.kI, ElevatorConstants.PIDConstants.kD); 
         stageOne = new Pose3d(null, null); 
         stageTwo = new Pose3d(null, null); 
 

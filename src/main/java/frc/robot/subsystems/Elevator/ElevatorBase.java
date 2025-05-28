@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems.Elevator;
 
-import frc.robot.Constants.Elevator.Position;
+import frc.robot.subsystems.Elevator.ElevatorConstants.Position;;
 
 /** Add your docs here. */
 public interface ElevatorBase {
@@ -13,7 +13,7 @@ public interface ElevatorBase {
         boolean atSetpoint;
         boolean limitSwitchTriggered; 
         boolean isLocked; 
-        Position currentPosition;
+        double currentPosition;
         Position targetPosition; 
         double unlockTime; 
         double climbLockTime; 

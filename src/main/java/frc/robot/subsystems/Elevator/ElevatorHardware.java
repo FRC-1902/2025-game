@@ -6,6 +6,7 @@ package frc.robot.subsystems.Elevator;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -15,8 +16,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants;
-import frc.robot.Constants.Elevator.Position;
+import frc.robot.subsystems.Elevator.ElevatorConstants.Position;
 
 /** Add your docs here. */
 public class ElevatorHardware implements ElevatorBase {
@@ -29,14 +29,14 @@ public class ElevatorHardware implements ElevatorBase {
     double unlockTime; 
 
     public ElevatorHardware(){
-        leftMotor = new SparkMax(0, null); 
-        rightMotor = new SparkMax(0, null); 
+        leftMotor = new SparkMax(ElevatorConstants.MotorIDs.LEFT_MOTOR_ID, MotorType.kBrushless); 
+        rightMotor = new SparkMax(ElevatorConstants.MotorIDs.RIGHT_MOTOR_ID, MotorType.kBrushless); 
 
-        servo = new Servo(0); 
+        servo = new Servo(ElevatorConstants.MotorIDs.SERVO_ID); 
 
-        limitSwitch = new DigitalInput(0); 
+        limitSwitch = new DigitalInput(ElevatorConstants.MotorIDs.LIMIT_SWITCH_ID); 
 
-        pid = new PIDController(0,0,0); 
+        pid = new PIDController(ElevatorConstants.PIDConstants.kP,ElevatorConstants.PIDConstants.kI,ElevatorConstants.PIDConstants.kD); 
 
         configureMotors();
     }
@@ -55,8 +55,8 @@ public class ElevatorHardware implements ElevatorBase {
         configTwo.inverted(false); // todo: switch inverted
         configTwo.voltageCompensation(12);
 
-        configOne.encoder.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
-        configTwo.encoder.positionConversionFactor(Constants.Elevator.CONVERSION_FACTOR);
+        configOne.encoder.positionConversionFactor(ElevatorConstants.CONVERSIONS.CONVERSION_FACTOR);
+        configTwo.encoder.positionConversionFactor(ElevatorConstants.CONVERSIONS.CONVERSION_FACTOR);
 
         // ResetSafeParameters not well documented
         leftMotor.configure(configOne, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -86,16 +86,16 @@ public class ElevatorHardware implements ElevatorBase {
 
     @Override
     public boolean isLocked(){
-        return 0.001 > Math.abs(servo.getAngle() - Constants.Elevator.LOCK_ANGLE);
+        return 0.001 > Math.abs(servo.getAngle() - ElevatorConstants.CONVERSIONS.LOCK_ANGLE);
     };
 
     @Override
     public void setLocked(boolean lock) {
         if (lock) {
-            servo.setAngle(Constants.Elevator.LOCK_ANGLE);
+            servo.setAngle(ElevatorConstants.CONVERSIONS.LOCK_ANGLE);
         } else {
             unlockTime = Timer.getFPGATimestamp();
-            servo.setAngle(Constants.Elevator.UNLOCK_ANGLE);
+            servo.setAngle(ElevatorConstants.CONVERSIONS.UNLOCK_ANGLE);
         }
     }
 
@@ -105,7 +105,7 @@ public class ElevatorHardware implements ElevatorBase {
     };
 
     public void elePowerCalc(){
-        double power = pid.calculate(getPosition()) + Constants.Elevator.kF + Constants.Elevator.kS * Math.signum(pid.getSetpoint() - getPosition());
+        double power = pid.calculate(getPosition()) + ElevatorConstants.PIDConstants.kF + ElevatorConstants.PIDConstants.kS * Math.signum(pid.getSetpoint() - getPosition());
 
         leftMotor.set(power);
         rightMotor.set(power); 
@@ -114,8 +114,12 @@ public class ElevatorHardware implements ElevatorBase {
     @Override
     public void update(ElevatorBaseInputs inputs){
 
+        if(inputs.targetPosition != Position.CLIMB_DOWN || inputs.targetPosition != Position.CLIMB_UP){
+            elePowerCalc();
+        }
+
         inputs.atSetpoint = pid.atSetpoint(); 
-        inputs.currentPosition = targetPosition; 
+        inputs.currentPosition = getPosition(); 
         inputs.unlockTime = unlockTime; 
         inputs.limitSwitchTriggered = limitSwitchTriggered(); 
         inputs.isLocked = isLocked(); 

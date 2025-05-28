@@ -10,12 +10,11 @@ import frc.robot.Robot;
 import frc.robot.subsystems.Elevator.ElevatorBase.ElevatorBaseInputs;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.Constants.Elevator.Position;
+import frc.robot.subsystems.Elevator.ElevatorConstants.Position;;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
   ElevatorBase elevatorBase; 
-  RoutineManager routineManager; 
   ElevatorBaseInputs inputs; 
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem() {
@@ -32,10 +31,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     return new InstantCommand(() -> inputs.targetPosition = targetPosition);
   }
 
+  
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     elevatorBase.update(inputs);
-    routineManager.gangCanYouManageMyParkingLot(inputs.targetPosition);
   }
 }
