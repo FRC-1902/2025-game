@@ -31,7 +31,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     return new InstantCommand(() -> inputs.targetPosition = targetPosition);
   }
 
-  
 
   @Override
   public void periodic() {

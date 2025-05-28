@@ -6,7 +6,6 @@ package frc.robot.subsystems.Elevator;
 
 import frc.robot.Robot;
 import frc.robot.subsystems.Elevator.ElevatorConstants.Position;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import org.littletonrobotics.junction.Logger;
 
@@ -28,16 +27,27 @@ public class ElevaterSim implements ElevatorBase {
 
     public ElevaterSim(){
 
-        gearbox = new DCMotor(getPosition(), getPosition(), getPosition(), getPosition(), getPosition(), 0); // TODO: Scary numbers
-        // Sim setup        
-        elevatorSim = new ElevatorSim(gearbox, getPosition(), getPosition(), getPosition(), getPosition(), getPosition(), locked, getPosition(), null); 
-        
+        gearbox = new DCMotor(ElevatorConstants.SimulationConstants.GearboxConstants.NOMINAL_VOLTAGEVOLTS,
+                ElevatorConstants.SimulationConstants.GearboxConstants.STALL_TORQUE_NM,
+                ElevatorConstants.SimulationConstants.GearboxConstants.STALL_CURRENTAMPS,
+                ElevatorConstants.SimulationConstants.GearboxConstants.FREE_CURRENTAMPS,
+                ElevatorConstants.SimulationConstants.GearboxConstants.FREE_SPEED_RS,
+                ElevatorConstants.SimulationConstants.GearboxConstants.NUM_MOTORS); 
+          
+        elevatorSim = new ElevatorSim(gearbox, ElevatorConstants.SimulationConstants.ElevatorSimSetup.GEARING,
+                ElevatorConstants.SimulationConstants.ElevatorSimSetup.CARRIAGE_MASS,
+                ElevatorConstants.SimulationConstants.ElevatorSimSetup.DRUM_RADIUS,
+                ElevatorConstants.SimulationConstants.ElevatorSimSetup.MIN_HEIGHT,
+                ElevatorConstants.SimulationConstants.ElevatorSimSetup.MAX_HEIGHT,
+                ElevatorConstants.SimulationConstants.ElevatorSimSetup.SIMULATE_GRAVITY,
+                ElevatorConstants.SimulationConstants.ElevatorSimSetup.STARTING_HEIGHT,
+                ElevatorConstants.SimulationConstants.ElevatorSimSetup.MEAUREMENT_STD_DEVS.getAsDouble());
+
         pid = new PIDController(ElevatorConstants.PIDConstants.kP, ElevatorConstants.PIDConstants.kI, ElevatorConstants.PIDConstants.kD); 
-        stageOne = new Pose3d(null, null); 
-        stageTwo = new Pose3d(null, null); 
+        stageOne = new Pose3d(new Translation3d(), new Rotation3d()); 
+        stageTwo = new Pose3d(new Translation3d(), new Rotation3d()); 
 
         resetPID();
-        //TODO: values
     }
 
     public double getPosition(){

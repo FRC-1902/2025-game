@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.Elevator;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.util.Units;
 
 /** Add your docs here. */
@@ -56,6 +58,25 @@ public final class ElevatorConstants {
     }
 
     public static final class SimulationConstants{
-        
+        public static final class GearboxConstants{
+          public static final double NOMINAL_VOLTAGEVOLTS = 0; 
+          public static final double STALL_TORQUE_NM = 0; 
+          public static final double STALL_CURRENTAMPS = 0; 
+          public static final double FREE_CURRENTAMPS = 0; 
+          public static final double FREE_SPEED_RS = 0; 
+          public static final int NUM_MOTORS = 2; 
+        }
+
+        public static final class ElevatorSimSetup {
+          public static final double GEARING = 0;
+          public static final double CARRIAGE_MASS = 0; // in Kg
+          public static final double DRUM_RADIUS = 0; // in metres
+          public static final double MIN_HEIGHT = 0; // in metres
+          public static final double MAX_HEIGHT = 0; // in metres
+          public static final double STARTING_HEIGHT = 0; // in metres 
+          public static final boolean SIMULATE_GRAVITY = true;
+          public static final DoubleSupplier MEAUREMENT_STD_DEVS = null; // probably omit for now (one dev for pos)
+        }
+
     }
 }
