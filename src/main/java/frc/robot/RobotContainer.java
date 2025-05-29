@@ -85,5 +85,7 @@ public class RobotContainer {
   private void bindButtons() {
     controllers.getTrigger(ControllerName.DRIVE, Button.A).onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L3));
     controllers.getTrigger(ControllerName.DRIVE, Button.B).onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L1));
+    controllers.getTrigger(ControllerName.DRIVE, Button.X).onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.HOME));
+    //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new InstantCommand(() -> System.out.println("test success")));
   }
 }

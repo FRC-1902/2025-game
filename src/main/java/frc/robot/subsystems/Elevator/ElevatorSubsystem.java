@@ -28,7 +28,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command setPosition(Position targetPosition){
-    return new InstantCommand(() -> inputs.targetPosition = targetPosition);
+    return new InstantCommand(() -> elevatorBase.setPosition(targetPosition));
   }
 
 
@@ -36,5 +36,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     elevatorBase.update(inputs);
+
+    System.out.println(inputs.targetPosition);
   }
 }
