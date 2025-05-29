@@ -5,33 +5,68 @@
 package frc.robot.subsystems.FloorIntake;
 
 import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
+import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
+import static edu.wpi.first.units.Units.Inches;
 
 /** Add your docs here. */
 public class FloorSim implements FloorBase {
 
-    IntakeSimulation intakeSim = null;
+    IntakeSimulation intakeSim; 
+    
     FloorBaseInputs inputs;
     double rollerSpeed = 0;
+    double motorReduction = 1; 
     Rotation2d targetAngle;
+    SingleJointedArmSim armSim; 
+    DCMotor gearbox;
+    PIDController pid; 
+    Pose3d intakePose; 
 
     public FloorSim() {
+        
         inputs = new FloorBaseInputs();
+
+        gearbox = DCMotor.getNEO(1);
+
+        armSim = new SingleJointedArmSim(gearbox, FloorConstants.SimultationConstants.GEARING,
+                FloorConstants.SimultationConstants.MOMENT, FloorConstants.SimultationConstants.ARM_LENGTH,
+                FloorConstants.Positions.MIN_PIVOT.getRadians(),
+                FloorConstants.Positions.MAX_PIVOT.getRadians(), FloorConstants.SimultationConstants.SIMULATE_GRAVITY,
+                FloorConstants.Positions.DEFAULT_ANGLE);
+
+        pid = new PIDController(FloorConstants.PIDConstants.PIVOT_P, FloorConstants.PIDConstants.PIVOT_I,
+                FloorConstants.PIDConstants.PIVOT_D);
+                pid.disableContinuousInput(); // Makes sure that intake doesn't try to gas it through the floor
+                pid.setTolerance(FloorConstants.Positions.TOLERANCE.getDegrees());
+                pid.setIZone(10);
+
         // Sim setup stuff
-        /*
-         * if (RobotContainer.MAPLESIM) {
-         * intakeSim = IntakeSimulation.OverTheBumperIntake(
-         * "Floor",
-         * RobotContainer.instance.drivetrain.getDriveSim(),
-         * Inches.of(15),
-         * Inches.of(6),
-         * IntakeSide.LEFT,
-         * 1
-         * );
-         * }
-         */
+        
+         /*  if (RobotContainer.MAPLESIM) {
+            intakeSim = IntakeSimulation.OverTheBumperIntake(
+                "Coral",
+                null,
+                Inches.of(5),
+                Inches.of(5),
+                IntakeSide.FRONT,
+                1
+            );
+          }
+            */
+        intakePose = new Pose3d(new Translation3d(0.3, 0.0, -0.15), new Rotation3d());
+        targetAngle = Rotation2d.fromDegrees(FloorConstants.Positions.DEFAULT_ANGLE);
+         
     }
 
     @Override
@@ -41,9 +76,7 @@ public class FloorSim implements FloorBase {
 
     @Override
     public Rotation2d getAngle() {
-        if (Robot.isReal())
-            return Rotation2d.fromDegrees(0);
-        return targetAngle;
+        return Rotation2d.fromRadians(armSim.getAngleRads()); 
     };
 
     @Override
@@ -57,13 +90,29 @@ public class FloorSim implements FloorBase {
     };
 
     @Override
-    public void resetPID() {
+    public void resetPID(){
+        pid.reset();
     };
+
+    public boolean atSetpoint(){
+       return pid.atSetpoint();
+    }
+
+    private double pidCalc(){
+        return pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees());
+    }
+    private void updateTelemetry(){
+        intakePose = new Pose3d(new Translation3d(), new Rotation3d(0.0, targetAngle.getDegrees(), 0.0)); 
+        Logger.recordOutput("IntakePose", intakePose);
+    }
 
     @Override
     public void update(FloorBaseInputs inputs) {
-        if (Robot.isReal())
-            return;
+        if (Robot.isReal()) return;
         // Setup Sim Logic here
+        inputs.atSetpoint = atSetpoint(); 
+        armSim.setInputVoltage(pidCalc());
+        updateTelemetry();
+        Logger.recordOutput("TargetAngle", targetAngle.getDegrees());
     };
 }
