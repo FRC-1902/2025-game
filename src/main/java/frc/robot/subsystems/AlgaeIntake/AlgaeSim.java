@@ -6,6 +6,8 @@ package frc.robot.subsystems.AlgaeIntake;
 
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Robot;
@@ -19,9 +21,11 @@ public class AlgaeSim implements AlgaeBase {
  double rollerSpeed = 0;
  Rotation2d targetAngle;
     IntakeSimulation intakeSim = null;
+    LoggedMechanism2d intakeMechanism2d; 
 
     public AlgaeSim() {
         inputs = new AlgaeBaseInputs();
+        intakeMechanism2d = new LoggedMechanism2d(rollerSpeed, rollerSpeed, null);
         //Sim setup stuff
        /*  if (RobotContainer.MAPLESIM) {
             intakeSim = IntakeSimulation.OverTheBumperIntake(
@@ -51,6 +55,7 @@ public class AlgaeSim implements AlgaeBase {
     public void update(AlgaeBaseInputs inputs) {
         if (Robot.isReal()) return;
         //Setup Sim Logic here
+        Logger.recordOutput("intakeMechanism2d", intakeMechanism2d);
     }
 
     @Override
@@ -61,7 +66,7 @@ public class AlgaeSim implements AlgaeBase {
 
     @Override
     public boolean hasAlgae() {
-        return inputs.hasAlgae;
+        return inputs.hasAlgae; // TODO: implement with maplesim 
     }
 
     @Override

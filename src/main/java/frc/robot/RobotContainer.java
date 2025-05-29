@@ -5,13 +5,17 @@ import static edu.wpi.first.units.Units.Second;
 
 import java.io.File;
 
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -26,6 +30,8 @@ import frc.robot.subsystems.ControllerSubsystem.Axis;
 import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.Elevator.ElevatorSubsystem;
+import frc.robot.subsystems.FloorIntake.FloorConstants;
+import frc.robot.subsystems.FloorIntake.FloorSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -39,15 +45,18 @@ public class RobotContainer {
   
   LEDSubsystem led;
   ControllerSubsystem controllers;
-  ElevatorSubsystem elevatorSubsystem; 
+  ElevatorSubsystem elevatorSubsystem;
+  FloorSubsystem floorSubsystem;  
 
   private final Field2d field;
+  public static final boolean MAPLESIM = true; 
 
   public RobotContainer() {
     controllers = ControllerSubsystem.getInstance();
     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
     elevatorSubsystem = new ElevatorSubsystem(); 
+    floorSubsystem = new FloorSubsystem(); 
 
     
 
@@ -87,5 +96,6 @@ public class RobotContainer {
     controllers.getTrigger(ControllerName.DRIVE, Button.B).onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L1));
     controllers.getTrigger(ControllerName.DRIVE, Button.X).onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.HOME));
     //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new InstantCommand(() -> System.out.println("test success")));
+    controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(floorSubsystem.setPivotAngle(Rotation2d.fromDegrees(FloorConstants.Positions.FLOOR_ANGLE))).whileFalse((floorSubsystem.setPivotAngle(Rotation2d.fromDegrees(FloorConstants.Positions.DEFAULT_ANGLE))));
   }
 }
