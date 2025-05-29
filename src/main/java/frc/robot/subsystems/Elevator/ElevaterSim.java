@@ -76,12 +76,12 @@ public class ElevaterSim implements ElevatorBase {
     private void updateTelemetry(){
         double restingPos = ElevatorConstants.Position.HOME.getHeight(); 
         double currentPos = targetPosition.getHeight(); 
-        stageOne = new Pose3d(new Translation3d(restingPos, restingPos, restingPos + currentPos), new Rotation3d()); 
+        stageOne = new Pose3d(new Translation3d(restingPos, restingPos, (restingPos + currentPos) * 0.5 ), new Rotation3d()); // its kinda just as shrimple as that 
         stageTwo = new Pose3d(new Translation3d(restingPos, restingPos, restingPos + currentPos), new Rotation3d()); 
 
-        Logger.recordOutput("stageOne", stageOne); 
-        Logger.recordOutput("stageTwo", stageTwo); 
-        Logger.recordOutput("EndEffector", new Pose3d[]{stageOne, stageTwo});
+        Logger.recordOutput("Elevator", stageOne); 
+        Logger.recordOutput("EndEffector", stageTwo); 
+        //Logger.recordOutput("EndEffector", new Pose3d[]{stageOne, stageTwo});
     }
 
     private double pidCalc(){
