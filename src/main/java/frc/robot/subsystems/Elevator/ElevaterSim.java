@@ -27,12 +27,7 @@ public class ElevaterSim implements ElevatorBase {
 
     public ElevaterSim(){
 
-        gearbox = new DCMotor(ElevatorConstants.SimulationConstants.GearboxConstants.NOMINAL_VOLTAGEVOLTS,
-                ElevatorConstants.SimulationConstants.GearboxConstants.STALL_TORQUE_NM,
-                ElevatorConstants.SimulationConstants.GearboxConstants.STALL_CURRENTAMPS,
-                ElevatorConstants.SimulationConstants.GearboxConstants.FREE_CURRENTAMPS,
-                ElevatorConstants.SimulationConstants.GearboxConstants.FREE_SPEED_RS,
-                ElevatorConstants.SimulationConstants.GearboxConstants.NUM_MOTORS); 
+        gearbox = DCMotor.getNEO(2); 
           
         elevatorSim = new ElevatorSim(gearbox, ElevatorConstants.SimulationConstants.ElevatorSimSetup.GEARING,
                 ElevatorConstants.SimulationConstants.ElevatorSimSetup.CARRIAGE_MASS,
@@ -40,13 +35,13 @@ public class ElevaterSim implements ElevatorBase {
                 ElevatorConstants.SimulationConstants.ElevatorSimSetup.MIN_HEIGHT,
                 ElevatorConstants.SimulationConstants.ElevatorSimSetup.MAX_HEIGHT,
                 ElevatorConstants.SimulationConstants.ElevatorSimSetup.SIMULATE_GRAVITY,
-                ElevatorConstants.SimulationConstants.ElevatorSimSetup.STARTING_HEIGHT,
-                ElevatorConstants.SimulationConstants.ElevatorSimSetup.MEAUREMENT_STD_DEVS.getAsDouble());
+                ElevatorConstants.SimulationConstants.ElevatorSimSetup.STARTING_HEIGHT);
 
         pid = new PIDController(ElevatorConstants.PIDConstants.kP, ElevatorConstants.PIDConstants.kI, ElevatorConstants.PIDConstants.kD); 
         stageOne = new Pose3d(new Translation3d(), new Rotation3d()); 
         stageTwo = new Pose3d(new Translation3d(), new Rotation3d()); 
 
+        targetPosition = ElevatorConstants.Position.HOME; 
         resetPID();
     }
 
@@ -101,6 +96,8 @@ public class ElevaterSim implements ElevatorBase {
         inputs.currentPosition = getPosition();
         inputs.targetPosition = targetPosition; 
         inputs.isLocked = locked; 
+
+        Logger.recordOutput("TargetElevatorPosition", targetPosition); 
         
         elevatorSim.setInputVoltage(pidCalc());
         updateTelemetry();
