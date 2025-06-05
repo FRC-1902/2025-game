@@ -64,7 +64,7 @@ public class FloorSim implements FloorBase {
             );
           }
             */
-        intakePose = new Pose3d(new Translation3d(0.3, 0.0, -0.15), new Rotation3d());
+        intakePose = new Pose3d(new Translation3d(0, 0.0, 0), new Rotation3d(-180.0, 20.54, -180.0));
         targetAngle = Rotation2d.fromDegrees(FloorConstants.Positions.DEFAULT_ANGLE);
          
     }
@@ -103,7 +103,7 @@ public class FloorSim implements FloorBase {
     }
     private void updateTelemetry(){
         intakePose = new Pose3d(new Translation3d(), new Rotation3d(0.0, targetAngle.getDegrees(), 0.0)); 
-        Logger.recordOutput("IntakePose", intakePose);
+        Logger.recordOutput("FloorIntake", intakePose);
     }
 
     @Override

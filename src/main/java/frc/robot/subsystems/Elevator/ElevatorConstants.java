@@ -66,7 +66,7 @@ public final class ElevatorConstants {
           public static final double MAX_HEIGHT = 0.96; // in metres
           public static final double STARTING_HEIGHT = 0; // in metres 
           public static final boolean SIMULATE_GRAVITY = true;
-          public static final double MEAUREMENT_STD_DEVS = 1; // probably omit for now (one dev for pos)
+          public static final double MEAUREMENT_STD_DEVS = 0.001; // probably omit for now (one dev for pos)
         }
 
     }
