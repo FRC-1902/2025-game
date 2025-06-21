@@ -230,52 +230,6 @@ public class SwerveSubsystem extends SubsystemBase {
     return flippedPoses;
   }
 
-  /**
-   * Finds the closest waypoint of the specified type.
-   *
-   * @param type WaypointType
-   * @return closest waypoint of the specified type
-   */
-  public Pose2d getWaypoint(WaypointType type, double reefOffset) {
-    Translation2d robotTranslation = swerve.getPose().getTranslation();
-    Pose2d[] waypoints = null;
-  
-    switch (type) {
-      case REEF:
-        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getReefPositions(reefOffset));
-        break;
-      case TROUGH:
-        waypoints = allianceFlip(FieldConstants.WAYPOINTS.getTroughPositions());
-        break;
-      case BARGE:
-        waypoints = allianceFlip(FieldConstants.WAYPOINTS.BARGE);
-        break;
-      case HP:
-        waypoints = allianceFlip(FieldConstants.WAYPOINTS.HP);
-        break;
-      case PROCESSOR:
-        return allianceFlip(FieldConstants.WAYPOINTS.PROCESSOR);
-      default:
-        return null; // No waypoint specified
-    }
-  
-    if (waypoints == null) {
-      return null;
-    }
-  
-    Pose2d targetWaypoint = null;
-    double closestDistance = Double.MAX_VALUE;
-  
-    for (Pose2d waypoint : waypoints) {
-      double distance = robotTranslation.getDistance(waypoint.getTranslation());
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        targetWaypoint = waypoint;
-      }
-    }
-
-    return targetWaypoint;
-  }
 
   public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
     swerve.drive(translation, rotation, fieldRelative);
