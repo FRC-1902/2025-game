@@ -37,7 +37,7 @@ public class ElevaterSim implements ElevatorBase {
                 ElevatorConstants.SimulationConstants.ElevatorSimSetup.SIMULATE_GRAVITY,
                 ElevatorConstants.SimulationConstants.ElevatorSimSetup.STARTING_HEIGHT);
 
-        pid = new PIDController(ElevatorConstants.PIDConstants.kP, ElevatorConstants.PIDConstants.kI, ElevatorConstants.PIDConstants.kD); 
+        pid = new PIDController(ElevatorConstants.SimulationConstants.PIDConstants.kP, ElevatorConstants.SimulationConstants.PIDConstants.kI, ElevatorConstants.SimulationConstants.PIDConstants.kD); 
         stageOne = new Pose3d(new Translation3d(), new Rotation3d()); 
         stageTwo = new Pose3d(new Translation3d(), new Rotation3d()); 
 
@@ -80,12 +80,17 @@ public class ElevaterSim implements ElevatorBase {
 
         //Logger.recordOutput("Elevator", stageOne); 
         //Logger.recordOutput("EndEffector", stageTwo); 
-        Logger.recordOutput("ElevatorComposition", new Pose3d[]{stageOne, stageTwo});
+        Logger.recordOutput("Elevator/ElevatorComposition", new Pose3d[]{stageOne, stageTwo});
+
+        Logger.recordOutput("Elevator/ElevatorCurrentPos", elevatorSim.getPositionMeters());
+        Logger.recordOutput("Elevator/TargetElevatorPosition", targetPosition); 
+        Logger.recordOutput("Elevator/PIDPower", pidCalc());
+        Logger.recordOutput("Elevator/GetDraw",  elevatorSim.getCurrentDrawAmps());
+        Logger.recordOutput("Elevator/atSetpoint", atSetpoint()); 
     }
 
     private double pidCalc(){
-        double kGConstant = 0;
-        return pid.calculate(elevatorSim.getPositionMeters(), targetPosition.getHeight()) + kGConstant;
+        return pid.calculate(elevatorSim.getPositionMeters(), targetPosition.getHeight()) + ElevatorConstants.SimulationConstants.PIDConstants.kG;
     }
 
     public void update(ElevatorBaseInputs inputs){
@@ -97,11 +102,8 @@ public class ElevaterSim implements ElevatorBase {
         inputs.targetPosition = targetPosition; 
         inputs.isLocked = locked; 
         
-        Logger.recordOutput("ElevatorCurrentPos", elevatorSim.getPositionMeters());
-        Logger.recordOutput("TargetElevatorPosition", targetPosition); 
-        Logger.recordOutput("PIDPower", pidCalc());
-        Logger.recordOutput("GetDraw",  elevatorSim.getCurrentDrawAmps());
-        elevatorSim.setInputVoltage(pidCalc());
+        elevatorSim.setInputVoltage(pidCalc() * 12);
+        elevatorSim.update(0.02);
         updateTelemetry();
     };
 

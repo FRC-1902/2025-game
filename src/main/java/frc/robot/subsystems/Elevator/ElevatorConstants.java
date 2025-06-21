@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems.Elevator;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.util.Units;
 
 /** Add your docs here. */
@@ -66,8 +64,17 @@ public final class ElevatorConstants {
           public static final double MAX_HEIGHT = 0.96; // in metres
           public static final double STARTING_HEIGHT = 0; // in metres 
           public static final boolean SIMULATE_GRAVITY = true;
-          public static final double MEAUREMENT_STD_DEVS = 0.001; // probably omit for now (one dev for pos)
         }
+
+        //TODO: prob wanted to be adjusted and tested further
+        public static final class PIDConstants{
+          public static final double kP = 11; 
+          public static final double kI = 0.0005;
+          public static final double kD = 0;
+          public static final double kF = 0.0125;  //0.0.125
+          public static final double kS = 0.007;
+          public static final double kG = 0; // friction
+      }
 
     }
 }
