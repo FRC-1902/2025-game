@@ -6,6 +6,7 @@ package frc.robot.subsystems.Elevator;
 
 import frc.robot.Robot;
 import frc.robot.subsystems.Elevator.ElevatorConstants.Position;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import org.littletonrobotics.junction.Logger;
@@ -131,6 +132,8 @@ public class ElevaterSim implements ElevatorBase {
   public void update(ElevatorBaseInputs inputs) {
     if (Robot.isReal())
       return;
+
+    
     double power;
     // Sim Logic here
     inputs.atSetpoint = atSetpoint();
@@ -159,8 +162,14 @@ public class ElevaterSim implements ElevatorBase {
         power = calcPID();
         break;
     }
+    
+    if(DriverStation.isEnabled()){
+      elevatorSim.setInputVoltage(power * 12);
+    }
+    else{
+      elevatorSim.setInputVoltage(0);
+    }
 
-    elevatorSim.setInputVoltage(power * 12);
     elevatorSim.update(0.02);
     updateTelemetry();
   };
