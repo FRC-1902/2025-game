@@ -40,18 +40,40 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     elevatorWatchdog = new Watchdog(ElevatorConstants.Position.MAX.getHeight() + 0.01, ElevatorConstants.Position.MIN.getHeight() - 0.05, (() -> inputs.currentPosition));
-
   }
 
   public Command setPosition(Position targetPosition){
     return new InstantCommand(() -> elevatorBase.setPosition(targetPosition));
   }
 
-
+  public void resetElevatorPID(){
+    elevatorBase.resetPID();
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     elevatorBase.update(inputs);
+
+    if(inputs.targetPosition == Position.HOME){
+        badStart.set(false);
+    }
+    else{
+        badStart.set(true);
+    }
+
+    if(elevatorBase.isLocked() && inputs.targetPosition != ElevatorConstants.Position.CLIMB_DOWN){
+        servoAlert.set(true);
+    }
+    else{
+        servoAlert.set(false);
+    }
+
+    if(!elevatorWatchdog.checkWatchdog()){
+        boundsAlert.set(true);
+    }
+    else{
+        boundsAlert.set(true); 
+    }
   }
 }
