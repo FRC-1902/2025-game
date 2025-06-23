@@ -6,6 +6,7 @@ package frc.robot.subsystems.Elevator;
 
 import frc.robot.Robot;
 import frc.robot.subsystems.Elevator.ElevatorConstants.Position;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import org.littletonrobotics.junction.Logger;
 
@@ -24,6 +25,7 @@ public class ElevaterSim implements ElevatorBase {
     PIDController pid;
     Pose3d stageOne, stageTwo; 
     DCMotor gearbox; 
+    double unlockTime, climbLockTime; 
 
     public ElevaterSim(){
 
@@ -51,6 +53,7 @@ public class ElevaterSim implements ElevatorBase {
 
     public void setPosition(Position position){
         targetPosition = position; 
+        pid.setSetpoint(targetPosition.getHeight());
     };
 
     public boolean limitSwitchTriggered(){
@@ -70,8 +73,48 @@ public class ElevaterSim implements ElevatorBase {
     }; 
 
     public void setLocked(boolean lock){
+        unlockTime = Timer.getFPGATimestamp(); 
         locked = lock; 
     }; 
+
+    /**
+   * go to the bottom of the elevator to re-home
+   */
+  private double home() {
+    if (!limitSwitchTriggered()) {
+      return -0.2; // TODO: change speed
+    } else {
+      return 0;
+    }
+  }
+
+  private double climb() {
+    if (!limitSwitchTriggered()) {
+      climbLockTime = Timer.getFPGATimestamp(); // XXX; fix me
+      return -0.5; // Move down at half speed
+    } else {
+      // When limit switch is triggered, lock the elevator
+      if (!isLocked()) {
+        setLocked(true);
+      }
+      
+      // Continue applying slight downward pressure for a short time after locking
+      if (Timer.getFPGATimestamp() - climbLockTime < 0.2) {
+        return -0.35; // Gentle downward pressure
+      } else {
+        return 0; // Stop motor after the settling time
+      }
+    }
+  }
+
+
+  private double calcPID() {
+    if (!isLocked() && Timer.getFPGATimestamp() - unlockTime > 0.3) {
+      return pid.calculate(getPosition()) + ElevatorConstants.PIDConstants.kF + ElevatorConstants.PIDConstants.kS * Math.signum(pid.getSetpoint() - getPosition());
+    } else {
+      return 0;
+    }    
+  }
 
     private void updateTelemetry(){
         double currentPos = elevatorSim.getPositionMeters(); 
@@ -84,25 +127,43 @@ public class ElevaterSim implements ElevatorBase {
 
         Logger.recordOutput("Elevator/ElevatorCurrentPos", elevatorSim.getPositionMeters());
         Logger.recordOutput("Elevator/TargetElevatorPosition", targetPosition); 
-        Logger.recordOutput("Elevator/PIDPower", pidCalc());
+        Logger.recordOutput("Elevator/PIDPower", calcPID());
         Logger.recordOutput("Elevator/GetDraw",  elevatorSim.getCurrentDrawAmps());
         Logger.recordOutput("Elevator/atSetpoint", atSetpoint()); 
     }
 
-    private double pidCalc(){
-        return pid.calculate(elevatorSim.getPositionMeters(), targetPosition.getHeight()) + ElevatorConstants.SimulationConstants.PIDConstants.kG;
-    }
-
     public void update(ElevatorBaseInputs inputs){
         if(Robot.isReal()) return; 
+        double power;
         //Sim Logic here 
         inputs.atSetpoint = atSetpoint(); 
         inputs.limitSwitchTriggered = limitSwitchTriggered(); 
         inputs.currentPosition = getPosition();
         inputs.targetPosition = targetPosition; 
         inputs.isLocked = locked; 
+
+        switch (targetPosition) {
+            case HOLD:
+              power = 0;
+              break;
+            case HOME:
+              if (isLocked()) {
+                setLocked(false);
+              }
+              power = home();
+              break;
+            case CLIMB_DOWN:
+              power = climb();
+              break;
+            default:
+              if (isLocked()) {
+                setLocked(false);
+              }
+              power = calcPID();
+              break;
+          }
         
-        elevatorSim.setInputVoltage(pidCalc() * 12);
+        elevatorSim.setInputVoltage(power * 12);
         elevatorSim.update(0.02);
         updateTelemetry();
     };

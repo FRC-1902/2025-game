@@ -13,10 +13,12 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.Elevator.ElevatorConstants.Position;
+import frc.robot.subsystems.Watchdog;
 
 /** Add your docs here. */
 public class ElevatorHardware implements ElevatorBase {
@@ -27,6 +29,9 @@ public class ElevatorHardware implements ElevatorBase {
     PIDController pid; 
     Position targetPosition; 
     double unlockTime; 
+    double climbLockTime;
+    Alert badStart, boundsAlert, servoAlert; 
+    Watchdog elevatorWatchdog;
 
     public ElevatorHardware(){
         leftMotor = new SparkMax(ElevatorConstants.MotorIDs.LEFT_MOTOR_ID, MotorType.kBrushless); 
@@ -39,6 +44,10 @@ public class ElevatorHardware implements ElevatorBase {
         pid = new PIDController(ElevatorConstants.PIDConstants.kP,ElevatorConstants.PIDConstants.kI,ElevatorConstants.PIDConstants.kD); 
 
         configureMotors();
+
+        targetPosition = ElevatorConstants.Position.MIN;
+    
+        servo.setAngle(ElevatorConstants.CONVERSIONS.UNLOCK_ANGLE);
     }
 
     private void configureMotors() {
@@ -104,23 +113,78 @@ public class ElevatorHardware implements ElevatorBase {
         pid.reset();
     };
 
-    public void elePowerCalc(){
-        double power = pid.calculate(getPosition()) + ElevatorConstants.PIDConstants.kF + ElevatorConstants.PIDConstants.kS * Math.signum(pid.getSetpoint() - getPosition());
-
-        leftMotor.set(power);
-        rightMotor.set(power); 
+  /**
+   * go to the bottom of the elevator to re-home
+   */
+  private double home() {
+    if (!limitSwitchTriggered()) {
+      return -0.2; // TODO: change speed
+    } else {
+      leftMotor.getEncoder().setPosition(0);
+      rightMotor.getEncoder().setPosition(0);
+      badStart.set(false);
+      
+      return 0;
     }
+  }
+
+    private double climb() {
+        if (!limitSwitchTriggered()) {
+          climbLockTime = Timer.getFPGATimestamp(); // XXX; fix me
+          return -0.5; // Move down at half speed
+        } else {
+          // When limit switch is triggered, lock the elevator
+          if (!isLocked()) {
+            setLocked(true);
+          }
+          
+          // Continue applying slight downward pressure for a short time after locking
+          if (Timer.getFPGATimestamp() - climbLockTime < 0.2) {
+            return -0.35; // Gentle downward pressure
+          } else {
+            return 0; // Stop motor after the settling time
+          }
+        }
+      }
+
+    private double calcPID() {
+        if (!isLocked() && Timer.getFPGATimestamp() - unlockTime > 0.3) {
+          return pid.calculate(getPosition()) + ElevatorConstants.PIDConstants.kF + ElevatorConstants.PIDConstants.kS * Math.signum(pid.getSetpoint() - getPosition());
+        } else {
+          return 0;
+        }    
+      }
 
     @Override
     public void update(ElevatorBaseInputs inputs){
+        double power; 
 
-        if(inputs.targetPosition != Position.CLIMB_DOWN || inputs.targetPosition != Position.CLIMB_UP){
-            elePowerCalc();
-        }
+        switch (targetPosition) {
+            case HOLD:
+              power = 0;
+              break;
+            case HOME:
+              if (isLocked()) {
+                setLocked(false);
+              }
+              power = home();
+              break;
+            case CLIMB_DOWN:
+              power = climb();
+              break;
+            default:
+              if (isLocked()) {
+                setLocked(false);
+              }
+              power = calcPID();
+              break;
+          }
+
+        leftMotor.set(power);
+        rightMotor.set(power); 
 
         inputs.atSetpoint = pid.atSetpoint(); 
         inputs.currentPosition = getPosition(); 
-        inputs.unlockTime = unlockTime; 
         inputs.limitSwitchTriggered = limitSwitchTriggered(); 
         inputs.isLocked = isLocked(); 
     };

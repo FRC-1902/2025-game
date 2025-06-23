@@ -15,8 +15,6 @@ public interface ElevatorBase {
         boolean isLocked; 
         double currentPosition;
         Position targetPosition; 
-        double unlockTime; 
-        double climbLockTime; 
     }
 
     public double getPosition();
