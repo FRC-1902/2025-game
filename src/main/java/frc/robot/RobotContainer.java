@@ -30,9 +30,11 @@ import frc.robot.subsystems.ControllerSubsystem.Axis;
 import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.Elevator.ElevatorSubsystem;
+import frc.robot.subsystems.EndEffector.EndEffectorSubsystem;
 import frc.robot.subsystems.FloorIntake.FloorConstants;
 import frc.robot.subsystems.FloorIntake.FloorSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.AlgaeIntake.AlgaeSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.Elevator.ElevatorConstants;
@@ -47,6 +49,8 @@ public class RobotContainer {
   ControllerSubsystem controllers;
   ElevatorSubsystem elevatorSubsystem;
   FloorSubsystem floorSubsystem;  
+  EndEffectorSubsystem endSubsystem;
+  AlgaeSubsystem algaeSubsystem;
 
   private final Field2d field;
   public static final boolean MAPLESIM = true; 
@@ -57,8 +61,8 @@ public class RobotContainer {
 
     elevatorSubsystem = new ElevatorSubsystem(); 
     floorSubsystem = new FloorSubsystem(); 
-
-    
+    endSubsystem = new EndEffectorSubsystem(); 
+    algaeSubsystem = new AlgaeSubsystem();
 
     // Path Planner logging
     field = new Field2d();
@@ -92,10 +96,15 @@ public class RobotContainer {
   }
 
   private void bindButtons() {
-    controllers.getTrigger(ControllerName.DRIVE, Button.A).onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L3));
-    controllers.getTrigger(ControllerName.DRIVE, Button.B).onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L1));
-    controllers.getTrigger(ControllerName.DRIVE, Button.X).onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.HOME));
+    controllers.getTrigger(ControllerName.DRIVE, Button.A)
+        .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L3));
+    controllers.getTrigger(ControllerName.DRIVE, Button.B)
+        .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L1));
+    controllers.getTrigger(ControllerName.DRIVE, Button.X)
+        .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.HOME));
     //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new InstantCommand(() -> System.out.println("test success")));
-    controllers.getTrigger(ControllerName.DRIVE, Button.Y).whileTrue(floorSubsystem.setPivotAngle(Rotation2d.fromDegrees(FloorConstants.Positions.FLOOR_ANGLE))).whileFalse((floorSubsystem.setPivotAngle(Rotation2d.fromDegrees(FloorConstants.Positions.DEFAULT_ANGLE))));
+    controllers.getTrigger(ControllerName.DRIVE, Button.Y)
+        .whileTrue(floorSubsystem.setPivotAngle(Rotation2d.fromDegrees(FloorConstants.Positions.FLOOR_ANGLE)))
+        .whileFalse((floorSubsystem.setPivotAngle(FloorConstants.Positions.DEFAULT_ANGLE)));
   }
 }

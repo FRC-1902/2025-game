@@ -39,17 +39,22 @@ public class FloorSim implements FloorBase {
 
         gearbox = DCMotor.getNEO(1);
 
-        armSim = new SingleJointedArmSim(gearbox, FloorConstants.SimultationConstants.GEARING,
-                FloorConstants.SimultationConstants.MOMENT, FloorConstants.SimultationConstants.ARM_LENGTH,
-                FloorConstants.Positions.MIN_PIVOT.getRadians(),
-                FloorConstants.Positions.MAX_PIVOT.getRadians(), FloorConstants.SimultationConstants.SIMULATE_GRAVITY,
-                FloorConstants.Positions.DEFAULT_ANGLE);
+        armSim = new SingleJointedArmSim(
+            gearbox, 
+            FloorConstants.SimultationConstants.GEARING,
+            FloorConstants.SimultationConstants.MOMENT, 
+            FloorConstants.SimultationConstants.ARM_LENGTH,
+            FloorConstants.Positions.MIN_PIVOT.getRadians(),
+            FloorConstants.Positions.MAX_PIVOT.getRadians(), 
+            FloorConstants.SimultationConstants.SIMULATE_GRAVITY,
+            FloorConstants.Positions.DEFAULT_ANGLE.getRadians()
+        );
 
         pid = new PIDController(FloorConstants.PIDConstants.PIVOT_P, FloorConstants.PIDConstants.PIVOT_I,
-                FloorConstants.PIDConstants.PIVOT_D);
-                pid.disableContinuousInput(); // Makes sure that intake doesn't try to gas it through the floor
-                pid.setTolerance(FloorConstants.Positions.TOLERANCE.getDegrees());
-                pid.setIZone(10);
+            FloorConstants.PIDConstants.PIVOT_D);
+                //pid.disableContinuousInput(); // Makes sure that intake doesn't try to gas it through the floor
+            //pid.setTolerance(FloorConstants.Positions.TOLERANCE.getDegrees());
+                //pid.setIZone(10);
 
         // Sim setup stuff
         
@@ -64,8 +69,8 @@ public class FloorSim implements FloorBase {
             );
           }
             */
-        intakePose = new Pose3d(new Translation3d(0, 0.0, 0), new Rotation3d(-180.0, 20.54, -180.0));
-        targetAngle = Rotation2d.fromDegrees(FloorConstants.Positions.DEFAULT_ANGLE);
+       // intakePose = new Pose3d(new Translation3d(0, 0.0, 0), new Rotation3d(-180.0, 20.54, -180.0));
+        targetAngle = FloorConstants.Positions.DEFAULT_ANGLE; 
          
     }
 
@@ -99,20 +104,27 @@ public class FloorSim implements FloorBase {
     }
 
     private double pidCalc(){
-        return pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees());
+        return pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
+                + FloorConstants.PIDConstants.PIVOT_G * Math.cos(getAngle().getRadians());
     }
     private void updateTelemetry(){
-        intakePose = new Pose3d(new Translation3d(), new Rotation3d(0.0, targetAngle.getDegrees(), 0.0)); 
-        Logger.recordOutput("FloorIntake", intakePose);
+        intakePose = new Pose3d(new Translation3d(-0.25, 0.0, 0.15), new Rotation3d(0.0, getAngle().getRadians() * -1.0, 0.0)); 
+        Logger.recordOutput("FloorIntake/IntakePose", intakePose);
     }
 
     @Override
     public void update(FloorBaseInputs inputs) {
         if (Robot.isReal()) return;
         // Setup Sim Logic here
+        double power = pidCalc(); 
+
         inputs.atSetpoint = atSetpoint(); 
-        armSim.setInputVoltage(pidCalc());
+        armSim.setInputVoltage((1*power + (1-1)) * 12);
+        armSim.update(0.2);
         updateTelemetry();
-        Logger.recordOutput("TargetAngle", targetAngle.getDegrees());
+        Logger.recordOutput("FloorIntake/TargetAngle", targetAngle.getDegrees());
+        Logger.recordOutput("FloorIntake/CurrentAngle", getAngle().getDegrees()); 
+        Logger.recordOutput("FloorIntake/draw", armSim.getCurrentDrawAmps());
+        Logger.recordOutput("FloorIntake/PID", power); 
     };
 }
