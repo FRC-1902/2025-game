@@ -29,7 +29,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     if (Robot.isReal()) {
       elevatorBase = new ElevatorHardware();
     } else {
-      elevatorBase = new ElevaterSim();
+      elevatorBase = new ElevatorSimulation();
     }
 
     badStart = new Alert("Elevator start position wrong, limit switch not triggered", AlertType.kError);
@@ -59,16 +59,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     badStart.set(inputs.targetPosition == Position.HOME); 
 
-    if (elevatorBase.isLocked() && inputs.targetPosition != ElevatorConstants.Position.CLIMB_DOWN) {
-      servoAlert.set(true);
-    } else {
-      servoAlert.set(false);
-    }
+    servoAlert.set(elevatorBase.isLocked() && inputs.targetPosition != ElevatorConstants.Position.CLIMB_DOWN);
 
-    if (!elevatorWatchdog.checkWatchdog()) {
-      boundsAlert.set(true);
-    } else {
-      boundsAlert.set(true);
-    }
+    boundsAlert.set(!elevatorWatchdog.checkWatchdog()); 
   }
 }
