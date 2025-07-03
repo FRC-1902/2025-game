@@ -18,10 +18,11 @@ import frc.robot.subsystems.Watchdog;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-  ElevatorBase elevatorBase; 
-  ElevatorBaseInputs inputs; 
-  Alert badStart, boundsAlert, servoAlert; 
-  Watchdog elevatorWatchdog; 
+  ElevatorBase elevatorBase;
+  ElevatorBaseInputs inputs;
+  Alert badStart, boundsAlert, servoAlert;
+  Watchdog elevatorWatchdog;
+
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem() {
     inputs = new ElevatorBaseInputs();
@@ -39,14 +40,15 @@ public class ElevatorSubsystem extends SubsystemBase {
       badStart.set(true);
     }
 
-    elevatorWatchdog = new Watchdog(ElevatorConstants.Position.MAX.getHeight() + 0.01, ElevatorConstants.Position.MIN.getHeight() - 0.05, (() -> inputs.currentPosition));
+    elevatorWatchdog = new Watchdog(ElevatorConstants.Position.MAX.getHeight() + 0.01,
+        ElevatorConstants.Position.MIN.getHeight() - 0.05, (() -> inputs.currentPosition));
   }
 
-  public Command setPosition(Position targetPosition){
+  public Command setPosition(Position targetPosition) {
     return new InstantCommand(() -> elevatorBase.setPosition(targetPosition));
   }
 
-  public void resetElevatorPID(){
+  public void resetElevatorPID() {
     elevatorBase.resetPID();
   }
 
@@ -55,25 +57,18 @@ public class ElevatorSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     elevatorBase.update(inputs);
 
-    if(inputs.targetPosition == Position.HOME){
-        badStart.set(false);
-    }
-    else{
-        badStart.set(true);
+    badStart.set(inputs.targetPosition == Position.HOME); 
+
+    if (elevatorBase.isLocked() && inputs.targetPosition != ElevatorConstants.Position.CLIMB_DOWN) {
+      servoAlert.set(true);
+    } else {
+      servoAlert.set(false);
     }
 
-    if(elevatorBase.isLocked() && inputs.targetPosition != ElevatorConstants.Position.CLIMB_DOWN){
-        servoAlert.set(true);
-    }
-    else{
-        servoAlert.set(false);
-    }
-
-    if(!elevatorWatchdog.checkWatchdog()){
-        boundsAlert.set(true);
-    }
-    else{
-        boundsAlert.set(true); 
+    if (!elevatorWatchdog.checkWatchdog()) {
+      boundsAlert.set(true);
+    } else {
+      boundsAlert.set(true);
     }
   }
 }
