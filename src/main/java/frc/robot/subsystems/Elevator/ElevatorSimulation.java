@@ -17,7 +17,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 /** Add your docs here. */
-public class ElevaterSim implements ElevatorBase {
+public class ElevatorSimulation implements ElevatorBase {
 
   Position targetPosition;
   boolean locked;
@@ -25,7 +25,7 @@ public class ElevaterSim implements ElevatorBase {
   PIDController pid;
   double unlockTime, climbLockTime;
 
-  public ElevaterSim() {
+  public ElevatorSimulation() {
 
     elevatorSim = new ElevatorSim(
         DCMotor.getNEO(2),
@@ -163,6 +163,7 @@ public class ElevaterSim implements ElevatorBase {
         power = calcPID();
     }
 
+    // doesn't try to move elevator unless enabled in sim (Real motors wouldn't move unless enabled)
     if (DriverStation.isEnabled()) {
       elevatorSim.setInputVoltage(power * 12);
     } else {
