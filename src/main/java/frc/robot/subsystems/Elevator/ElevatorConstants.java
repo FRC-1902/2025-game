@@ -57,7 +57,7 @@ public final class ElevatorConstants {
     }
   }
 
-  public static final class SimulationConstants {
+  public static final class Simulation {
     public static final class SimSetup {
       public static final double GEARING = 16;
       public static final double CARRIAGE_MASS = 0.50893064; // in Kg

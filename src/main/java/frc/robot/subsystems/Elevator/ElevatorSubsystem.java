@@ -35,13 +35,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     badStart = new Alert("Elevator start position wrong, limit switch not triggered", AlertType.kError);
     boundsAlert = new Alert("Elevator/Elevator out of bounds", AlertType.kError);
     servoAlert = new Alert("Elevator/Cannot Exit Climb, Servo is locked", AlertType.kWarning);
+  
+    badStart.set(!inputs.limitSwitchTriggered);
 
-    if (!inputs.limitSwitchTriggered) {
-      badStart.set(true);
-    }
-
-    elevatorWatchdog = new Watchdog(ElevatorConstants.Position.MAX.getHeight() + 0.01,
-        ElevatorConstants.Position.MIN.getHeight() - 0.05, (() -> inputs.currentPosition));
+    elevatorWatchdog = new Watchdog(
+        ElevatorConstants.Position.MAX.getHeight() + 0.01,
+        ElevatorConstants.Position.MIN.getHeight() - 0.05, 
+        (() -> inputs.currentPosition)
+    );
   }
 
   public Command setPosition(Position targetPosition) {
@@ -56,8 +57,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     elevatorBase.update(inputs);
-
-    badStart.set(inputs.targetPosition == Position.HOME); 
 
     servoAlert.set(elevatorBase.isLocked() && inputs.targetPosition != ElevatorConstants.Position.CLIMB_DOWN);
 
