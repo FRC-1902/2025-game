@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.Elevator;
 
-import frc.robot.Robot;
 import frc.robot.subsystems.Elevator.ElevatorConstants.Position;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -28,16 +27,20 @@ public class ElevaterSim implements ElevatorBase {
 
   public ElevaterSim() {
 
-    elevatorSim = new ElevatorSim(DCMotor.getNEO(2), ElevatorConstants.SimulationConstants.SimSetup.GEARING,
-        ElevatorConstants.SimulationConstants.SimSetup.CARRIAGE_MASS,
-        ElevatorConstants.SimulationConstants.SimSetup.DRUM_RADIUS,
-        ElevatorConstants.SimulationConstants.SimSetup.MIN_HEIGHT,
-        ElevatorConstants.SimulationConstants.SimSetup.MAX_HEIGHT,
-        ElevatorConstants.SimulationConstants.SimSetup.SIMULATE_GRAVITY,
-        ElevatorConstants.SimulationConstants.SimSetup.STARTING_HEIGHT);
+    elevatorSim = new ElevatorSim(
+        DCMotor.getNEO(2),
+        ElevatorConstants.Simulation.SimSetup.GEARING,
+        ElevatorConstants.Simulation.SimSetup.CARRIAGE_MASS,
+        ElevatorConstants.Simulation.SimSetup.DRUM_RADIUS,
+        ElevatorConstants.Simulation.SimSetup.MIN_HEIGHT,
+        ElevatorConstants.Simulation.SimSetup.MAX_HEIGHT,
+        ElevatorConstants.Simulation.SimSetup.SIMULATE_GRAVITY,
+        ElevatorConstants.Simulation.SimSetup.STARTING_HEIGHT);
 
-    pid = new PIDController(ElevatorConstants.SimulationConstants.PID.kP,
-        ElevatorConstants.SimulationConstants.PID.kI, ElevatorConstants.SimulationConstants.PID.kD);
+    pid = new PIDController(
+        ElevatorConstants.Simulation.PID.kP,
+        ElevatorConstants.Simulation.PID.kI,
+        ElevatorConstants.Simulation.PID.kD);
 
     targetPosition = ElevatorConstants.Position.HOME;
     resetPID();
@@ -78,7 +81,7 @@ public class ElevaterSim implements ElevatorBase {
    */
   private double home() {
     if (!limitSwitchTriggered()) {
-      return -0.2; 
+      return -0.2;
     } else {
       return 0;
     }
@@ -86,7 +89,7 @@ public class ElevaterSim implements ElevatorBase {
 
   private double climb() {
     if (!limitSwitchTriggered()) {
-      climbLockTime = Timer.getFPGATimestamp(); 
+      climbLockTime = Timer.getFPGATimestamp();
       return -0.5; // Move down at half speed
     } else {
       // When limit switch is triggered, lock the elevator
@@ -105,8 +108,9 @@ public class ElevaterSim implements ElevatorBase {
 
   private double calcPID() {
     if (!isLocked() && Timer.getFPGATimestamp() - unlockTime > 0.3) {
-      return pid.calculate(getPosition()) + ElevatorConstants.PID.kF
-          + ElevatorConstants.PID.kS * Math.signum(pid.getSetpoint() - getPosition());
+      return pid.calculate(getPosition()) + 
+        ElevatorConstants.PID.kF + 
+        ElevatorConstants.PID.kS * Math.signum(pid.getSetpoint() - getPosition());
     } else {
       return 0;
     }
@@ -130,10 +134,7 @@ public class ElevaterSim implements ElevatorBase {
   }
 
   public void update(ElevatorBaseInputs inputs) {
-    if (Robot.isReal())
-      return;
 
-    
     double power;
     // Sim Logic here
     inputs.atSetpoint = atSetpoint();
@@ -160,18 +161,15 @@ public class ElevaterSim implements ElevatorBase {
           setLocked(false);
         }
         power = calcPID();
-        break;
     }
-    
-    if(DriverStation.isEnabled()){
+
+    if (DriverStation.isEnabled()) {
       elevatorSim.setInputVoltage(power * 12);
-    }
-    else{
+    } else {
       elevatorSim.setInputVoltage(0);
     }
 
     elevatorSim.update(0.02);
     updateTelemetry();
   };
-
 }

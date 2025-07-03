@@ -38,10 +38,10 @@ public class ElevatorHardware implements ElevatorBase {
         limitSwitch = new DigitalInput(ElevatorConstants.IDs.LIMIT_SWITCH_ID);
 
         pid = new PIDController(
-                ElevatorConstants.PID.kP,
-                ElevatorConstants.PID.kI,
-                ElevatorConstants.PID.kD
-                );
+            ElevatorConstants.PID.kP,
+            ElevatorConstants.PID.kI,
+            ElevatorConstants.PID.kD
+        );
 
         configureMotors();
 
