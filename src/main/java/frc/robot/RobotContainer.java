@@ -1,77 +1,42 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Percent;
-import static edu.wpi.first.units.Units.Second;
-
 import java.io.File;
 
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.FloorIntake;
-import frc.robot.FieldConstants.WaypointType;
-import frc.robot.commands.ElevatorCommand;
-import frc.robot.commands.ElevatorFactory;
-import frc.robot.commands.IndexCommand;
-import frc.robot.commands.algaeIntake.AlgaeIntakeCommand;
-import frc.robot.commands.algaeIntake.AlgaeOuttakeCommand;
-import frc.robot.commands.algaeIntake.AlgaeOuttakeFactory;
-import frc.robot.commands.drive.AutoDriveFactory;
 import frc.robot.commands.drive.DriveCommand;
-import frc.robot.commands.drive.ReefAlign;
-import frc.robot.commands.drive.SnapToCoral;
-import frc.robot.commands.endEffector.EndEffectorFactory;
-import frc.robot.commands.endEffector.ScoreCommand;
-import frc.robot.commands.floorIntake.AutoIntakeFactory;
-import frc.robot.commands.floorIntake.OuttakeCommand;
-import frc.robot.commands.floorIntake.IntakeCommand;
-import frc.robot.commands.floorIntake.PositionIntakeCommand;
-import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.Axis;
 import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
-import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.EndEffectorSubsystem;
-import frc.robot.subsystems.FloorIntakeSubsystem;
+import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.ObjectDetectionSubsystem;
-import frc.robot.subsystems.vision.VisionCamera;
-import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.Elevator.ElevatorConstants;
+
 // import frc.robot.commands.drive.ObjectAlign;
 
 public class RobotContainer {
 
   SwerveSubsystem swerve;
-  AlgaeIntakeSubsystem algaeIntake;
-  ElevatorSubsystem elevator;
-  EndEffectorSubsystem endEffector;
-  FloorIntakeSubsystem floorIntake;
+  
   LEDSubsystem led;
   ControllerSubsystem controllers;
+  ElevatorSubsystem elevatorSubsystem;
 
   private final Field2d field;
+  public static final boolean MAPLESIM = true; 
 
   public RobotContainer() {
     controllers = ControllerSubsystem.getInstance();
     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
-    endEffector = new EndEffectorSubsystem();
-    elevator = new ElevatorSubsystem();
-    floorIntake = new FloorIntakeSubsystem(elevator);
-    led = new LEDSubsystem();
-    algaeIntake = new AlgaeIntakeSubsystem(elevator);
+    elevatorSubsystem = new ElevatorSubsystem(); 
 
     // Path Planner logging
     field = new Field2d();
@@ -93,7 +58,6 @@ public class RobotContainer {
 
     DriveCommand closedDrive = new DriveCommand(
       swerve,
-      detectionSubsystem,
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftY(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getLeftX(), Constants.Controller.LEFT_Y_DEADBAND),
       () -> -MathUtil.applyDeadband(controllers.getCommandController(ControllerName.DRIVE).getRightX(), Constants.Controller.RIGHT_X_DEADBAND), // Right Stick Turning   
@@ -102,17 +66,16 @@ public class RobotContainer {
     );
     swerve.setDefaultCommand(closedDrive);
 
-    LEDPattern greenPattern = LEDPattern.solid(new Color(0, 255, 0)).atBrightness(Percent.of(50));
-    LEDPattern redPattern = LEDPattern.solid(new Color(255, 0, 0)).atBrightness(Percent.of(50));
-    LEDPattern yellowPattern = LEDPattern.solid(new Color(255, 255, 0)).breathe(Second.of(.5)).atBrightness(Percent.of(30));
-
-    led.registerPattern(elevator::isLocked, redPattern);
-    led.registerPattern(() -> { return elevator.isAtPosition() && !(elevator.isAtPosition(Constants.Elevator.Position.MIN)); }, yellowPattern);
-    led.registerPattern(algaeIntake::isPieceSensorActive, greenPattern);
-
     bindButtons();
   }
 
   private void bindButtons() {
+    controllers.getTrigger(ControllerName.DRIVE, Button.A)
+        .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L3));
+    controllers.getTrigger(ControllerName.DRIVE, Button.B)
+        .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L1));
+    controllers.getTrigger(ControllerName.DRIVE, Button.X)
+        .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.HOME));
+    //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new InstantCommand(() -> System.out.println("test success")));
   }
 }
