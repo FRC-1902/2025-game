@@ -15,6 +15,8 @@ public interface FloorBase {
     public class FloorBaseInputs{
         boolean hasCoral; 
         boolean atSetpoint; 
+        Rotation2d currentAngle; 
+        Rotation2d targetAngle; 
     }
 
     public void setSpeed(double speed);

@@ -25,6 +25,7 @@ public class FloorHardware implements FloorBase  {
     SparkMax pivotMotor, rollerMotor; 
     DigitalInput pSensor;
     PIDController pid;
+    Rotation2d targetAngle; 
 
     public FloorHardware() {
         // Constructor code here
@@ -83,12 +84,10 @@ public class FloorHardware implements FloorBase  {
         pivotMotor.set(power);
     }
 
-    @Override
     public void setSpeed(double speed){
         rollerMotor.set(speed);
     };
 
-    @Override
     public Rotation2d getAngle(){
         double angle = 1 - rollerMotor.getAbsoluteEncoder().getPosition();
         if (angle > 0.97) {  
@@ -97,25 +96,24 @@ public class FloorHardware implements FloorBase  {
         return Rotation2d.fromRotations(angle);
     };
 
-    @Override
     public void setAngle(Rotation2d angle){
         pid.setSetpoint(angle.getDegrees());
+        angle = targetAngle; 
     };
 
-    @Override
     public boolean hasCoral(){
         return pSensor.get();
     };
 
-    @Override
     public void resetPID(){
         pid.reset();
     };
 
-    @Override
     public void update(FloorBaseInputs inputs){
         inputs.atSetpoint = pid.atSetpoint();
         inputs.hasCoral = pSensor.get();
+        inputs.currentAngle = getAngle(); 
+        inputs.targetAngle = targetAngle; 
         powerCalc();
     };
 }

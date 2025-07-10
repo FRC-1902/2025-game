@@ -7,6 +7,9 @@ package frc.robot.subsystems.FloorIntake;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.FloorIntake.FloorBase.FloorBaseInputs;
 import frc.robot.Robot;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,5 +43,8 @@ public class FloorSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     floorBase.update(inputs);
+    Logger.recordOutput("FloorIntake/TargetAngle", inputs.targetAngle.getDegrees());
+    Logger.recordOutput("FloorIntake/CurrentAngle", inputs.currentAngle.getDegrees());
+
   }
 }
