@@ -16,7 +16,7 @@ public final class FloorConstants {
         public static final int PIVOT_ENCODER_ID = 20;
     }
 
-    public static final class PIDConstants {
+    public static final class PID {
         public static final double PIVOT_P = 0.001;// 0.0125; 
         public static final double PIVOT_I = 0.00075;// 0.0035; 
         public static final double PIVOT_D = 0.0000;// 0.00005; 
@@ -37,7 +37,7 @@ public final class FloorConstants {
         public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
     }
 
-    public static final class SimultationConstants{
+    public static final class Simultation {
         public static final double GEARING = 50; 
         public static final double MOMENT = 0.303; 
         public static final double ARM_LENGTH = 0.22; 

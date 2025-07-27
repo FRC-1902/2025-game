@@ -14,10 +14,13 @@ import frc.robot.subsystems.ControllerSubsystem.Axis;
 import frc.robot.subsystems.ControllerSubsystem.Button;
 import frc.robot.subsystems.ControllerSubsystem.ControllerName;
 import frc.robot.subsystems.Elevator.ElevatorSubsystem;
+import frc.robot.subsystems.FloorIntake.FloorSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.Elevator.ElevatorConstants;
+import frc.robot.subsystems.FloorIntake.FloorConstants;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 // import frc.robot.commands.drive.ObjectAlign;
 
@@ -28,6 +31,7 @@ public class RobotContainer {
   LEDSubsystem led;
   ControllerSubsystem controllers;
   ElevatorSubsystem elevatorSubsystem;
+  FloorSubsystem floorSubsystem; 
 
   private final Field2d field;
   public static final boolean MAPLESIM = true; 
@@ -37,6 +41,7 @@ public class RobotContainer {
     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
     elevatorSubsystem = new ElevatorSubsystem(); 
+    floorSubsystem = new FloorSubsystem(); 
 
     // Path Planner logging
     field = new Field2d();
@@ -76,6 +81,10 @@ public class RobotContainer {
         .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L1));
     controllers.getTrigger(ControllerName.DRIVE, Button.X)
         .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.HOME));
+
+    controllers.getTrigger(ControllerName.DRIVE, Button.Y)
+        .whileTrue(floorSubsystem.setPivotAngle(Rotation2d.fromDegrees(FloorConstants.Positions.FLOOR_ANGLE)))
+        .whileFalse((floorSubsystem.setPivotAngle(FloorConstants.Positions.DEFAULT_ANGLE)));
     //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new InstantCommand(() -> System.out.println("test success")));
   }
 }

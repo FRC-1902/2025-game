@@ -19,8 +19,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 public class FloorSim implements FloorBase { 
     
     FloorBaseInputs inputs;
-    double rollerSpeed = 0;
-    double motorReduction = 1; 
+    double rollerSpeed;
     Rotation2d targetAngle;
     SingleJointedArmSim armSim; 
     DCMotor gearbox;
@@ -33,19 +32,19 @@ public class FloorSim implements FloorBase {
 
         armSim = new SingleJointedArmSim(
             DCMotor.getNEO(1), 
-            FloorConstants.SimultationConstants.GEARING,
-            FloorConstants.SimultationConstants.MOMENT, 
-            FloorConstants.SimultationConstants.ARM_LENGTH,
+            FloorConstants.Simultation.GEARING,
+            FloorConstants.Simultation.MOMENT, 
+            FloorConstants.Simultation.ARM_LENGTH,
             FloorConstants.Positions.MIN_PIVOT.getRadians(),
             FloorConstants.Positions.MAX_PIVOT.getRadians(), 
-            FloorConstants.SimultationConstants.SIMULATE_GRAVITY,
+            FloorConstants.Simultation.SIMULATE_GRAVITY,
             FloorConstants.Positions.DEFAULT_ANGLE.getRadians()
         );
 
         pid = new PIDController(
-            FloorConstants.PIDConstants.PIVOT_P, 
-            FloorConstants.PIDConstants.PIVOT_I,
-            FloorConstants.PIDConstants.PIVOT_D
+            FloorConstants.PID.PIVOT_P, 
+            FloorConstants.PID.PIVOT_I,
+            FloorConstants.PID.PIVOT_D
         );
 
         targetAngle = FloorConstants.Positions.DEFAULT_ANGLE;      
@@ -77,7 +76,8 @@ public class FloorSim implements FloorBase {
 
     private double pidCalc(){
         return pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
-                + FloorConstants.PIDConstants.PIVOT_G * Math.cos(getAngle().getRadians());
+            + FloorConstants.PID.PIVOT_G * Math.cos(getAngle().getRadians()
+        );
     }
 
     private void updateTelemetry(){
