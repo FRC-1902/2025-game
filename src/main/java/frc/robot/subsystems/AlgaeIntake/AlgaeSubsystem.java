@@ -12,22 +12,25 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 
 @Logged
 public class AlgaeSubsystem extends SubsystemBase {
 
   public AlgaeBase algaeBase; 
   public AlgaeBaseInputs inputs;
-
+  public ElevatorSubsystem elevatorSubsystem; 
   // Here bc why not bro 
   // public final Trigger hasAlgae = new Trigger(() -> inputs.hasAlgae);
   /** Creates a new AlgaeSubsystem. */
-  public AlgaeSubsystem() {
+  public AlgaeSubsystem(ElevatorSubsystem elevatorSubsystem) {
+
+    this.elevatorSubsystem = elevatorSubsystem; 
     inputs = new AlgaeBaseInputs(); 
     if(Robot.isReal()){
     algaeBase = new AlgaeHardware();}
     else{
-      algaeBase = new AlgaeSim();
+      algaeBase = new AlgaeSim(elevatorSubsystem);
     }
   }
 

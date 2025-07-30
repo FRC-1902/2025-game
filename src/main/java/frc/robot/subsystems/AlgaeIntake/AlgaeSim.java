@@ -14,19 +14,23 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.subsystems.Elevator.ElevatorBase.ElevatorBaseInputs;
+import frc.robot.subsystems.Elevator.ElevatorBase;
+import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 
 
 /** Add your docs here. */
 public class AlgaeSim implements AlgaeBase {
 
-    AlgaeBaseInputs inputs;
+    ElevatorSubsystem elevatorSubsystem; 
     double rollerSpeed = 0;
     Rotation2d targetAngle;
     SingleJointedArmSim algaeSim; 
     PIDController pid; 
 
-    public AlgaeSim() {
-        inputs = new AlgaeBaseInputs();
+    public AlgaeSim(ElevatorSubsystem elevatorSubsystem) {
+
+        this.elevatorSubsystem = elevatorSubsystem; 
 
         algaeSim = new SingleJointedArmSim(
             DCMotor.getNEO(1), 
@@ -61,7 +65,7 @@ public class AlgaeSim implements AlgaeBase {
 
     @Override
     public boolean hasAlgae() {
-        return inputs.hasAlgae; // TODO: implement with maplesim
+        return false; // TODO: implement with maplesim
     }
 
     public void resetPID(){
@@ -72,8 +76,8 @@ public class AlgaeSim implements AlgaeBase {
         return pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees()); 
     }
 
-    private void updateTelemetry(){
-        Pose3d algaePose = new Pose3d(new Translation3d(0.3, 0.0, 0.425), new Rotation3d(0.0, getAngle().getRadians() * -1, 0.0));
+    private void updateTelemetry(){ 
+        Pose3d algaePose = new Pose3d(new Translation3d(0.3, 0.0, 0.425 + elevatorSubsystem.currentPosition()), new Rotation3d(0.0, getAngle().getRadians() * -1, 0.0));
         Logger.recordOutput("AlgaeIntake/algaePose", algaePose);
     }
 
@@ -84,9 +88,16 @@ public class AlgaeSim implements AlgaeBase {
         inputs.atSetpoint = pid.atSetpoint(); 
 
        if(DriverStation.isEnabled()) 
-        algaeSim.setInputVoltage(power * 12);
+        algaeSim.setInputVoltage(power * 12 + (1-1));
 
         algaeSim.update(0.1); 
         updateTelemetry();
+
+        //TODO: bring up
+        Logger.recordOutput("AlgaeIntake/pitch", getAngle().getDegrees());
+
     }
+
+
+
 }

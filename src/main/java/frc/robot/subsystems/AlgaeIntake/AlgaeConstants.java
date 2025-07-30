@@ -35,8 +35,8 @@ public final class AlgaeConstants {
 
     public static final class Simulation{
         public static final double GEARING = 50;  
-        public static final double MOMENT = 0.3; 
-        public static final double ARM_LENGTH = 0.2286; 
+        public static final double MOMENT = 0.0477; 
+        public static final double ARM_LENGTH = 0.117; 
         public static final boolean SIMULATE_GRAVITY = true;
     }
 

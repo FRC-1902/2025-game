@@ -25,12 +25,10 @@ import frc.robot.subsystems.AlgaeIntake.AlgaeSubsystem;
 public class RobotContainer {
 
   SwerveSubsystem swerve;
-  
   LEDSubsystem led;
   ControllerSubsystem controllers;
   ElevatorSubsystem elevatorSubsystem;
   AlgaeSubsystem algaeSubsystem; 
-
   private final Field2d field;
   public static final boolean MAPLESIM = true; 
 
@@ -39,7 +37,7 @@ public class RobotContainer {
     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
     elevatorSubsystem = new ElevatorSubsystem(); 
-    algaeSubsystem = new AlgaeSubsystem(); 
+    algaeSubsystem = new AlgaeSubsystem(elevatorSubsystem); 
 
     // Path Planner logging
     field = new Field2d();
