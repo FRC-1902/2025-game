@@ -13,8 +13,6 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-
 @Logged
 public class FloorSubsystem extends SubsystemBase {
 
@@ -36,7 +34,7 @@ public class FloorSubsystem extends SubsystemBase {
   }
 
   public Command setPivotAngle(Rotation2d angle) {
-    return new InstantCommand(() -> floorBase.setAngle(angle));
+    return run(() -> floorBase.setAngle(angle)).until(() -> inputs.atSetpoint);
   }
 
   @Override
@@ -45,6 +43,5 @@ public class FloorSubsystem extends SubsystemBase {
     floorBase.update(inputs);
     Logger.recordOutput("FloorIntake/TargetAngle", inputs.targetAngle.getDegrees());
     Logger.recordOutput("FloorIntake/CurrentAngle", inputs.currentAngle.getDegrees());
-
   }
 }

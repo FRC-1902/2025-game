@@ -116,7 +116,7 @@ public class FloorHardware implements FloorBase  {
 
     public void update(FloorBaseInputs inputs){
         inputs.atSetpoint = pid.atSetpoint();
-        inputs.hasCoral = pSensor.get();
+        inputs.hasCoral = hasCoral(); 
         inputs.currentAngle = getAngle(); 
         inputs.targetAngle = targetAngle; 
         powerCalc();

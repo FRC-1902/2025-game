@@ -22,7 +22,6 @@ public class FloorSim implements FloorBase {
     double rollerSpeed;
     Rotation2d targetAngle;
     SingleJointedArmSim armSim; 
-    DCMotor gearbox;
     PIDController pid; 
     Pose3d intakePose; 
 
@@ -95,9 +94,9 @@ public class FloorSim implements FloorBase {
         inputs.targetAngle = targetAngle; 
 
         if (DriverStation.isEnabled())
-        armSim.setInputVoltage((1*power + (1-1)) * 12);
+        armSim.setInputVoltage(power * 12);
 
-        armSim.update(0.2);
+        armSim.update(0.02);
         updateTelemetry();
 
         Logger.recordOutput("FloorIntake/PID", power); 
