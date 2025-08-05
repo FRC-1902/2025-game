@@ -86,7 +86,7 @@ public class AlgaeHardware implements AlgaeBase {
 
     @Override
     public Rotation2d getAngle(){
-        return Rotation2d.fromDegrees(pivotMotor.get()); 
+        return Rotation2d.fromDegrees(pivotMotor.getAbsoluteEncoder().getPosition()); 
     }
 
     @Override
