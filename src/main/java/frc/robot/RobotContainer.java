@@ -18,17 +18,17 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.Elevator.ElevatorConstants;
-
+import frc.robot.subsystems.AlgaeIntake.AlgaeConstants;
+import frc.robot.subsystems.AlgaeIntake.AlgaeSubsystem;
 // import frc.robot.commands.drive.ObjectAlign;
 
 public class RobotContainer {
 
   SwerveSubsystem swerve;
-  
   LEDSubsystem led;
   ControllerSubsystem controllers;
   ElevatorSubsystem elevatorSubsystem;
-
+  AlgaeSubsystem algaeSubsystem; 
   private final Field2d field;
   public static final boolean MAPLESIM = true; 
 
@@ -37,6 +37,7 @@ public class RobotContainer {
     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
     elevatorSubsystem = new ElevatorSubsystem(); 
+    algaeSubsystem = new AlgaeSubsystem(elevatorSubsystem); 
 
     // Path Planner logging
     field = new Field2d();
@@ -76,6 +77,9 @@ public class RobotContainer {
         .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L1));
     controllers.getTrigger(ControllerName.DRIVE, Button.X)
         .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.HOME));
+    controllers.getTrigger(ControllerName.DRIVE, Button.LB)
+        .whileTrue(algaeSubsystem.setPivotAngle(AlgaeConstants.Positions.MIN_PIVOT))
+        .whileFalse(algaeSubsystem.setPivotAngle(AlgaeConstants.Positions.DEFAULT_ANGLE));
     //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new InstantCommand(() -> System.out.println("test success")));
   }
 }
