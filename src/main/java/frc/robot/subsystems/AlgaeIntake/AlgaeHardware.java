@@ -74,7 +74,7 @@ public class AlgaeHardware implements AlgaeBase {
 
     @Override
     public void update(AlgaeBaseInputs inputs) {
-        inputs.hasAlgae = pSensor.get();
+        inputs.hasAlgae = hasAlgae();
         inputs.atSetpoint = pid.atSetpoint(); 
         powerCalc();
     }
