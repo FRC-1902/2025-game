@@ -75,17 +75,14 @@ public class FloorHardware implements FloorBase  {
 
     private void powerCalc(){
         double power = pid.calculate(getAngle().getDegrees())
-            + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() 
-            + Rotation2d.fromDegrees(4).getRadians()
-        );
+            + Constants.FloorIntake.PIVOT_G * Math.cos(getAngle().getRadians() + Rotation2d.fromDegrees(4).getRadians());
 
         // compensate for friction if not near tolerance
-        if (Math.abs(pid.getSetpoint() - getAngle().getDegrees()) > Constants.FloorIntake.TOLERANCE.getDegrees() / 2)
+        if (Math.abs(pid.getSetpoint() - getAngle().getDegrees()) > Constants.FloorIntake.TOLERANCE.getDegrees() / 2){
             power 
-            += Constants.FloorIntake.PIVOT_F 
-            * Math.signum(pid.getSetpoint() 
-            - getAngle().getDegrees()
-        );
+                += Constants.FloorIntake.PIVOT_F 
+                * Math.signum(pid.getSetpoint() - getAngle().getDegrees()); 
+        }
 
         pivotMotor.set(power);
     }
@@ -95,7 +92,9 @@ public class FloorHardware implements FloorBase  {
     };
 
     public Rotation2d getAngle(){
+    // Reads off of thru bore, closest SM is connected to rollerMotor
         double angle = 1 - rollerMotor.getAbsoluteEncoder().getPosition();
+    // Fixes wrapping when intake is deployed out so it doesn't shoot through floor
         if (angle > 0.97) {  
           angle = 0;
         }
