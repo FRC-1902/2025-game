@@ -9,7 +9,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.AlgaeIntake.AlgaeBase.AlgaeBaseInputs;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.Elevator.ElevatorSubsystem;
@@ -38,6 +40,8 @@ public class AlgaeSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     algaeBase.update(inputs);
+
+    Logger.recordOutput("AlgaeIntake/pitch", algaeBase.getAngle().getDegrees());
   }
 
   public Command runRollers(double speed) {
@@ -45,6 +49,6 @@ public class AlgaeSubsystem extends SubsystemBase {
   }
 
   public Command setPivotAngle(Rotation2d angle) {
-    return new InstantCommand(() -> algaeBase.setAngle(angle));
+    return run(() -> algaeBase.setAngle(angle)).until(() -> inputs.atSetpoint);
   }
 }

@@ -14,8 +14,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import frc.robot.subsystems.Elevator.ElevatorBase.ElevatorBaseInputs;
-import frc.robot.subsystems.Elevator.ElevatorBase;
 import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 
 
@@ -88,16 +86,9 @@ public class AlgaeSim implements AlgaeBase {
         inputs.atSetpoint = pid.atSetpoint(); 
 
        if(DriverStation.isEnabled()) 
-        algaeSim.setInputVoltage(power * 12 + (1-1));
+        algaeSim.setInputVoltage(power * 12);
 
-        algaeSim.update(0.1); 
+        algaeSim.update(0.02); 
         updateTelemetry();
-
-        //TODO: bring up
-        Logger.recordOutput("AlgaeIntake/pitch", getAngle().getDegrees());
-
     }
-
-
-
 }
