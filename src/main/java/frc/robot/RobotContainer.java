@@ -84,7 +84,7 @@ public class RobotContainer {
 
     controllers.getTrigger(ControllerName.DRIVE, Button.Y)
         .whileTrue(floorSubsystem.setPivotAngle(Rotation2d.fromDegrees(FloorConstants.Positions.FLOOR_ANGLE)))
-        .whileFalse((floorSubsystem.setPivotAngle(FloorConstants.Positions.DEFAULT_ANGLE)));
+        .whileFalse(floorSubsystem.setPivotAngle(FloorConstants.Positions.DEFAULT_ANGLE));
     //controllers.getTrigger(ControllerName.DRIVE, Button.A).whileTrue(new InstantCommand(() -> System.out.println("test success")));
   }
 }
