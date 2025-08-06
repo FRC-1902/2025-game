@@ -53,6 +53,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorBase.resetPID();
   }
 
+  public double currentPosition(){
+    return inputs.currentPosition; 
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
