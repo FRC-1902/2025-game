@@ -37,7 +37,7 @@ public final class FloorConstants {
         public static final Rotation2d ENCODER_OFFSET = Rotation2d.fromDegrees(0);
     }
 
-    public static final class Simultation {
+    public static final class Simulation {
         public static final double GEARING = 50; 
         public static final double MOMENT = 0.303; 
         public static final double ARM_LENGTH = 0.22; 

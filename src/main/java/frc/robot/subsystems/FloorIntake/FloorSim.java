@@ -30,12 +30,12 @@ public class FloorSim implements FloorBase {
 
         armSim = new SingleJointedArmSim(
             DCMotor.getNEO(1), 
-            FloorConstants.Simultation.GEARING,
-            FloorConstants.Simultation.MOMENT, 
-            FloorConstants.Simultation.ARM_LENGTH,
+            FloorConstants.Simulation.GEARING,
+            FloorConstants.Simulation.MOMENT, 
+            FloorConstants.Simulation.ARM_LENGTH,
             FloorConstants.Positions.MIN_PIVOT.getRadians(),
             FloorConstants.Positions.MAX_PIVOT.getRadians(), 
-            FloorConstants.Simultation.SIMULATE_GRAVITY,
+            FloorConstants.Simulation.SIMULATE_GRAVITY,
             FloorConstants.Positions.DEFAULT_ANGLE.getRadians()
         );
 
