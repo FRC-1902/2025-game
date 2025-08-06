@@ -103,7 +103,7 @@ public class FloorHardware implements FloorBase  {
 
     public void setAngle(Rotation2d angle){
         pid.setSetpoint(angle.getDegrees());
-        angle = targetAngle; 
+        targetAngle = angle; 
     };
 
     public boolean hasCoral(){
