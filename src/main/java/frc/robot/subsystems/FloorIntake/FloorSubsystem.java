@@ -27,7 +27,6 @@ public class FloorSubsystem extends SubsystemBase {
     } else {
       floorBase = new FloorSim();
     }
-    floorBase.resetPID();
   }
 
   public Command runRollers(double speed) {
@@ -36,6 +35,10 @@ public class FloorSubsystem extends SubsystemBase {
 
   public Command setPivotAngle(Rotation2d angle) {
     return run(() -> floorBase.setAngle(angle)).until(() -> inputs.atSetpoint);
+  }
+
+  public void resetPID(){
+    floorBase.resetPID();
   }
 
   @Override
