@@ -27,6 +27,7 @@ public class FloorSubsystem extends SubsystemBase {
     } else {
       floorBase = new FloorSim();
     }
+    floorBase.resetPID();
   }
 
   public Command runRollers(double speed) {

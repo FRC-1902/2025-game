@@ -19,7 +19,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 public class FloorSim implements FloorBase { 
     
     FloorBaseInputs inputs;
-    double rollerSpeed;
     Rotation2d targetAngle;
     SingleJointedArmSim armSim; 
     PIDController pid; 
@@ -49,8 +48,8 @@ public class FloorSim implements FloorBase {
         targetAngle = FloorConstants.Positions.DEFAULT_ANGLE;      
     }
 
+    // TODO: implement with maple
     public void setSpeed(double speed) {
-        rollerSpeed = speed;
     };
 
     public Rotation2d getAngle() {
