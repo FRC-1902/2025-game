@@ -41,7 +41,7 @@ public class RobotContainer {
     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
     elevatorSubsystem = new ElevatorSubsystem(); 
-    floorSubsystem = new FloorSubsystem(); 
+    floorSubsystem = new FloorSubsystem(elevatorSubsystem); 
     algaeSubsystem = new AlgaeSubsystem(elevatorSubsystem); 
 
     // Path Planner logging

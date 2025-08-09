@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.Elevator.ElevatorConstants.Position;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.subsystems.Watchdog;
@@ -22,6 +24,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   ElevatorBaseInputs inputs;
   Alert badStart, boundsAlert, servoAlert;
   Watchdog elevatorWatchdog;
+  boolean safe; 
 
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem() {
@@ -57,6 +60,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     return inputs.currentPosition; 
   }
 
+  public boolean isSafeIn() {
+    return inputs.currentPosition < 0.01; 
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -65,5 +72,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     servoAlert.set(elevatorBase.isLocked() && inputs.targetPosition != ElevatorConstants.Position.CLIMB_DOWN);
 
     boundsAlert.set(!elevatorWatchdog.checkWatchdog()); 
+
+    Logger.recordOutput("Elevator/isSafe", isSafeIn());
   }
 }
