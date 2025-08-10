@@ -9,14 +9,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.Elevator.ElevatorBase.ElevatorBaseInputs;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Elevator.ElevatorConstants.Position;
+import frc.robot.subsystems.FloorIntake.FloorConstants;
 
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.subsystems.Watchdog;
+import edu.wpi.first.math.geometry.Rotation2d;
+import java.util.function.Supplier;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -25,9 +28,10 @@ public class ElevatorSubsystem extends SubsystemBase {
   Alert badStart, boundsAlert, servoAlert;
   Watchdog elevatorWatchdog;
   boolean safe; 
+  Supplier<Rotation2d> floorAngle;  
 
   /** Creates a new ElevatorSubsystem. */
-  public ElevatorSubsystem() {
+  public ElevatorSubsystem(Supplier<Rotation2d> floorAngle) {
     inputs = new ElevatorBaseInputs();
     if (Robot.isReal()) {
       elevatorBase = new ElevatorHardware();
@@ -46,10 +50,15 @@ public class ElevatorSubsystem extends SubsystemBase {
         ElevatorConstants.Position.MIN.getHeight() - 0.05, 
         (() -> inputs.currentPosition)
     );
-  }
+      this.floorAngle = floorAngle; 
+    }  
 
   public Command setPosition(Position targetPosition) {
-    return new InstantCommand(() -> elevatorBase.setPosition(targetPosition));
+    return Commands.either(
+        Commands.waitUntil(() -> floorAngle.get().getDegrees() >= FloorConstants.Positions.ELEVATOR_ANGLE)
+            .andThen(run(() -> elevatorBase.setPosition(targetPosition))),
+        run(() -> elevatorBase.setPosition(targetPosition)),
+        () -> floorAngle.get().getDegrees() < FloorConstants.Positions.ELEVATOR_ANGLE);
   }
 
   public void resetElevatorPID() {
@@ -64,9 +73,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     return inputs.currentPosition < 0.01; 
   }
 
+  public void setFloorAngle(Supplier<Rotation2d> angle){
+    this.floorAngle = angle; 
+  }
+
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // This method will be called once per scheduler run 
+
     elevatorBase.update(inputs);
 
     servoAlert.set(elevatorBase.isLocked() && inputs.targetPosition != ElevatorConstants.Position.CLIMB_DOWN);

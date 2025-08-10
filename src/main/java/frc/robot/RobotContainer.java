@@ -40,9 +40,14 @@ public class RobotContainer {
     controllers = ControllerSubsystem.getInstance();
     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
-    elevatorSubsystem = new ElevatorSubsystem(); 
-    floorSubsystem = new FloorSubsystem(elevatorSubsystem); 
-    algaeSubsystem = new AlgaeSubsystem(elevatorSubsystem); 
+    elevatorSubsystem = new ElevatorSubsystem(() -> new Rotation2d());
+    floorSubsystem = new FloorSubsystem(elevatorSubsystem::isSafeIn); 
+    algaeSubsystem = new AlgaeSubsystem(elevatorSubsystem::currentPosition); 
+
+    elevatorSubsystem.setFloorAngle(floorSubsystem::currentAngle);
+
+   // Logger.recordOutput("FloorSubsystem/lambdaCurrentAngle", floorSubsystem.currentAngleDouble());
+    
 
     // Path Planner logging
     field = new Field2d();

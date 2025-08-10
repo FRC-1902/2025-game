@@ -14,25 +14,25 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.subsystems.Elevator.ElevatorSubsystem;
+import java.util.function.DoubleSupplier;
 
 @Logged
 public class AlgaeSubsystem extends SubsystemBase {
 
   public AlgaeBase algaeBase; 
   public AlgaeBaseInputs inputs;
-  public ElevatorSubsystem elevatorSubsystem; 
+  public DoubleSupplier elevatorHeight; 
   // Here bc why not bro 
   // public final Trigger hasAlgae = new Trigger(() -> inputs.hasAlgae);
   /** Creates a new AlgaeSubsystem. */
-  public AlgaeSubsystem(ElevatorSubsystem elevatorSubsystem) {
+  public AlgaeSubsystem(DoubleSupplier elevatorHeight) {
 
-    this.elevatorSubsystem = elevatorSubsystem; 
+    this.elevatorHeight = elevatorHeight;  
     inputs = new AlgaeBaseInputs(); 
     if(Robot.isReal()){
     algaeBase = new AlgaeHardware();}
     else{
-      algaeBase = new AlgaeSim(elevatorSubsystem);
+      algaeBase = new AlgaeSim(elevatorHeight);
     }
   }
 

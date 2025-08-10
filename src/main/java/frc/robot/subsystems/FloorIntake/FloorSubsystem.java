@@ -5,9 +5,10 @@
 package frc.robot.subsystems.FloorIntake;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 import frc.robot.subsystems.FloorIntake.FloorBase.FloorBaseInputs;
 import frc.robot.Robot;
+
+import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -20,10 +21,10 @@ public class FloorSubsystem extends SubsystemBase {
 
   FloorBase floorBase;
   FloorBaseInputs inputs;
-  ElevatorSubsystem elevatorSubsystem; 
+  BooleanSupplier safe; 
 
   /** Creates a new FloorSubsystem. */
-  public FloorSubsystem(ElevatorSubsystem elevatorSubsystem) {
+  public FloorSubsystem(BooleanSupplier safe) {
     inputs = new FloorBaseInputs();
     if (Robot.isReal()) {
       floorBase = new FloorHardware();
@@ -31,7 +32,7 @@ public class FloorSubsystem extends SubsystemBase {
       floorBase = new FloorSim();
     }
 
-    this.elevatorSubsystem = elevatorSubsystem; 
+    this.safe = safe; 
   }
 
   public Command runRollers(double speed) {
@@ -41,14 +42,24 @@ public class FloorSubsystem extends SubsystemBase {
   public Command setPivotAngle(Rotation2d angle) {
     return Commands.either(
         run(() -> floorBase.setAngle(Rotation2d.fromDegrees(FloorConstants.Positions.ELEVATOR_ANGLE)))
-            .until(() -> elevatorSubsystem.isSafeIn())
+            .until(safe)
             .andThen(() -> floorBase.setAngle(angle)),
         run(() -> floorBase.setAngle(angle)),
         () -> (Math.abs(angle.getDegrees() - FloorConstants.Positions.DEFAULT_ANGLE.getDegrees()) < 0.01));
   }
 
+  public FloorSubsystem(){}
+
   public void resetPID(){
     floorBase.resetPID();
+  }
+
+  public Rotation2d currentAngle(){
+    return inputs.currentAngle; 
+  }
+
+  public boolean atSetpont(){
+    return inputs.atSetpoint; 
   }
 
   @Override
