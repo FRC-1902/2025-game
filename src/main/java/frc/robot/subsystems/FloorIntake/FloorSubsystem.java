@@ -56,7 +56,7 @@ public class FloorSubsystem extends SubsystemBase {
     return inputs.currentAngle; 
   }
 
-  public boolean atSetpont(){
+  public boolean atSetpoint(){
     return inputs.atSetpoint; 
   }
 
