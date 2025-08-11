@@ -14,21 +14,21 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import frc.robot.subsystems.Elevator.ElevatorSubsystem;
+import java.util.function.DoubleSupplier;
 
 
 /** Add your docs here. */
 public class AlgaeSim implements AlgaeBase {
 
-    ElevatorSubsystem elevatorSubsystem; 
+    DoubleSupplier elevatorHeight;  
     double rollerSpeed = 0;
     Rotation2d targetAngle;
     SingleJointedArmSim algaeSim; 
     PIDController pid; 
 
-    public AlgaeSim(ElevatorSubsystem elevatorSubsystem) {
+    public AlgaeSim(DoubleSupplier elevatorHeight) {
 
-        this.elevatorSubsystem = elevatorSubsystem; 
+        this.elevatorHeight = elevatorHeight; 
 
         algaeSim = new SingleJointedArmSim(
             DCMotor.getNEO(1), 
@@ -75,7 +75,7 @@ public class AlgaeSim implements AlgaeBase {
     }
 
     private void updateTelemetry(){ 
-        Pose3d algaePose = new Pose3d(new Translation3d(0.3, 0.0, 0.425 + elevatorSubsystem.currentPosition()), new Rotation3d(0.0, getAngle().getRadians() * -1, 0.0));
+        Pose3d algaePose = new Pose3d(new Translation3d(0.3, 0.0, 0.425 + elevatorHeight.getAsDouble()), new Rotation3d(0.0, getAngle().getRadians() * -1, 0.0));
         Logger.recordOutput("AlgaeIntake/algaePose", algaePose);
     }
 
