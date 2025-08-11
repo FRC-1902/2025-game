@@ -36,7 +36,7 @@ public class FloorSubsystem extends SubsystemBase {
   }
 
   public Command runRollers(double speed) {
-    return runEnd(() -> floorBase.setSpeed(speed), () -> floorBase.setSpeed(0));
+    return Commands.runEnd(() -> floorBase.setSpeed(speed), () -> floorBase.setSpeed(0));
   }
 
   public Command setPivotAngle(Rotation2d angle) {
@@ -60,6 +60,14 @@ public class FloorSubsystem extends SubsystemBase {
 
   public boolean atSetpont(){
     return inputs.atSetpoint; 
+  }
+
+  public boolean hasCoral(){
+    return inputs.hasCoral; 
+  }
+
+  public void setCoral(boolean coral){
+    inputs.hasCoral = coral; 
   }
 
   @Override

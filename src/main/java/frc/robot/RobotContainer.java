@@ -19,10 +19,11 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.Elevator.ElevatorConstants;
-import frc.robot.subsystems.FloorIntake.FloorConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.AlgaeIntake.AlgaeConstants;
 import frc.robot.subsystems.AlgaeIntake.AlgaeSubsystem;
+import frc.robot.commands.drive.IntakeFactory;
+import frc.robot.subsystems.EndEffectorSubsystem;
 // import frc.robot.commands.drive.ObjectAlign;
 
 public class RobotContainer {
@@ -33,6 +34,8 @@ public class RobotContainer {
   ElevatorSubsystem elevatorSubsystem;
   FloorSubsystem floorSubsystem; 
   AlgaeSubsystem algaeSubsystem; 
+  EndEffectorSubsystem endEffectorSubsystem; 
+  IntakeFactory intakeFactory; 
   private final Field2d field;
   public static final boolean MAPLESIM = true; 
 
@@ -43,8 +46,13 @@ public class RobotContainer {
     elevatorSubsystem = new ElevatorSubsystem(() -> new Rotation2d());
     floorSubsystem = new FloorSubsystem(elevatorSubsystem::isSafeIn); 
     algaeSubsystem = new AlgaeSubsystem(elevatorSubsystem::currentPosition); 
+    endEffectorSubsystem = new EndEffectorSubsystem(); 
 
     elevatorSubsystem.setFloorAngle(floorSubsystem::currentAngle);
+
+    intakeFactory = new IntakeFactory(floorSubsystem, elevatorSubsystem, endEffectorSubsystem); 
+
+
 
    // Logger.recordOutput("FloorSubsystem/lambdaCurrentAngle", floorSubsystem.currentAngleDouble());
     
@@ -81,15 +89,20 @@ public class RobotContainer {
   }
 
   private void bindButtons() {
-    controllers.getTrigger(ControllerName.DRIVE, Button.A)
+   controllers.getTrigger(ControllerName.DRIVE, Button.A)
         .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L3));
     controllers.getTrigger(ControllerName.DRIVE, Button.B)
         .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L1));
     controllers.getTrigger(ControllerName.DRIVE, Button.X)
         .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.HOME));
+
     controllers.getTrigger(ControllerName.DRIVE, Button.Y)
-        .whileTrue(floorSubsystem.setPivotAngle(Rotation2d.fromDegrees(FloorConstants.Positions.FLOOR_ANGLE)))
-        .whileFalse(floorSubsystem.setPivotAngle(FloorConstants.Positions.DEFAULT_ANGLE));
+        .whileTrue(intakeFactory.initialIntake()); 
+    
+    //controllers.getTrigger(ControllerName.DRIVE, Button.A)
+       // .whileTrue(intakeFactory.coralButton(true))
+       // .whileFalse(intakeFactory.coralButton(false));
+//
     controllers.getTrigger(ControllerName.DRIVE, Button.LB)
         .whileTrue(algaeSubsystem.setPivotAngle(AlgaeConstants.Positions.MIN_PIVOT))
         .whileFalse(algaeSubsystem.setPivotAngle(AlgaeConstants.Positions.DEFAULT_ANGLE));

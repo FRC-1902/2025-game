@@ -56,9 +56,10 @@ public class ElevatorSubsystem extends SubsystemBase {
   public Command setPosition(Position targetPosition) {
     return Commands.either(
         Commands.waitUntil(() -> floorAngle.get().getDegrees() >= FloorConstants.Positions.ELEVATOR_ANGLE)
-            .andThen(run(() -> elevatorBase.setPosition(targetPosition))),
-        run(() -> elevatorBase.setPosition(targetPosition)),
-        () -> floorAngle.get().getDegrees() < FloorConstants.Positions.ELEVATOR_ANGLE);
+            .andThen(run(() -> elevatorBase.setPosition(targetPosition)).until(() -> inputs.atSetpoint)),
+        run(() -> elevatorBase.setPosition(targetPosition)).until(() -> inputs.atSetpoint),
+        () -> floorAngle.get().getDegrees() < FloorConstants.Positions.ELEVATOR_ANGLE
+      );
   }
 
   public void resetElevatorPID() {
