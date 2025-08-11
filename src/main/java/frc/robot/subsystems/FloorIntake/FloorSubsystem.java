@@ -48,8 +48,6 @@ public class FloorSubsystem extends SubsystemBase {
         () -> (Math.abs(angle.getDegrees() - FloorConstants.Positions.DEFAULT_ANGLE.getDegrees()) < 0.01));
   }
 
-  public FloorSubsystem(){}
-
   public void resetPID(){
     floorBase.resetPID();
   }

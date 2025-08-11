@@ -36,14 +36,14 @@ public class IntakeFactory {
         intakeFlag = false; 
     }
 
-    public BooleanSupplier canRun() {
+    public boolean canRun() {
         if (floorSubsystem.hasCoral()
                 || endEffectorSubsystem.isFrontPieceSensorActive()
                 || endEffectorSubsystem.isBackPieceSensorActive()
             ) {
-            return () -> false;
+            return false;
         } else {
-            return () -> true;
+            return true;
         }
     }
 
@@ -53,17 +53,16 @@ public class IntakeFactory {
                 .alongWith(elevatorSubsystem.setPosition(ElevatorConstants.Position.MIN))
                 .andThen(floorSubsystem.runRollers(1))
                 .until(() -> floorSubsystem.hasCoral()),
-            Commands.waitUntil(canRun()), canRun()).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-            .finallyDo((wasCancelled) -> {
-                intakeFlag = true;
-            });
+            Commands.waitUntil(this::canRun),
+            this::canRun
+        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+        .finallyDo((wasCancelled) -> {intakeFlag = true;});
     }
 
     public Command initialIndex() {
         return Commands.run(() -> floorSubsystem.runRollers(-1))
             .alongWith(Commands.run(() -> endEffectorSubsystem.setSpeed(0.5)))
-            .until(() -> endEffectorSubsystem.isBackPieceSensorActive()
-            );           
+            .until(() -> endEffectorSubsystem.isBackPieceSensorActive());           
     }
 
     public Command adjustIndex() {
@@ -73,6 +72,11 @@ public class IntakeFactory {
             .until(() -> endEffectorSubsystem.isBackPieceSensorActive());
     }
 
+    /**
+     * Spoofs a coral for sim testing
+     * @param coral
+     * @return
+     */
     public Command coralButton(boolean coral){
         return Commands.run(() -> floorSubsystem.setCoral(coral));
     }

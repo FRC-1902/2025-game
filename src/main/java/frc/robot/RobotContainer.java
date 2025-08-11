@@ -52,11 +52,6 @@ public class RobotContainer {
 
     intakeFactory = new IntakeFactory(floorSubsystem, elevatorSubsystem, endEffectorSubsystem); 
 
-
-
-   // Logger.recordOutput("FloorSubsystem/lambdaCurrentAngle", floorSubsystem.currentAngleDouble());
-    
-
     // Path Planner logging
     field = new Field2d();
     SmartDashboard.putData("Field", field);
@@ -99,10 +94,11 @@ public class RobotContainer {
     controllers.getTrigger(ControllerName.DRIVE, Button.Y)
         .whileTrue(intakeFactory.initialIntake()); 
     
+    //XXX: Testing command that tells the FloorIntake that is has Coral
     //controllers.getTrigger(ControllerName.DRIVE, Button.A)
        // .whileTrue(intakeFactory.coralButton(true))
        // .whileFalse(intakeFactory.coralButton(false));
-//
+
     controllers.getTrigger(ControllerName.DRIVE, Button.LB)
         .whileTrue(algaeSubsystem.setPivotAngle(AlgaeConstants.Positions.MIN_PIVOT))
         .whileFalse(algaeSubsystem.setPivotAngle(AlgaeConstants.Positions.DEFAULT_ANGLE));
