@@ -38,6 +38,11 @@ public final class AlgaeConstants {
         public static final double MOMENT = 0.0477; 
         public static final double ARM_LENGTH = 0.117; 
         public static final boolean SIMULATE_GRAVITY = true;
+        public static final class PID {
+            public static final double kP = 0.01;
+            public static final double kI = 0;
+            public static final double kD = 0;
+            public static final double kG = 0.0;
+        }
     }
-
 }

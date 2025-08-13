@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.drive.DriveCommand;
+import frc.robot.commands.drive.ElevatorFactory;
 import frc.robot.subsystems.ControllerSubsystem;
 import frc.robot.subsystems.ControllerSubsystem.Axis;
 import frc.robot.subsystems.ControllerSubsystem.Button;
@@ -36,6 +37,7 @@ public class RobotContainer {
   AlgaeSubsystem algaeSubsystem; 
   EndEffectorSubsystem endEffectorSubsystem; 
   IntakeFactory intakeFactory; 
+  ElevatorFactory elevatorFactory; 
   private final Field2d field;
   public static final boolean MAPLESIM = true; 
 
@@ -51,6 +53,7 @@ public class RobotContainer {
     elevatorSubsystem.setFloorAngle(floorSubsystem::currentAngle);
 
     intakeFactory = new IntakeFactory(floorSubsystem, elevatorSubsystem, endEffectorSubsystem); 
+    elevatorFactory = new ElevatorFactory(floorSubsystem, elevatorSubsystem); 
 
     // Path Planner logging
     field = new Field2d();
@@ -85,11 +88,11 @@ public class RobotContainer {
 
   private void bindButtons() {
    controllers.getTrigger(ControllerName.DRIVE, Button.A)
-        .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L3));
+        .onTrue(elevatorFactory.elevatorPositioning(ElevatorConstants.Position.L3));
     controllers.getTrigger(ControllerName.DRIVE, Button.B)
-        .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.L1));
+        .onTrue(elevatorFactory.elevatorPositioning(ElevatorConstants.Position.L2));
     controllers.getTrigger(ControllerName.DRIVE, Button.X)
-        .onTrue(elevatorSubsystem.setPosition(ElevatorConstants.Position.HOME));
+        .onTrue(elevatorFactory.elevatorPositioning(ElevatorConstants.Position.HOME));
 
     controllers.getTrigger(ControllerName.DRIVE, Button.Y)
         .whileTrue(intakeFactory.initialIntake()); 

@@ -109,8 +109,8 @@ public class ElevatorSimulation implements ElevatorBase {
   private double calcPID() {
     if (!isLocked() && Timer.getFPGATimestamp() - unlockTime > 0.3) {
       return pid.calculate(getPosition()) + 
-        ElevatorConstants.PID.kF + 
-        ElevatorConstants.PID.kS * Math.signum(pid.getSetpoint() - getPosition());
+        ElevatorConstants.Simulation.PID.kF + 
+        ElevatorConstants.Simulation.PID.kS * Math.signum(pid.getSetpoint() - getPosition());
     } else {
       return 0;
     }

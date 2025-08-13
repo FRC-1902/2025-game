@@ -67,7 +67,7 @@ public class FloorHardware implements FloorBase  {
         rollerMotor.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         // Motor configuration code here
-        pid = new PIDController(0, 0, 0);
+        pid = new PIDController(FloorConstants.PID.kP, FloorConstants.PID.kI, FloorConstants.PID.kD);
         pid.disableContinuousInput();
         pid.setTolerance(Constants.FloorIntake.TOLERANCE.getDegrees());
         pid.setIZone(10);

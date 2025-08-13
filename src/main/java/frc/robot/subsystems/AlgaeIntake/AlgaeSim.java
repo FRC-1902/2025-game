@@ -41,7 +41,7 @@ public class AlgaeSim implements AlgaeBase {
             AlgaeConstants.Positions.DEFAULT_ANGLE.getRadians()
             ); 
         
-        pid = new PIDController(AlgaeConstants.PID.kP, AlgaeConstants.PID.kI, AlgaeConstants.PID.kD); 
+        pid = new PIDController(AlgaeConstants.Simulation.PID.kP, AlgaeConstants.Simulation.PID.kI, AlgaeConstants.Simulation.PID.kD); 
         targetAngle = AlgaeConstants.Positions.DEFAULT_ANGLE;
 
     }

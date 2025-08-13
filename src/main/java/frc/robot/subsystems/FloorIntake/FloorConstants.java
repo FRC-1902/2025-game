@@ -17,11 +17,11 @@ public final class FloorConstants {
     }
 
     public static final class PID {
-        public static final double PIVOT_P = 0.001;// 0.0125; 
-        public static final double PIVOT_I = 0.00075;// 0.0035; 
-        public static final double PIVOT_D = 0.0000;// 0.00005; 
-        public static final double PIVOT_G = 0.15;// 0.022;
-        public static final double PIVOT_F = 0.00;// 0.022;
+        public static final double kP = 0.001;// 0.0125; 
+        public static final double kI = 0.00075;// 0.0035; 
+        public static final double kD = 0.0000;// 0.00005; 
+        public static final double kG = 0.15;// 0.022;
+        public static final double kF = 0.00;// 0.022;
     }
 
     public static final class Positions {
@@ -42,5 +42,12 @@ public final class FloorConstants {
         public static final double MOMENT = 0.303; 
         public static final double ARM_LENGTH = 0.22; 
         public static final boolean SIMULATE_GRAVITY = true; 
+        public static final class PID{
+            public static final double kP = 0.001;// 0.0125; 
+            public static final double kI = 0.00075;// 0.0035; 
+            public static final double kD = 0.0000;// 0.00005; 
+            public static final double kG = 0.15;// 0.022;
+            public static final double kF = 0.00;// 0.022;
+        }
     }
 }

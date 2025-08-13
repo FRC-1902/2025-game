@@ -40,9 +40,9 @@ public class FloorSim implements FloorBase {
         );
 
         pid = new PIDController(
-            FloorConstants.PID.PIVOT_P, 
-            FloorConstants.PID.PIVOT_I,
-            FloorConstants.PID.PIVOT_D
+            FloorConstants.Simulation.PID.kP, 
+            FloorConstants.Simulation.PID.kI,
+            FloorConstants.Simulation.PID.kD
         );
 
         targetAngle = FloorConstants.Positions.DEFAULT_ANGLE;      
@@ -74,7 +74,7 @@ public class FloorSim implements FloorBase {
 
     private double pidCalc(){
         return pid.calculate(getAngle().getDegrees(), targetAngle.getDegrees())
-            + FloorConstants.PID.PIVOT_G * Math.cos(getAngle().getRadians()
+            + FloorConstants.Simulation.PID.kG * Math.cos(getAngle().getRadians()
         );
     }
 
