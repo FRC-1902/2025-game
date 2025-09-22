@@ -44,7 +44,7 @@ public class RobotContainer {
     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
     elevatorSubsystem = new ElevatorSubsystem(() -> new Rotation2d());
-    floorSubsystem = new FloorSubsystem(elevatorSubsystem::isSafeIn); 
+    floorSubsystem = new FloorSubsystem(elevatorSubsystem::isSafeIn, swerve); 
     algaeSubsystem = new AlgaeSubsystem(elevatorSubsystem::currentPosition); 
     endEffectorSubsystem = new EndEffectorSubsystem(); 
 

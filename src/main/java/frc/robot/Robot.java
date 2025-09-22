@@ -1,5 +1,9 @@
 package frc.robot;
 
+import java.util.Optional;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -10,6 +14,10 @@ import org.littletonrobotics.urcl.URCL;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -21,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.drive.IntakeFactory;
 import frc.robot.util.Elastic;
+import frc.robot.util.MapleSimSetup;
 
 public class Robot extends LoggedRobot {
   
@@ -48,6 +57,7 @@ public class Robot extends LoggedRobot {
       case SIM:
         // setUseTiming(false); // Run as fast as possible
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+
         break;
 
       case REPLAY:
@@ -81,6 +91,13 @@ public class Robot extends LoggedRobot {
 
       if(IntakeFactory.intakeFlag){
         robotContainer.intakeFactory.cleanupSequence(); 
+      }
+
+      if (Robot.isSimulation()) {
+        SimulatedArena.getInstance().simulationPeriodic();
+        Pose3d[] coralPoses = SimulatedArena.getInstance().getGamePiecesArrayByType("Coral");
+        // Publish to telemetry using AdvantageKit
+        Logger.recordOutput("FloorIntake/CoralPositions", coralPoses);
       }
     }
 
@@ -117,6 +134,10 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
       if (autonomousCommand != null) {
           autonomousCommand.cancel();
+      }
+
+      if(isSimulation()){
+        MapleSimSetup.spawnCoral(new Pose2d(new Translation2d(2, 2), new Rotation2d()));
       }
 
       Elastic.selectTab("Teleoperated");

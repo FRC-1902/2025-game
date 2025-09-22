@@ -4,6 +4,12 @@
 
 package frc.robot.subsystems.FloorIntake;
 
+import java.util.Optional;
+
+import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
+import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,8 +18,11 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.units.measure.Distance;
+import static edu.wpi.first.units.Units.Meters;
 
 /** Add your docs here. */
 public class FloorSim implements FloorBase { 
@@ -23,8 +32,11 @@ public class FloorSim implements FloorBase {
     SingleJointedArmSim armSim; 
     PIDController pid; 
     Pose3d intakePose; 
+    IntakeSimulation intakeSimulation; 
+    
 
-    public FloorSim() {
+
+    public FloorSim(SwerveSubsystem swerveSubsystem) {
         
         inputs = new FloorBaseInputs();
 
@@ -46,10 +58,25 @@ public class FloorSim implements FloorBase {
         );
 
         targetAngle = FloorConstants.Positions.DEFAULT_ANGLE;      
+
+        Optional<SwerveDriveSimulation> swerveSim = swerveSubsystem.getMapleSimSwerve(); 
+
+        if(swerveSim.isPresent()){
+            this.intakeSimulation = IntakeSimulation.OverTheBumperIntake("Coral", swerveSim.get(), Meters.of(0.39), Meters.of(0.434), IntakeSide.FRONT, 1); 
+        }
+        else{
+            this.intakeSimulation = null; 
+        }
     }
 
     // TODO: implement with maple
     public void setSpeed(double speed) {
+        if(speed != 0){
+            intakeSimulation.startIntake();
+        }
+        else{
+            intakeSimulation.stopIntake();
+        }
     };
 
     public Rotation2d getAngle() {
@@ -61,8 +88,14 @@ public class FloorSim implements FloorBase {
     };
 
     public boolean hasCoral() {
-        return inputs.hasCoral;
+        return intakeSimulation.getGamePiecesAmount() != 0;
     };
+
+    public void moveCoral(){
+        if(intakeSimulation.obtainGamePieceFromIntake()){
+
+        }
+    }
 
     public void resetPID(){
         pid.reset();

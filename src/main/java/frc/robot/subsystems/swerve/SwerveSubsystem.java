@@ -1,5 +1,9 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.Optional;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -30,14 +34,18 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.Robot;
 import frc.robot.FieldConstants.WaypointType;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
+import static edu.wpi.first.units.Units.Meters;
 
 public class SwerveSubsystem extends SubsystemBase {
   private final SwerveBase swerve;
+
+  private Optional<SwerveDriveSimulation> swerveSim; 
 
   private final SwerveBase.SwerveInputs inputs = new SwerveBase.SwerveInputs();
   private final AprilTagFieldLayout aprilTagFieldLayout;
@@ -56,7 +64,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     swerve.setupPathPlanner(this);
-    
   }
 
   /**
@@ -66,9 +73,12 @@ public class SwerveSubsystem extends SubsystemBase {
   public void periodic() {
     swerve.updateInputs(inputs);
     Logger.processInputs("Swerve", inputs);
-    
     // TODO: this is temp
     SmartDashboard.putNumber("Swerve/Velocity", Math.sqrt(Math.pow(swerve.getRobotVelocity().vxMetersPerSecond, 2) + Math.pow(swerve.getRobotVelocity().vyMetersPerSecond, 2)));
+  }
+
+  public Optional<SwerveDriveSimulation> getMapleSimSwerve(){
+    return swerve.getMapleSimSwerve(); 
   }
 
   /** Adds a new timestamped vision measurement. */

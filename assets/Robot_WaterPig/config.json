@@ -7,7 +7,7 @@
       { "axis": "y", "degrees": 0 },
       { "axis": "z", "degrees": 270 }
     ],
-    "position": [0.0, 0.0, 0.0],
+    "position": [-0.03, 0.0, 0.0],
     "components": [],
     "cameras": [
       {

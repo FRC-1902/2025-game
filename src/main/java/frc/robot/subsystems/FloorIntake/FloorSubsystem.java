@@ -6,6 +6,7 @@ package frc.robot.subsystems.FloorIntake;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.FloorIntake.FloorBase.FloorBaseInputs;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.Robot;
 
 import java.util.function.BooleanSupplier;
@@ -16,20 +17,22 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 @Logged
 public class FloorSubsystem extends SubsystemBase {
 
   FloorBase floorBase;
   FloorBaseInputs inputs;
   BooleanSupplier safe; 
+  SwerveSubsystem swerveSubsystem; 
 
   /** Creates a new FloorSubsystem. */
-  public FloorSubsystem(BooleanSupplier safe) {
+  public FloorSubsystem(BooleanSupplier safe, SwerveSubsystem swerveSubsystem) {
     inputs = new FloorBaseInputs();
     if (Robot.isReal()) {
       floorBase = new FloorHardware();
     } else {
-      floorBase = new FloorSim();
+      floorBase = new FloorSim(swerveSubsystem);
     }
 
     this.safe = safe; 

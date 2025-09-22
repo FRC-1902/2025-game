@@ -3,6 +3,12 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.Meter;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Optional;
+
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -21,6 +27,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import swervelib.SwerveController;
@@ -28,11 +35,14 @@ import swervelib.SwerveDrive;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
+import frc.robot.Robot; 
+import static edu.wpi.first.units.Units.Meters;
 
 public class SwerveReal implements SwerveBase {
   private final SwerveDrive swerveDrive;
   private final SwerveInputs inputs = new SwerveInputs();
   private Alert configAlert;
+  private SwerveDriveSimulation swerveSimulation; 
 
 
   public SwerveReal(File directory) {
@@ -62,11 +72,24 @@ public class SwerveReal implements SwerveBase {
     swerveDrive.setChassisDiscretization(true, 0.02);
 
     //swerveDrive.pushOffsetsToEncoders(); // Removed because absolute encoders have build in zeroing
+
+    if (Robot.isSimulation()) {
+      Optional<SwerveDriveSimulation> swerveSim = getMapleSimSwerve();
+      if (swerveSim.isPresent()) {
+        this.swerveSimulation = swerveSim.get(); 
+        this.swerveSimulation.setEnabled(true);
+       // this.swerveSimulation.config.withBumperSize(Meters.of(0.0762), Meters.of(0.7));
+        //DriveTrainSimulationConfig simConfig = 
+          //this.swerveSimulation.config.withBumperSize(Meters.of(0.876), Meters.of(0.864));
+      } else {
+        DataLogManager.log("couldnt generate swerve optional 4 maplesim");
+      }
+    }
   }
 
   @Override
   public void updateInputs(SwerveInputs inputs) {
-    inputs.robotPose = swerveDrive.getPose();
+    inputs.robotPose = getPose();
     inputs.gyroYaw = swerveDrive.getYaw();
     inputs.gyroPitch = swerveDrive.getPitch();
     inputs.moduleStates = swerveDrive.getStates();
@@ -109,7 +132,11 @@ public class SwerveReal implements SwerveBase {
 
   @Override
   public Pose2d getPose() {
-    return swerveDrive.getPose();
+    if(Robot.isSimulation()){
+      return swerveSimulation.getSimulatedDriveTrainPose(); 
+    } else {
+      return swerveDrive.getPose();
+    }
   }
 
   @Override
@@ -214,17 +241,21 @@ public class SwerveReal implements SwerveBase {
    * @param pose The measured pose
    * @param timestamp The timestamp of the measurement in seconds
    */
-@Override
-public void addVisionMeasurement(
-    Pose2d visionPose,
-    double timestampSeconds,
-    Matrix<N3, N1> visionMeasurementStdDevs
-) {
-    swerveDrive.addVisionMeasurement(visionPose, timestampSeconds, visionMeasurementStdDevs);
-}
+  @Override
+  public void addVisionMeasurement(
+      Pose2d visionPose,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs
+  ) {
+      swerveDrive.addVisionMeasurement(visionPose, timestampSeconds, visionMeasurementStdDevs);
+  }
 
   /** Update odometry for the swerve drive. */
   public void updateOdometry() {
     swerveDrive.updateOdometry();
+  }
+
+  public Optional<SwerveDriveSimulation> getMapleSimSwerve(){
+    return swerveDrive.getMapleSimDrive(); 
   }
 }

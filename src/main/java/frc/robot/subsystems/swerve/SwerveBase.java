@@ -11,11 +11,16 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
+
+import java.util.Optional;
+
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import swervelib.SwerveController;
 import swervelib.parser.SwerveDriveConfiguration;
+
 
 public interface SwerveBase {
   @AutoLog
@@ -121,4 +126,6 @@ public interface SwerveBase {
   public void setupPathPlanner(SwerveSubsystem swerveSubsystem);
 
   public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> visionMeasurementStdDevs);
+
+  public Optional<SwerveDriveSimulation> getMapleSimSwerve(); 
 }
