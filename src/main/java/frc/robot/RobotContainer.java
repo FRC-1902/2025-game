@@ -24,7 +24,10 @@ import frc.robot.subsystems.AlgaeIntake.AlgaeConstants;
 import frc.robot.subsystems.AlgaeIntake.AlgaeSubsystem;
 import frc.robot.commands.drive.IntakeFactory;
 import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.vision.CoralDetectorSim;
+import frc.robot.subsystems.vision.VisionCamera;
 // import frc.robot.commands.drive.ObjectAlign;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
 
@@ -36,15 +39,27 @@ public class RobotContainer {
   AlgaeSubsystem algaeSubsystem; 
   EndEffectorSubsystem endEffectorSubsystem; 
   IntakeFactory intakeFactory; 
+  CoralDetectorSim coralDetectorSim; 
+  VisionSubsystem vision; 
   private final Field2d field;
   public static final boolean MAPLESIM = true; 
 
   public RobotContainer() {
     controllers = ControllerSubsystem.getInstance();
-    swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+    
+     swerve = new SwerveSubsystem(new SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+		vision = new VisionSubsystem(
+      swerve::addVisionMeasurement, 
+      new VisionCamera(Constants.Vision.CAMERA_ONE, Constants.Vision.CAMERA_ONE_POS), 
+      new VisionCamera(Constants.Vision.CAMERA_TWO, Constants.Vision.CAMERA_TWO_POS)
+      // new VisionCamera(Constants.Vision.CAMERA_THREE, Constants.Vision.CAMERA_THREE_POS)
+    );
 
+    coralDetectorSim = new CoralDetectorSim(4, true); 
+
+    
     elevatorSubsystem = new ElevatorSubsystem(() -> new Rotation2d());
-    floorSubsystem = new FloorSubsystem(elevatorSubsystem::isSafeIn, swerve); 
+    floorSubsystem = new FloorSubsystem(elevatorSubsystem::isSafeIn, swerve, coralDetectorSim); 
     algaeSubsystem = new AlgaeSubsystem(elevatorSubsystem::currentPosition); 
     endEffectorSubsystem = new EndEffectorSubsystem(); 
 

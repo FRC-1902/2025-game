@@ -7,6 +7,7 @@ package frc.robot.subsystems.FloorIntake;
 import java.util.Optional;
 
 import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
 import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -14,6 +15,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,6 +25,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.Meters;
+import frc.robot.subsystems.vision.CoralDetectorSim;
+import edu.wpi.first.math.geometry.Pose2d;
+
 
 /** Add your docs here. */
 public class FloorSim implements FloorBase { 
@@ -33,10 +38,13 @@ public class FloorSim implements FloorBase {
     PIDController pid; 
     Pose3d intakePose; 
     IntakeSimulation intakeSimulation; 
+    SwerveSubsystem swerve; 
+    CoralDetectorSim coralDetectorSim; 
+    boolean startIntake; 
     
 
 
-    public FloorSim(SwerveSubsystem swerveSubsystem) {
+    public FloorSim(SwerveSubsystem swerveSubsystem, CoralDetectorSim coralDetectorSim) {
         
         inputs = new FloorBaseInputs();
 
@@ -57,25 +65,30 @@ public class FloorSim implements FloorBase {
             FloorConstants.PID.PIVOT_D
         );
 
-        targetAngle = FloorConstants.Positions.DEFAULT_ANGLE;      
+        targetAngle = FloorConstants.Positions.DEFAULT_ANGLE;     
 
-        Optional<SwerveDriveSimulation> swerveSim = swerveSubsystem.getMapleSimSwerve(); 
+        this.swerve = swerveSubsystem;  
+
+        Optional<SwerveDriveSimulation> swerveSim = swerve.getMapleSimSwerve(); 
 
         if(swerveSim.isPresent()){
-            this.intakeSimulation = IntakeSimulation.OverTheBumperIntake("Coral", swerveSim.get(), Meters.of(0.39), Meters.of(0.434), IntakeSide.FRONT, 1); 
+            this.intakeSimulation = IntakeSimulation.OverTheBumperIntake("Coral", swerveSim.get(), Meters.of(0.39), Meters.of(0.434), IntakeSide.BACK, 1); 
+            
+            this.coralDetectorSim = coralDetectorSim; 
         }
         else{
             this.intakeSimulation = null; 
+            this.coralDetectorSim = null; 
         }
     }
 
     // TODO: implement with maple
     public void setSpeed(double speed) {
         if(speed != 0){
-            intakeSimulation.startIntake();
+            startIntake = true; 
         }
         else{
-            intakeSimulation.stopIntake();
+            startIntake = false; 
         }
     };
 
@@ -85,17 +98,17 @@ public class FloorSim implements FloorBase {
 
     public void setAngle(Rotation2d angle) {
         targetAngle = angle;
+        if(targetAngle == FloorConstants.Positions.MAX_PIVOT){
+            intakeSimulation.startIntake();
+        }
+        else{
+            intakeSimulation.stopIntake();
+        }
     };
 
     public boolean hasCoral() {
         return intakeSimulation.getGamePiecesAmount() != 0;
     };
-
-    public void moveCoral(){
-        if(intakeSimulation.obtainGamePieceFromIntake()){
-
-        }
-    }
 
     public void resetPID(){
         pid.reset();
@@ -119,18 +132,30 @@ public class FloorSim implements FloorBase {
     public void update(FloorBaseInputs inputs) {
         
         // Setup Sim Logic here
-        double power = pidCalc(); 
+        double power = pidCalc();
 
-        inputs.atSetpoint = atSetpoint(); 
-        inputs.currentAngle = getAngle(); 
-        inputs.targetAngle = targetAngle; 
+        inputs.atSetpoint = atSetpoint();
+        inputs.currentAngle = getAngle();
+        inputs.targetAngle = targetAngle;
+
+        Pose2d coralPose = coralDetectorSim.getCoralPoseMapleSim(swerve.getPose());
+
+        double distance = 69;
+
+        if (coralPose != null) {
+            distance = swerve.getPose().getTranslation().getDistance(coralPose.getTranslation());
+        }
+
+        if (distance <= 0.4 && startIntake) {
+            intakeSimulation.addGamePieceToIntake();
+        }
 
         if (DriverStation.isEnabled())
-        armSim.setInputVoltage(power * 12);
+            armSim.setInputVoltage(power * 12);
 
         armSim.update(0.02);
         updateTelemetry();
 
-        Logger.recordOutput("FloorIntake/PID", power); 
+        Logger.recordOutput("FloorIntake/PID", power);
     };
 }

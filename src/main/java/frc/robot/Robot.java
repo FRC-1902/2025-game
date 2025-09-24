@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -83,6 +84,15 @@ public class Robot extends LoggedRobot {
     robotContainer = new RobotContainer();
     PathfindingCommand.warmupCommand().schedule();
     SmartDashboard.putData(CommandScheduler.getInstance());
+  }
+
+  public static boolean isBlue() {
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      return alliance.get() == DriverStation.Alliance.Blue;
+    } else {
+      return false; // true for default to blue alliance
+    }
   }
 
   @Override

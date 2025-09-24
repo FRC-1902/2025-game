@@ -7,6 +7,7 @@ package frc.robot.subsystems.FloorIntake;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.FloorIntake.FloorBase.FloorBaseInputs;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.CoralDetectorSim;
 import frc.robot.Robot;
 
 import java.util.function.BooleanSupplier;
@@ -25,14 +26,15 @@ public class FloorSubsystem extends SubsystemBase {
   FloorBaseInputs inputs;
   BooleanSupplier safe; 
   SwerveSubsystem swerveSubsystem; 
+  CoralDetectorSim coralDetectorSim; 
 
   /** Creates a new FloorSubsystem. */
-  public FloorSubsystem(BooleanSupplier safe, SwerveSubsystem swerveSubsystem) {
+  public FloorSubsystem(BooleanSupplier safe, SwerveSubsystem swerveSubsystem, CoralDetectorSim coralDetectorSim) {
     inputs = new FloorBaseInputs();
     if (Robot.isReal()) {
       floorBase = new FloorHardware();
     } else {
-      floorBase = new FloorSim(swerveSubsystem);
+      floorBase = new FloorSim(swerveSubsystem, coralDetectorSim);
     }
 
     this.safe = safe; 
