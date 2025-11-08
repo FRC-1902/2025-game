@@ -24,7 +24,7 @@ public class ReefAlign extends Command {
   
   private final double distanceErrorTolerance = 0.06; // meters
   private final double rotationErrorTolerance = Math.toRadians(3); // degrees
-  private final double maxVelocity = 4.0; // m/s
+  private final double maxVelocity = 0.5; // m/s
   private double currentDistance;
   private double currentRotError;
 

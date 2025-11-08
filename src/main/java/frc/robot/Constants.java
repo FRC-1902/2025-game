@@ -51,9 +51,9 @@ public final class Constants {
     public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
 
     // Speeds
-    public static final double MAX_SPEED = Units.feetToMeters(16.6); // ft/s
-    public static final double MAX_ACCELERATION = Units.feetToMeters(12.0); // ft/s^2
-    public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(10);
+    public static final double MAX_SPEED = Units.feetToMeters(4); // ft/s
+    public static final double MAX_ACCELERATION = Units.feetToMeters(3); // ft/s^2
+    public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(5);
 
     // Auto Speeds
     public static final double AUTO_MAX_SPEED = 3; // m/s
