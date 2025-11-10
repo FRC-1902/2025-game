@@ -53,7 +53,7 @@ public final class Constants {
     // Speeds
     public static final double MAX_SPEED = Units.feetToMeters(4); // ft/s
     public static final double MAX_ACCELERATION = Units.feetToMeters(3); // ft/s^2
-    public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(5);
+    public static final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRadians(2.5);
 
     // Auto Speeds
     public static final double AUTO_MAX_SPEED = 3; // m/s
